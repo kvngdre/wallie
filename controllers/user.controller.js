@@ -1,5 +1,6 @@
 const debug = require('debug')('app:userCtrl');
 const User = require('../models/user.models');
+const logger = require('../utils/logger')('userCtrl.js');
 
 class UserController {
     async createUser(userDTO) {
@@ -14,6 +15,11 @@ class UserController {
             };
         } catch (exception) {
             debug(exception);
+            logger.error({
+                method: 'create_user',
+                message: exception.message,
+                meta: exception.stack,
+            });
             return exception;
         }
     }
@@ -26,7 +32,6 @@ class UserController {
             password: data.password,
         };
     }
-    
 }
 
 module.exports = new UserController();

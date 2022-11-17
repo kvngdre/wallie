@@ -23,7 +23,8 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.3.0",
     "mysql2": "^2.3.3",
-    "objection": "^3.0.1"
+    "objection": "^3.0.1",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
