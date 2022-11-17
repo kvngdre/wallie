@@ -20,6 +20,10 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
+            // duplicate key error
+            if (exception?.nativeError?.errno === 1062)
+                return this.#getDuplicateErrorMsg(exception.constraint);
+
             return exception;
         }
     }
@@ -31,6 +35,12 @@ class UserController {
             email: data.email,
             password: data.password,
         };
+    }
+
+    #getDuplicateErrorMsg(errorMsg) {
+        const regex = /(?<=_)\w+(?=_)/;
+        const key = errorMsg.match(regex)[0];
+        return `"${key.charAt(0).toUpperCase().concat(key.slice(1))}" is already in use.`;
     }
 }
 
