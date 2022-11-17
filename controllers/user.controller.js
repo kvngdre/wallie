@@ -1,6 +1,7 @@
 const debug = require('debug')('app:userCtrl');
-const User = require('../models/user.models');
 const logger = require('../utils/logger')('userCtrl.js');
+const User = require('../models/user.models');
+const ServerError = require('../errors/server.error');
 
 class UserController {
     async createUser(userDTO) {
@@ -21,10 +22,11 @@ class UserController {
                 meta: exception.stack,
             });
             // duplicate key error
-            if (exception?.nativeError?.errno === 1062)
-                return this.#getDuplicateErrorMsg(exception.constraint);
-
-            return exception;
+            if (exception?.nativeError?.errno === 1062) {
+                const msg = this.#getDuplicateErrorMsg(exception.constraint);
+                return new ServerError(409, msg);
+            }
+            return new ServerError(500, 'Something went wrong.');
         }
     }
 
@@ -40,7 +42,10 @@ class UserController {
     #getDuplicateErrorMsg(errorMsg) {
         const regex = /(?<=_)\w+(?=_)/;
         const key = errorMsg.match(regex)[0];
-        return `"${key.charAt(0).toUpperCase().concat(key.slice(1))}" is already in use.`;
+        return `"${key
+            .charAt(0)
+            .toUpperCase()
+            .concat(key.slice(1))}" is already in use.`;
     }
 }
 
