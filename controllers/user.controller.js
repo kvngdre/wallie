@@ -9,13 +9,14 @@ class UserController {
             const newUser = await User.query().insert(
                 this.#mapToDataModel(userDTO)
             );
+
             return {
                 success: true,
                 message: 'User created',
                 data: newUser,
             };
         } catch (exception) {
-            debug(exception);
+            debug(exception.message);
             logger.error({
                 method: 'create_user',
                 message: exception.message,
