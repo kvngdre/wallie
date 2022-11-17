@@ -1,6 +1,6 @@
 const debug = require('debug')('app:userCtrl');
 const logger = require('../utils/logger')('userCtrl.js');
-const User = require('../models/user.models');
+const User = require('../models/user.model');
 const ServerError = require('../errors/server.error');
 
 class UserController {

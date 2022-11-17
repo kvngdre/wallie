@@ -11,6 +11,5 @@ connectDB();
 appMiddleware(app);
 appRoutes(app);
 
-
 const port = config.get('server.port');
 app.listen(port, () => debug(`Listening on port:[${port}]`));

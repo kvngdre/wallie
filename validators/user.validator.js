@@ -9,7 +9,13 @@ class UserValidator {
         'any.required': '{#label} is required.',
     });
 
-    #emailSchema = joi.string().email().label('Email').max(50).trim();
+    #emailSchema = joi
+        .string()
+        .email()
+        .lowercase()
+        .label('Email')
+        .max(50)
+        .trim();
 
     #passwordSchema = joiPassword
         .string()
@@ -45,6 +51,14 @@ class UserValidator {
             firstName: this.#nameSchema.label('First name'),
             lastName: this.#nameSchema.label('Last name'),
             password: this.#passwordSchema,
+        });
+        return schema.validate(user);
+    }
+
+    validateLogin(user) {
+        const schema = joi.object({
+            email: this.#emailSchema.required(),
+            password: joi.string().required(),
         });
         return schema.validate(user);
     }

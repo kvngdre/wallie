@@ -1,5 +1,7 @@
 const { Model } = require('objection');
 const bcrypt = require('bcrypt');
+const config = require('config');
+const jwt = require('jsonwebtoken');
 
 class User extends Model {
     static get tableName() {
@@ -7,7 +9,7 @@ class User extends Model {
     }
 
     $beforeInsert() {
-        console.log('this was called', this)
+        console.log('this was called', this);
         this.password = bcrypt.hashSync(this.password, 12);
     }
 
@@ -15,9 +17,7 @@ class User extends Model {
         delete this.password;
     }
 
-    $afterFind() {
-        delete this.password;
-    }
+    $afterFind() {}
 
     static get firstName() {
         return 'firstName';
@@ -47,6 +47,28 @@ class User extends Model {
                 password: { type: 'string' },
             },
         };
+    }
+
+    omitPassword() {
+        delete this.password;
+    }
+
+    generateAccessToken() {
+        return jwt.sign(
+            {
+                id: this.id,
+            },
+            config.get('jwt.secret'),
+            {
+                audience: config.get('jwt.audience'),
+                expiresIn: parseInt(config.get('jwt.exp_time')),
+                issuer: config.get('jwt.issuer'),
+            }
+        );
+    }
+
+    async isValidPassword(pwd) {
+        return await bcrypt.compare(pwd, this.password);
     }
 }
 

@@ -5,5 +5,11 @@
         "user": "DB_USER",
         "password": "DB_PASSWORD",
         "port": "DB_PORT"
+    },
+    "jwt": {
+        "secret": "JWT_ACCESS_KEY",
+        "exp_time": "JWT_ACCESS_EXP_TIME",
+        "issuer": "JWT_ISSUER",
+        "audience": "JWT_AUDIENCE"
     }
 }

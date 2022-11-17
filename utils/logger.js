@@ -7,7 +7,7 @@ const Logger = createLogger({
             level: 'error',
             filename: 'logs/error.log',
             format: combine(
-                timestamp({ format: 'DD-MMMM-YYYY HH:mm:ss' }),
+                timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }),
                 align(),
                 printf(({ level, label, method, timestamp, message, meta }) => {
                     return `[${level}]:[${label}] -- ${method} -- ${timestamp} -- ${message} -- ${
