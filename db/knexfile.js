@@ -1,6 +1,7 @@
 process.env.NODE_CONFIG_DIR = require('path').join(__dirname, '../config');
 require('dotenv').config({ path: '../.env' });
 const config = require('config');
+const { knexSnakeCaseMappers } = require('objection');
 
 module.exports = {
     development: {
@@ -13,6 +14,10 @@ module.exports = {
             database: config.get('database.name'),
         },
         pool: { min: 0, max: 7 },
+        migrations: {
+            tableName: 'knex_migrations',
+        },
+        ...knexSnakeCaseMappers(),
     },
 
     staging: {
@@ -45,5 +50,6 @@ module.exports = {
         migrations: {
             tableName: 'knex_migrations',
         },
+        ...knexSnakeCaseMappers(),
     },
 };

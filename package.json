@@ -5,6 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
+    "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
+    "rollback": "npx knex migrate:rollback --knexfile db/knexfile.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,7 +17,8 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "knex": "^2.3.0",
-    "mysql2": "^2.3.3"
+    "mysql2": "^2.3.3",
+    "objection": "^3.0.1"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
