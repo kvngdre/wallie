@@ -2,19 +2,10 @@ const debug = require('debug')('app:userCtrl');
 const User = require('../models/user.models');
 
 class UserController {
-    mapToDataModel(data) {
-        return {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: data.password,
-        };
-    }
-
     async createUser(userDTO) {
         try {
             const newUser = await User.query().insert(
-                this.mapToDataModel(userDTO)    
+                this.#mapToDataModel(userDTO)
             );
             return {
                 success: true,
@@ -26,6 +17,16 @@ class UserController {
             return exception;
         }
     }
+
+    #mapToDataModel(data) {
+        return {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            password: data.password,
+        };
+    }
+    
 }
 
 module.exports = new UserController();
