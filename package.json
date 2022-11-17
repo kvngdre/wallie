@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
     "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
-    "rollback": "npx knex migrate:rollback --knexfile db/knexfile.js",
+    "down": "npx knex migrate:down --knexfile db/knexfile.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
