@@ -6,11 +6,11 @@ class User extends Model {
     }
 
     static get firstName() {
-        return 'first_name';
+        return 'firstName';
     }
 
     static get lastName() {
-        return 'last_name';
+        return 'lastName';
     }
 
     static get email() {
@@ -24,11 +24,11 @@ class User extends Model {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['first_name', 'last_name', 'email', 'password'],
+            required: ['firstName', 'lastName', 'email', 'password'],
             properties: {
                 id: { type: 'integer' },
-                first_name: { type: 'string', minLength: 2, maxLength: 30 },
-                last_name: { type: 'string', minLength: 2, maxLength: 30 },
+                firstName: { type: 'string', minLength: 2, maxLength: 30 },
+                lastName: { type: 'string', minLength: 2, maxLength: 30 },
                 email: { type: 'string', maxLength: 50 },
                 password: { type: 'string' }
             },
