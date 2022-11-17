@@ -6,6 +6,13 @@ class ServerError extends Error {
         this.name = this.constructor.name;
         Error?.captureStackTrace(this, this.constructor);
     }
+
+    get getErrorObj() {
+        return {
+            success: false,
+            message: this.message,
+        };
+    }
 }
 
 module.exports = ServerError;

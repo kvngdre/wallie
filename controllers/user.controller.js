@@ -6,9 +6,7 @@ const ServerError = require('../errors/server.error');
 class UserController {
     async createUser(userDTO) {
         try {
-            const newUser = await User.query().insert(
-                this.#mapToDataModel(userDTO)
-            );
+            const newUser = await User.query().insert(userDTO);
 
             return {
                 success: true,
@@ -27,6 +25,94 @@ class UserController {
                 const msg = this.#getDuplicateErrorMsg(exception.constraint);
                 return new ServerError(409, msg);
             }
+            return new ServerError(500, 'Something went wrong.');
+        }
+    }
+
+    async getUsers() {
+        try {
+            const foundUsers = await User.query();
+            if (foundUsers.length === 0)
+                return new ServerError(404, 'No users found');
+
+            return {
+                success: true,
+                message: 'Fetched users',
+                data: foundUsers,
+            };
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'get_users',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerError(500, 'Something went wrong.');
+        }
+    }
+
+    async getUser(id) {
+        try {
+            const foundUser = await User.query().findById(id);
+            if (!foundUser) return new ServerError(404, 'User not found');
+
+            return {
+                success: true,
+                message: 'successful',
+                data: foundUser,
+            };
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'get_user',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerError(500, 'Something went wrong.');
+        }
+    }
+
+    async updateUser(id, userDTO) {
+        try {
+            const updatedUser = await User.query().patchAndFetchById(
+                id,
+                userDTO
+            );
+            if (!updatedUser) return new ServerError(404, 'User not found');
+
+            return {
+                success: true,
+                message: 'User updated.',
+                data: updatedUser,
+            };
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'update_user',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerError(500, 'Something went wrong.');
+        }
+    }
+
+    async deleteUser(id) {
+        try {
+            const countDeleted = await User.query().deleteById(id);
+            if (countDeleted === 0)
+                return new ServerError(404, 'User not found');
+
+            return {
+                success: true,
+                message: 'User deleted.',
+            };
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'delete_user',
+                message: exception.message,
+                meta: exception.stack,
+            });
             return new ServerError(500, 'Something went wrong.');
         }
     }
