@@ -8,26 +8,26 @@ router.post('/', async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     const newUser = await userController.createUser(userDTO);
-    if (newUser instanceof ServerError)
-        return res.status(newUser.code).send(newUser.message);
+    if (newUser.isError)
+        return res.status(newUser.code).send(newUser.payload);
 
-    return res.status(201).send(newUser);
+    return res.status(newUser.code).send(newUser.payload);
 });
 
 router.get('/', async (req, res) => {
     const users = await userController.getUsers();
-    if (users instanceof ServerError)
-        return res.status(users.code).send(users.message);
+    if (users.isError)
+        return res.status(users.code).send(users.payload);
 
-    return res.status(200).send(users);
+    return res.status(users.code).send(users.payload);
 });
 
 router.get('/:id', async (req, res) => {
     const user = await userController.getUser(req.params.id);
-    if (user instanceof ServerError)
-        return res.status(user.code).send(user.message);
+    if (user.isError)
+        return res.status(user).send(user.payload);
 
-    return res.status(200).send(user);
+    return res.status(user.code).send(user.payload);
 });
 
 router.patch('/:id', async (req, res) => {
@@ -35,18 +35,18 @@ router.patch('/:id', async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     const user = await userController.updateUser(req.params.id, userDTO);
-    if (user instanceof ServerError)
-        return res.status(user.code).send(user.message);
+    if (user.isError)
+        return res.status(user.code).send(user.payload);
 
-    return res.status(200).send(user);
+    return res.status(user.code).send(user.payload);
 });
 
 router.delete('/:id', async (req, res) => {
     const response = await userController.deleteUser(req.params.id);
-    if (response instanceof ServerError)
-        return res.status(response.code).send(response.message);
+    if (response.isError)
+        return res.status(response.code).send(response.payload);
 
-    return res.status(204).send(response);
+    return res.status(response.code).send(response.payload);
 });
 
 module.exports = router;

@@ -2,19 +2,19 @@ const Account = require('../models/account.model');
 const debug = require('debug')('app:userCtrl');
 const logger = require('../utils/logger')('userCtrl.js');
 const User = require('../models/user.model');
-const ServerError = require('../errors/server.error');
 const ServerResponse = require('../utils/serverResponse');
 
 class UserController {
     async createUser(userDTO) {
         try {
             const newUser = await User.query().insert(userDTO);
+            await Account.query().insert({ userId: newUser.id }); // creates user account.
 
-            return {
-                success: true,
-                message: 'User created',
+            return new ServerResponse({
+                code: 201,
+                msg: 'User created',
                 data: newUser,
-            };
+            });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -25,9 +25,13 @@ class UserController {
             // duplicate key error
             if (exception?.nativeError?.errno === 1062) {
                 const msg = this.#getDuplicateErrorMsg(exception.constraint);
-                return new ServerError(409, msg);
+                return new ServerResponse({ status: false, code: 409, msg });
             }
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                status: false,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
         }
     }
 
@@ -36,16 +40,17 @@ class UserController {
             const foundUsers = await User.query();
             if (foundUsers.length === 0)
                 return new ServerResponse({
-                    isError: true,
+                    status: false,
                     code: 404,
-                    message: 'No users found.',
+                    msg: 'Users not found.',
                 });
 
-            // modifying array inplace to remove password from user objects
+            // modified array inplace to
+            // remove the password from the user objects
             foundUsers.forEach((user) => delete user.password);
 
             return new ServerResponse({
-                message: 'successful',
+                msg: 'successful',
                 data: foundUsers,
             });
         } catch (exception) {
@@ -56,9 +61,9 @@ class UserController {
                 meta: exception.stack,
             });
             return new ServerResponse({
-                isError: true,
+                status: false,
                 code: 500,
-                message: 'Something went wrong.',
+                msg: 'Something went wrong.',
             });
         }
     }
@@ -66,13 +71,18 @@ class UserController {
     async getUser(id) {
         try {
             const foundUser = await User.query().findById(id);
-            if (!foundUser) return new ServerError(404, 'User not found');
+            if (!foundUser)
+                return new ServerResponse({
+                    status: false,
+                    code: 404,
+                    msg: 'User not found.',
+                });
 
-            return {
-                success: true,
-                message: 'successful',
-                data: foundUser.omitPassword(),
-            };
+            foundUser.omitPassword();
+            return new ServerResponse({
+                msg: 'successful',
+                data: foundUser,
+            });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -80,7 +90,11 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                status: false,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
         }
     }
 
@@ -90,13 +104,18 @@ class UserController {
                 id,
                 userDTO
             );
-            if (!updatedUser) return new ServerError(404, 'User not found');
+            if (!updatedUser)
+                return new ServerResponse({
+                    status: false,
+                    code: 404,
+                    msg: 'User not found.',
+                });
 
-            return {
-                success: true,
-                message: 'User updated.',
+            updatedUser.omitPassword();
+            return new ServerResponse({
+                msg: 'User updated',
                 data: updatedUser,
-            };
+            });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -104,7 +123,11 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                status: false,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
         }
     }
 
@@ -112,12 +135,13 @@ class UserController {
         try {
             const countDeleted = await User.query().deleteById(id);
             if (countDeleted === 0)
-                return new ServerError(404, 'User not found');
+                return new ServerResponse({
+                    status: false,
+                    code: 404,
+                    msg: 'User not found',
+                });
 
-            return {
-                success: true,
-                message: 'User deleted.',
-            };
+            return new ServerResponse({ code: 200, msg: 'user deleted' });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -125,26 +149,21 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                status: false,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
         }
-    }
-
-    #mapToDataModel(data) {
-        return {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: data.password,
-        };
     }
 
     #getDuplicateErrorMsg(errorMsg) {
         const regex = /(?<=_)\w+(?=_)/;
         const key = errorMsg.match(regex)[0];
-        return `"${key
+        return `${key
             .charAt(0)
             .toUpperCase()
-            .concat(key.slice(1))}" is already in use.`;
+            .concat(key.slice(1))} is already in use.`;
     }
 }
 

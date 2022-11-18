@@ -1,18 +1,24 @@
-class ServerError extends Error {
+const ServerResponse = require('../utils/serverResponse');
+
+class ServerError extends ServerResponse {
+    #code;
+    #message;
+    #name;
+    #data;
     constructor(code, message) {
-        super();
-        this.code = code;
-        this.message = message;
-        this.name = this.constructor.name;
+        super(code, message);
+        this.#code = code;
+        // this.#message = message;
+        this.#name = this.constructor.name;
         Error?.captureStackTrace(this, this.constructor);
     }
 
-    get getErrorObj() {
-        return {
-            success: false,
-            message: this.message,
-        };
-    }
+    // get payload() {
+    //     return {
+    //         success: false,
+    //         message: this.#message,
+    //     };
+    // }
 }
 
 module.exports = ServerError;

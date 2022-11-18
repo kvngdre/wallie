@@ -2,40 +2,44 @@
  * Creates a new Server Response.
  * @class
  */
-class ServerResponse extends Error {
+class ServerResponse {
+    #code;
+    #data;
+    #message;
+    #name;
+    #status;
     /**
      * @constructs ServerResponse
      * @param {Object} param
-     * @param {boolean} [param.isError=false] - Specifies if it is an error response.
+     * @param {boolean} [param.status=true] - The response status
      * @param {number} [param.code=200] - The HTTP status code
-     * @param {message} param.message - The response message.
-     * @param {Object} param.data - The payload to the response.
+     * @param {string} param.msg - The response message.
+     * @param {Object} param.data - The data to be send.
      */
-    constructor({ isError = false, code = 200, message, data }) {
-        super();
-        this.isError = isError;
-        this.code = code;
-        this.message = message;
-        this.data = data;
-        this.name = this.constructor.name;
-
-        if (!this.isError) {
-            this.error = {
-                success: this.isError,
-                message: this.message,
-                data: this.data,
-            };
-        } else {
-            this.value = {
-                success: this.isError,
-                message: this.message,
-                data: this.data,
-            };
-        }
+    constructor({ status = true, code = 200, msg, data }) {
+        this.#code = code;
+        this.#data = data;
+        this.#message = msg;
+        this.#name = this.constructor.name;
+        this.#status = status;
     }
 
-    error = null;
-    value = null;
+    get isError() {
+        return !this.#status;
+    }
+
+    get code() {
+        return this.#code;
+    }
+
+    get payload() {
+        const obj = {
+            success: this.#status,
+            message: this.#message,
+        };
+        if (this.#data) obj.data = this.#data;
+        return obj;
+    }
 }
 
 module.exports = ServerResponse;
