@@ -1,7 +1,9 @@
+const Account = require('../models/account.model');
 const debug = require('debug')('app:userCtrl');
 const logger = require('../utils/logger')('userCtrl.js');
 const User = require('../models/user.model');
 const ServerError = require('../errors/server.error');
+const ServerResponse = require('../utils/serverResponse');
 
 class UserController {
     async createUser(userDTO) {
@@ -33,13 +35,19 @@ class UserController {
         try {
             const foundUsers = await User.query();
             if (foundUsers.length === 0)
-                return new ServerError(404, 'No users found');
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    message: 'No users found.',
+                });
 
-            return {
-                success: true,
-                message: 'Fetched users',
+            // modifying array inplace to remove password from user objects
+            foundUsers.forEach((user) => delete user.password);
+
+            return new ServerResponse({
+                message: 'successful',
                 data: foundUsers,
-            };
+            });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -47,7 +55,11 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                message: 'Something went wrong.',
+            });
         }
     }
 
@@ -59,7 +71,7 @@ class UserController {
             return {
                 success: true,
                 message: 'successful',
-                data: foundUser,
+                data: foundUser.omitPassword(),
             };
         } catch (exception) {
             debug(exception.message);

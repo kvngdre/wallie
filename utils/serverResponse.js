@@ -1,43 +1,41 @@
+/**
+ * Creates a new Server Response.
+ * @class
+ */
 class ServerResponse extends Error {
-    constructor() {
+    /**
+     * @constructs ServerResponse
+     * @param {Object} param
+     * @param {boolean} [param.isError=false] - Specifies if it is an error response.
+     * @param {number} [param.code=200] - The HTTP status code
+     * @param {message} param.message - The response message.
+     * @param {Object} param.data - The payload to the response.
+     */
+    constructor({ isError = false, code = 200, message, data }) {
         super();
-        // this.code = code;
-        // this.message = message;
-        // this.data = data;
-        this.name = this.constructor.name;
-        Error?.captureStackTrace(this, this.constructor);
-    }
-
-    err = null;
-    val = null;
-    code = null;
-    message = null;
-    #data = null;
-
-    error(code, message) {
+        this.isError = isError;
         this.code = code;
         this.message = message;
-        this.err = {
-            success: false,
-            message: this.message
+        this.data = data;
+        this.name = this.constructor.name;
+
+        if (!this.isError) {
+            this.error = {
+                success: this.isError,
+                message: this.message,
+                data: this.data,
+            };
+        } else {
+            this.value = {
+                success: this.isError,
+                message: this.message,
+                data: this.data,
+            };
         }
-        return this;
     }
 
-    send(message, data) {
-        this.message = message;
-        this.#data = data;
-        this.val = {
-            success: true,
-            message: this.message,
-            data: this.data
-        }
-        return this;
-    }
-    
+    error = null;
+    value = null;
 }
-
-const sr = new ServerResponse();
-sr.error()
 
 module.exports = ServerResponse;
