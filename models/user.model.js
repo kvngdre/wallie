@@ -1,4 +1,5 @@
 const { Model } = require('objection');
+const Account = require('./account.model');
 const bcrypt = require('bcrypt');
 const config = require('config');
 const jwt = require('jsonwebtoken');
@@ -45,6 +46,19 @@ class User extends Model {
                 lastName: { type: 'string', minLength: 2, maxLength: 30 },
                 email: { type: 'string', maxLength: 50 },
                 password: { type: 'string' },
+            },
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            account: {
+                relation: Model.HasOneRelation,
+                modelClass: Account,
+                join: {
+                    from: 'users.id',
+                    to: 'accounts.user_id',
+                },
             },
         };
     }

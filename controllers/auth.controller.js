@@ -14,8 +14,8 @@ class AuthController {
                     msg: 'Invalid credentials',
                 });
 
-            const isMatch = await foundUser.isValidPassword(password);
-            if (!isMatch)
+            const isValid = await foundUser.isValidPassword(password);
+            if (!isValid)
                 return new ServerResponse({
                     isError: true,
                     code: 401,
@@ -36,7 +36,11 @@ class AuthController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerError(500, 'Something went wrong.');
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                message: 'Something went wrong',
+            });
         }
     }
 }

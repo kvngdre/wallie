@@ -1,4 +1,5 @@
 const { Model } = require('objection');
+const Account = require('./account.model');
 
 class Transaction extends Model {
     static get tableName() {
@@ -54,6 +55,19 @@ class Transaction extends Model {
                 reference: { type: 'string' },
                 balanceBefore: { type: 'integer' },
                 balanceAfter: { type: 'integer' },
+            },
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            account: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Account,
+                join: {
+                    from: 'transactions.accountId',
+                    to: 'accounts.id',
+                },
             },
         };
     }

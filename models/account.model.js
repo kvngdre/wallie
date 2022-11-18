@@ -1,4 +1,5 @@
 const { Model } = require('objection');
+const User = require('./user.model');
 
 class Account extends Model {
     static get tableName() {
@@ -21,6 +22,19 @@ class Account extends Model {
                 id: { type: 'integer' },
                 userId: { type: 'integer' },
                 balance: { type: 'integer' },
+            },
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            user: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: User,
+                join: {
+                    from: 'accounts.userId',
+                    to: 'users.id',
+                },
             },
         };
     }
