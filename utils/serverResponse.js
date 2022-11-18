@@ -7,25 +7,25 @@ class ServerResponse {
     #data;
     #message;
     #name;
-    #status;
+    #isError;
     /**
      * @constructs ServerResponse
      * @param {Object} param
-     * @param {boolean} [param.status=true] - The response status
+     * @param {boolean} [param.isError=false] - The response status
      * @param {number} [param.code=200] - The HTTP status code
      * @param {string} param.msg - The response message.
      * @param {Object} param.data - The data to be send.
      */
-    constructor({ status = true, code = 200, msg, data }) {
+    constructor({ isError = false, code = 200, msg, data }) {
         this.#code = code;
         this.#data = data;
         this.#message = msg;
         this.#name = this.constructor.name;
-        this.#status = status;
+        this.#isError = isError;
     }
 
     get isError() {
-        return !this.#status;
+        return !this.#isError;
     }
 
     get code() {
@@ -34,7 +34,7 @@ class ServerResponse {
 
     get payload() {
         const obj = {
-            success: this.#status,
+            success: !this.#isError,
             message: this.#message,
         };
         if (this.#data) obj.data = this.#data;

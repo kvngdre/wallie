@@ -1,13 +1,13 @@
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
 const User = require('../models/user.model');
-const ServerError = require('../errors/server.error');
+const ServerResponse = require('../utils/serverResponse');
 
 class AuthController {
     async login({ email, password }) {
         try {
             const foundUser = await User.query().findOne({ email });
-            if(!foundUser) return new ServerError(401, 'Invalid credentials');
+            if(!foundUser) return new ServerResponse({isError: true, code: 401, msg: 'Invalid credentials'});
             
             const isMatch = await foundUser.isValidPassword(password);
             if(!isMatch) return new ServerError(401, 'Invalid credentials');

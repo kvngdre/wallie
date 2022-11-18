@@ -25,10 +25,10 @@ class UserController {
             // duplicate key error
             if (exception?.nativeError?.errno === 1062) {
                 const msg = this.#getDuplicateErrorMsg(exception.constraint);
-                return new ServerResponse({ status: false, code: 409, msg });
+                return new ServerResponse({ isError: true, code: 409, msg });
             }
             return new ServerResponse({
-                status: false,
+                isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
             });
@@ -40,7 +40,7 @@ class UserController {
             const foundUsers = await User.query();
             if (foundUsers.length === 0)
                 return new ServerResponse({
-                    status: false,
+                    isError: true,
                     code: 404,
                     msg: 'Users not found.',
                 });
@@ -61,7 +61,7 @@ class UserController {
                 meta: exception.stack,
             });
             return new ServerResponse({
-                status: false,
+                isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
             });
@@ -73,7 +73,7 @@ class UserController {
             const foundUser = await User.query().findById(id);
             if (!foundUser)
                 return new ServerResponse({
-                    status: false,
+                    isError: true,
                     code: 404,
                     msg: 'User not found.',
                 });
@@ -91,7 +91,7 @@ class UserController {
                 meta: exception.stack,
             });
             return new ServerResponse({
-                status: false,
+                isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
             });
@@ -106,7 +106,7 @@ class UserController {
             );
             if (!updatedUser)
                 return new ServerResponse({
-                    status: false,
+                    isError: true,
                     code: 404,
                     msg: 'User not found.',
                 });
@@ -124,7 +124,7 @@ class UserController {
                 meta: exception.stack,
             });
             return new ServerResponse({
-                status: false,
+                isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
             });
@@ -136,7 +136,7 @@ class UserController {
             const countDeleted = await User.query().deleteById(id);
             if (countDeleted === 0)
                 return new ServerResponse({
-                    status: false,
+                    isError: true,
                     code: 404,
                     msg: 'User not found',
                 });
@@ -150,7 +150,7 @@ class UserController {
                 meta: exception.stack,
             });
             return new ServerResponse({
-                status: false,
+                isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
             });
