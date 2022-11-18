@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const user = await userController.getUser(req.params.id);
-    if (user.isError) return res.status(user).send(user.payload);
+    if (user.isError) return res.status(user.code).send(user.payload);
 
     return res.status(user.code).send(user.payload);
 });
