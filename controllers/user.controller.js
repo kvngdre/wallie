@@ -22,7 +22,7 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            // duplicate key error
+            // handling duplicate key error
             if (exception?.nativeError?.errno === 1062) {
                 const msg = this.#getDuplicateErrorMsg(exception.constraint);
                 return new ServerResponse({ isError: true, code: 409, msg });
@@ -48,11 +48,7 @@ class UserController {
             // modified array inplace to
             // remove the password from the user objects
             foundUsers.forEach((user) => delete user.password);
-
-            return new ServerResponse({
-                msg: 'successful',
-                data: foundUsers,
-            });
+            return new ServerResponse({ data: foundUsers });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -98,11 +94,11 @@ class UserController {
         }
     }
 
-    async updateUser(id, userDTO) {
+    async updateUser(id, userDto) {
         try {
             const updatedUser = await User.query().patchAndFetchById(
                 id,
-                userDTO
+                userDto
             );
             if (!updatedUser)
                 return new ServerResponse({
@@ -141,7 +137,7 @@ class UserController {
                     msg: 'User not found',
                 });
 
-            return new ServerResponse({ code: 200, msg: 'user deleted' });
+            return new ServerResponse({ code: 204, msg: 'User deleted' });
         } catch (exception) {
             debug(exception.message);
             logger.error({

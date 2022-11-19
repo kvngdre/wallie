@@ -13,10 +13,10 @@ class ServerResponse {
      * @param {Object} param
      * @param {boolean} [param.isError=false] - The response status
      * @param {number} [param.code=200] - The HTTP status code
-     * @param {string} param.msg - The response message.
+     * @param {string} [param.msg=successful] - The response message.
      * @param {Object} param.data - The data to be send.
      */
-    constructor({ isError = false, code = 200, msg, data }) {
+    constructor({ isError = false, code = 200, msg = 'successful', data }) {
         this.#code = code;
         this.#data = data;
         this.#message = msg;
@@ -25,7 +25,7 @@ class ServerResponse {
     }
 
     get isError() {
-        return !this.#isError;
+        return this.#isError;
     }
 
     get code() {
