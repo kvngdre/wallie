@@ -1,6 +1,8 @@
 const joi = require('joi');
 
 class AccountValidators {
+    #amountSchema = joi.number().label('Amount').positive();
+
     #balanceSchema = joi
         .number()
         .min(0)
@@ -13,23 +15,34 @@ class AccountValidators {
 
     #userIdSchema = joi.number().positive().label('User Id');
 
-    validateCreate(account) {
+    validateCreate(dto) {
         const schema = joi.object({
             userId: this.#userIdSchema.required(),
         });
-        return schema.validate(account);
+        return schema.validate(dto);
     }
 
-    validateEdit(account) {
+    validateEdit(dto) {
         const schema = joi.object({
             balance: this.#balanceSchema,
         });
-        return schema.validate(account);
+        return schema.validate(dto);
     }
 
     validateAmount(amount) {
-        const schema = joi.number().label('Amount').positive().required();
+        const schema = this.#amountSchema.required();
         return schema.validate(amount);
+    }
+
+    validateTransfer(dto) {
+        const schema = joi.object({
+            amount: this.#amountSchema.required(),
+            destinationAccount: joi
+                .number()
+                .label('Destination account')
+                .positive()
+                .required(),
+        });
     }
 }
 

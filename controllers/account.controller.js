@@ -204,7 +204,7 @@ class AccountController {
                 code: 400,
                 msg: this.#formatMsg(error.details[0].message),
             });
-        
+
         // starting transaction
         const trx = await Model.startTransaction();
         try {
@@ -263,6 +263,64 @@ class AccountController {
             debug(exception.message);
             logger.error({
                 method: 'get_balance',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
+        }
+    }
+
+    async debitAccount(userId, amount) {
+        // validating amount
+        const { error } = accountValidators.validateAmount(amount);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
+
+        // starting transaction
+        const trx = await Model.startTransaction();
+        try {
+            const foundAccount = await Account.query(trx).findOne({ userId });
+            if (!foundAccount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    msg: 'Account not found.',
+                });
+
+            if (foundAccount.balance < amount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 402,
+                    msg: 'Insufficient balance.',
+                });
+
+            await foundAccount.$query(trx).decrement('balance', amount);
+
+            await Transaction.query(trx).insert({
+                accountId: foundAccount.id,
+                txnType: 'debit',
+                purpose: 'withdrawal',
+                amount,
+                reference: v4(),
+                balanceBefore: Number(foundAccount.balance),
+                balanceAfter: Number(foundAccount.balance) - Number(amount),
+            });
+            await trx.commit();
+
+            return new ServerResponse({ msg: 'Withdrawal successful' });
+        } catch (exception) {
+            await trx.rollback(); // rollback changes
+            debug(exception.message);
+            logger.error({
+                method: 'debit_account',
                 message: exception.message,
                 meta: exception.stack,
             });

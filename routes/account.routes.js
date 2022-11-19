@@ -35,13 +35,14 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/fund', async (req, res) => {
-    const account = await accountController.fundAccount(56, req.body.amount);
-    return res.status(account.code).send(account.payload);
+    const response = await accountController.fundAccount(56, req.body.amount);
+    return res.status(response.code).send(response.payload);
 });
 
-// get balance auth
-
-// withdraw auth
+router.post('/debit', async (req, res) => {
+    const response = await accountController.debitAccount(56, req.body.amount);
+    return res.status(response.code).send(response.payload);
+});
 
 // transfer auth
 
