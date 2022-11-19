@@ -4,25 +4,6 @@ const ServerResponse = require('../utils/serverResponse');
 const Transaction = require('../models/transaction.model');
 
 class TransactionController {
-    async createTransaction(txnDto) {
-        try {
-            const txn = await Transaction.query().insert(txnDto);
-            return new ServerResponse({data: txn});
-        } catch (exception) {
-            debug(exception.message);
-            logger.error({
-                method: 'create_txn',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
-        }
-    }
-
     async getTransactions() {
         try {
             const foundTransactions = await Transaction.query();
@@ -75,66 +56,6 @@ class TransactionController {
         }
     }
 
-    async updateTransaction(id, txnDto) {
-        try {
-            const foundTransaction = await Transaction.query().findById(id);
-            if (!foundTransaction)
-                return new ServerResponse({
-                    isError: true,
-                    code: 404,
-                    msg: 'Transaction not found.',
-                });
-
-            const updated = await foundTransaction
-                .$query()
-                .patchAndFetch(txnDto);
-
-            return new ServerResponse({ data: updated });
-        } catch (exception) {
-            debug(exception.message);
-            logger.error({
-                method: 'update_txn',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
-        }
-    }
-
-    async deleteTransaction(id) {
-        try {
-            const foundTransaction = await Transaction.query().findById(id);
-            if (!foundTransaction)
-                return new ServerResponse({
-                    isError: true,
-                    code: 404,
-                    msg: 'Transaction not found.',
-                });
-
-            await foundTransaction.$query().delete();
-
-            return new ServerResponse({
-                code: 204,
-                msg: 'Transaction deleted',
-            });
-        } catch (exception) {
-            debug(exception.message);
-            logger.error({
-                method: 'delete_txn',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
-        }
-    }
 }
 
 module.exports = new TransactionController();
