@@ -8,7 +8,8 @@ const userValidators = require('../validators/user.validator');
 class UserController {
     async createUser(userDto) {
         // validating user data transfer object
-        const { error, value: dto } = userValidators.validateCreate(userDto);
+        const feed = userValidators.validateCreate(userDto);
+        return console.log(feed)
         if (error)
             return new ServerResponse({
                 isError: true,

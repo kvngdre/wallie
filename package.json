@@ -1,5 +1,5 @@
 {
-  "name": "lendsqr_",
+  "name": "Wallie",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -7,7 +7,7 @@
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
     "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
     "down": "npx knex migrate:down --knexfile db/knexfile.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "jest": "^29.3.1"
   }
 }

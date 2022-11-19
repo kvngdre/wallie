@@ -35,7 +35,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     return res.status(response.code).send(response.payload);
 });
 
-router.post('/fund', verifyToken, async (req, res) => {
+router.post('/fund', async (req, res) => {
     const response = await accountController.fundAccount(56, req.body.amount);
     return res.status(response.code).send(response.payload);
 });

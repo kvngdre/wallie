@@ -22,13 +22,6 @@ class AccountValidators {
         return schema.validate(dto);
     }
 
-    validateEdit(dto) {
-        const schema = joi.object({
-            balance: this.#balanceSchema,
-        });
-        return schema.validate(dto);
-    }
-
     validateAmount(amount) {
         const schema = this.#amountSchema.required();
         return schema.validate(amount);
