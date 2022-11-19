@@ -1,13 +1,24 @@
 const Account = require('../models/account.model');
 const debug = require('debug')('app:userCtrl');
 const logger = require('../utils/logger')('userCtrl.js');
-const User = require('../models/user.model');
 const ServerResponse = require('../utils/serverResponse');
+const User = require('../models/user.model');
+const userValidators = require('../validators/user.validator');
 
 class UserController {
-    async createUser(userDTO) {
+    async createUser(userDto) {
         try {
-            const newUser = await User.query().insert(userDTO);
+            // validating user data transfer object
+            const { error, value: dto } =
+                userValidators.validateCreate(userDto);
+            if (error)
+                return new ServerResponse({
+                    isError: true,
+                    code: 400,
+                    msg: this.#formatMsg(error.details[0].message),
+                });
+
+            const newUser = await User.query().insert(dto);
             await Account.query().insert({ userId: newUser.id }); // creates user account.
 
             return new ServerResponse({
@@ -22,11 +33,15 @@ class UserController {
                 message: exception.message,
                 meta: exception.stack,
             });
+
             // handling duplicate key error
-            if (exception?.nativeError?.errno === 1062) {
-                const msg = this.#getDuplicateErrorMsg(exception.constraint);
-                return new ServerResponse({ isError: true, code: 409, msg });
-            }
+            if (exception?.nativeError?.errno === 1062)
+                return new ServerResponse({
+                    isError: true,
+                    code: 409,
+                    msg: this.#getDuplicateErrorMsg(exception.constraint),
+                });
+
             return new ServerResponse({
                 isError: true,
                 code: 500,
@@ -45,9 +60,9 @@ class UserController {
                     msg: 'Users not found.',
                 });
 
-            // modified array inplace to
-            // remove the password from the user objects
+            // modify array inplace to remove passwords from the user objects
             foundUsers.forEach((user) => delete user.password);
+
             return new ServerResponse({ data: foundUsers });
         } catch (exception) {
             debug(exception.message);
@@ -75,10 +90,8 @@ class UserController {
                 });
 
             foundUser.omitPassword();
-            return new ServerResponse({
-                msg: 'successful',
-                data: foundUser,
-            });
+
+            return new ServerResponse({ data: foundUser });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -96,20 +109,28 @@ class UserController {
 
     async updateUser(id, userDto) {
         try {
-            const updatedUser = await User.query().patchAndFetchById(
-                id,
-                userDto
-            );
-            if (!updatedUser)
+            // validating user data transfer object
+            const { error, value: dto } = userValidators.validateEdit(userDto);
+            if (error)
+                return new ServerResponse({
+                    isError: true,
+                    code: 400,
+                    msg: this.#formatMsg(error.details[0].message),
+                });
+
+            const foundUser = await User.query().findById(id);
+            if (!foundUser)
                 return new ServerResponse({
                     isError: true,
                     code: 404,
                     msg: 'User not found.',
                 });
 
-            updatedUser.omitPassword();
+            const user = await foundUser.$query().patch(dto).omitPassword();
+            user.omitPassword();
+
             return new ServerResponse({
-                msg: 'User updated',
+                msg: 'User updated.',
                 data: updatedUser,
             });
         } catch (exception) {
@@ -129,15 +150,17 @@ class UserController {
 
     async deleteUser(id) {
         try {
-            const countDeleted = await User.query().deleteById(id);
-            if (countDeleted === 0)
+            const foundUser = await User.query().findById(id);
+            if (!foundUser)
                 return new ServerResponse({
                     isError: true,
                     code: 404,
-                    msg: 'User not found',
+                    msg: 'User not found.',
                 });
 
-            return new ServerResponse({ code: 204, msg: 'User deleted' });
+            await foundUser.$query().delete();
+
+            return new ServerResponse({ code: 204, msg: 'User deleted.' });
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -156,10 +179,17 @@ class UserController {
     #getDuplicateErrorMsg(errorMsg) {
         const regex = /(?<=_)\w+(?=_)/;
         const key = errorMsg.match(regex)[0];
-        return `${key
+        return key
             .charAt(0)
             .toUpperCase()
-            .concat(key.slice(1))} is already in use.`;
+            .concat(key.slice(1), ' is already in use.');
+    }
+
+    #formatMsg(errorMsg) {
+        const regex = /\B(?=(\d{3})+(?!\d))/g;
+        let msg = `${errorMsg.replaceAll('"', '')}.`; // remove quotation marks.
+        msg = msg.replace(regex, ','); // add comma to numbers if present in error msg.
+        return msg;
     }
 }
 

@@ -1,13 +1,8 @@
 const router = require('express').Router();
 const userController = require('../controllers/user.controller');
-const userValidators = require('../validators/user.validator');
 
 router.post('/new', async (req, res) => {
-    const { error, value: userDTO } = userValidators.validateCreate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    const newUser = await userController.createUser(userDTO);
-    console.log(newUser)
+    const newUser = await userController.createUser(req.body);
     return res.status(newUser.code).send(newUser.payload);
 });
 
@@ -22,10 +17,7 @@ router.get('/:id', async (req, res) => {
 });
 
 router.patch('/:id', async (req, res) => {
-    const { error, value: userDTO } = userValidators.validateEdit(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    const user = await userController.updateUser(req.params.id, userDTO);
+    const user = await userController.updateUser(req.params.id, req.body);
     return res.status(user.code).send(user.payload);
 });
 

@@ -43,12 +43,13 @@ class AccountController {
                 message: exception.message,
                 meta: exception.stack,
             });
+
             // handling duplicate key error
             if (exception?.nativeError?.errno === 1062)
                 return new ServerResponse({
                     isError: true,
                     code: 409,
-                    msg: 'User already has an account.',
+                    msg: this.#getDuplicateErrorMsg(exception.constraint),
                 });
 
             return new ServerResponse({
@@ -174,6 +175,15 @@ class AccountController {
                 message: exception.message,
                 meta: exception.stack,
             });
+
+            // handling delete restriction error
+            if (exception?.nativeError.errno === 1451)
+                return new ServerResponse({
+                    isError: true,
+                    code: 403,
+                    msg: 'Cannot delete account with transactions.',
+                });
+
             return new ServerResponse({
                 isError: true,
                 code: 500,
@@ -185,7 +195,7 @@ class AccountController {
     #getDuplicateErrorMsg(errorMsg) {
         const regex = /(?<=_)\w+(?=_)/;
         const key = errorMsg.match(regex)[0];
-        return `Duplicate ${key.charAt(0).toUpperCase().concat(key.slice(1))}.`;
+        return 'Duplicate '.concat(key);
     }
 
     #formatMsg(errorMsg) {

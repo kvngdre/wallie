@@ -25,7 +25,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-    const response = await accountController.deleteAccount(id);
+    const response = await accountController.deleteAccount(req.params.id);
     return res.status(response.code).send(response.payload);
 });
 
