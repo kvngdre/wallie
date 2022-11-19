@@ -4,6 +4,25 @@ const ServerResponse = require('../utils/serverResponse');
 const Transaction = require('../models/transaction.model');
 
 class TransactionController {
+    async createTransaction(txnDto) {
+        try {
+            const txn = await Transaction.query().insert(txnDto);
+            return new ServerResponse({data: txn});
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'create_txn',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
+        }
+    }
+
     async getTransactions() {
         try {
             const foundTransactions = await Transaction.query();
@@ -95,7 +114,7 @@ class TransactionController {
                     code: 404,
                     msg: 'Transaction not found.',
                 });
-            
+
             await foundTransaction.$query().delete();
 
             return new ServerResponse({
