@@ -7,7 +7,6 @@ const logger = require('../utils/logger')('authCtrl.js');
 const ServerResponse = require('../utils/serverResponse');
 const User = require('../models/user.model');
 const Transaction = require('../models/transaction.model');
-const { balanceAfter } = require('../models/transaction.model');
 
 class AccountController {
     async createAccount(accountDto) {
@@ -321,6 +320,95 @@ class AccountController {
             debug(exception.message);
             logger.error({
                 method: 'debit_account',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
+        }
+    }
+
+    async transferFunds(userId, transferFundsDto) {
+        // validating amount
+        const { error } = accountValidators.validateTransfer(transferFundsDto);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
+
+        // starting transaction
+        const trx = await Model.startTransaction();
+        try {
+            const { amount, destinationAccountId } = transferFundsDto;
+
+            const foundSourceAccount = await Account.query(trx).findOne({
+                userId,
+            });
+            if (!foundSourceAccount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    msg: 'Account not found.',
+                });
+
+            const foundDestinationAccount = await Account.query(trx).findOne({
+                userId: destinationAccountId,
+            });
+            if (!foundDestinationAccount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    msg: 'Destination account not found.',
+                });
+
+            if (foundSourceAccount.balance < amount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 402,
+                    msg: 'Insufficient balance.',
+                });
+
+            await foundSourceAccount.$query(trx).decrement('balance', amount);
+            await foundDestinationAccount
+                .$query(trx)
+                .increment('balance', amount);
+
+            await trx('transactions').insert([
+                {
+                    accountId: foundSourceAccount.id,
+                    txnType: 'debit',
+                    purpose: 'transfer',
+                    amount,
+                    reference: v4(),
+                    balanceBefore: Number(foundSourceAccount.balance),
+                    balanceAfter:
+                        Number(foundSourceAccount.balance) - Number(amount),
+                },
+                {
+                    accountId: foundDestinationAccount.id,
+                    txnType: 'credit',
+                    purpose: 'transfer',
+                    amount,
+                    reference: v4(),
+                    balanceBefore: Number(foundDestinationAccount.balance),
+                    balanceAfter:
+                        Number(foundDestinationAccount.balance) +
+                        Number(amount),
+                },
+            ]);
+            await trx.commit();
+
+            return new ServerResponse({ msg: 'Transfer successful' });
+        } catch (exception) {
+            await trx.rollback(); // rollback changes
+            debug(exception.message);
+            logger.error({
+                method: 'transfer_funds',
                 message: exception.message,
                 meta: exception.stack,
             });

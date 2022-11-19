@@ -37,12 +37,13 @@ class AccountValidators {
     validateTransfer(dto) {
         const schema = joi.object({
             amount: this.#amountSchema.required(),
-            destinationAccount: joi
+            destinationAccountId: joi
                 .number()
-                .label('Destination account')
+                .label('Destination account id')
                 .positive()
                 .required(),
         });
+        return schema.validate(dto);
     }
 }
 

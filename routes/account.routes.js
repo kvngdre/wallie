@@ -44,6 +44,9 @@ router.post('/debit', async (req, res) => {
     return res.status(response.code).send(response.payload);
 });
 
-// transfer auth
+router.post('/transfer', async (req, res) => {
+    const response = await accountController.transferFunds(56, req.body);
+    return res.status(response.code).send(response.payload);
+});
 
 module.exports = router;
