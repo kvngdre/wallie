@@ -6,7 +6,8 @@ module.exports = (req, res, next) => {
     try {
         const authHeader =
             req.header('Authorization') || req.header('authorization');
-        if (!authHeader) return res.status(401).send('No authorization header.');
+        if (!authHeader)
+            return res.status(401).send('No authorization header.');
 
         const [scheme, token] = authHeader.split(' ');
         if (scheme !== 'Bearer') return res.sendStatus(401);
@@ -24,8 +25,8 @@ module.exports = (req, res, next) => {
 
         next();
     } catch (exception) {
-        debug(exception);
-        if(exception.name === 'TokenExpiredError')
+        debug(exception.message);
+        if (exception.name === 'TokenExpiredError')
             return res.status(403).send('Session expired.');
 
         return res.sendStatus(403);
