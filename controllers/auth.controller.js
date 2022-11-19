@@ -1,7 +1,7 @@
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
-const User = require('../models/user.model');
 const ServerResponse = require('../utils/serverResponse');
+const User = require('../models/user.model');
 
 class AuthController {
     async login({ email, password }) {

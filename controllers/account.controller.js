@@ -5,8 +5,8 @@ const accountValidators = require('../validators/account.validator');
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
 const ServerResponse = require('../utils/serverResponse');
-const User = require('../models/user.model');
 const Transaction = require('../models/transaction.model');
+const User = require('../models/user.model');
 
 class AccountController {
     async createAccount(accountDto) {
