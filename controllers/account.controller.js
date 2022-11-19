@@ -1,21 +1,25 @@
 const Account = require('../models/account.model');
+const accountValidators = require('../validators/account.validator');
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
 const ServerResponse = require('../utils/serverResponse');
 const User = require('../models/user.model');
 
 class AccountController {
-    async createAccount(accountDTO) {
+    async createAccount(accountDto) {
         try {
-            if (!accountDTO.userId)
+            // validating account data transfer object
+            const { error } = accountValidators.validateCreate(accountDto);
+            if (error)
                 return new ServerResponse({
                     isError: true,
                     code: 400,
-                    msg: 'User id is required.',
+                    msg: this.#formatMsg(error.details[0].message),
                 });
 
-            // checking if user exists as a user must be mapped to an account
-            const foundUser = await User.query().findById(accountDTO.userId);
+            // checking if user exists
+            const { userId } = accountDto;
+            const foundUser = await User.query().findById(userId);
             if (!foundUser)
                 return new ServerResponse({
                     isError: true,
@@ -29,7 +33,7 @@ class AccountController {
 
             return new ServerResponse({
                 code: 201,
-                msg: 'Account created',
+                msg: 'Account created.',
                 data: newAccount,
             });
         } catch (exception) {
@@ -40,10 +44,13 @@ class AccountController {
                 meta: exception.stack,
             });
             // handling duplicate key error
-            if (exception?.nativeError?.errno === 1062) {
-                const msg = this.#getDuplicateErrorMsg(exception.constraint);
-                return new ServerResponse({ isError: true, code: 409, msg });
-            }
+            if (exception?.nativeError?.errno === 1062)
+                return new ServerResponse({
+                    isError: true,
+                    code: 409,
+                    msg: 'User already has an account.',
+                });
+
             return new ServerResponse({
                 isError: true,
                 code: 500,
@@ -66,7 +73,7 @@ class AccountController {
         } catch (exception) {
             debug(exception.message);
             logger.error({
-                method: 'get_users',
+                method: 'get_accounts',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -87,11 +94,12 @@ class AccountController {
                     code: 404,
                     msg: 'Account not found.',
                 });
+
             return new ServerResponse({ data: foundAccount });
         } catch (exception) {
             debug(exception.message);
             logger.error({
-                method: 'get_users',
+                method: 'get_account',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -105,26 +113,36 @@ class AccountController {
 
     async updateAccount(id, accountDto) {
         try {
-            const updatedAccount = await User.query().patchAndFetchById(
-                id,
-                accountDto
-            );
-            if (!updatedAccount)
+            // validating account data transfer object
+            const { error } = accountValidators.validateEdit(accountDto);
+            console.log(error.details[0].context);
+            if (error)
+                return new ServerResponse({
+                    isError: true,
+                    code: 400,
+                    msg: this.#formatMsg(error.details[0].message),
+                });
+
+            const foundAccount = await Account.query().findById(id);
+            if (!foundAccount)
                 return new ServerResponse({
                     isError: true,
                     code: 404,
-                    msg: 'User not found.',
+                    msg: 'Account not found.',
                 });
 
-            updatedAccount.omitPassword();
+            const account = await foundAccount
+                .$query()
+                .patchAndFetch(accountDto);
+
             return new ServerResponse({
-                msg: 'User updated',
-                data: updatedAccount,
+                msg: 'Account updated',
+                data: account,
             });
         } catch (exception) {
             debug(exception.message);
             logger.error({
-                method: 'update_user',
+                method: 'update_account',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -138,19 +156,21 @@ class AccountController {
 
     async deleteAccount(id) {
         try {
-            const countDeleted = await Account.query().deleteById(id);
-            if (countDeleted === 0)
+            const foundAccount = await Account.query().findById(id);
+            if (!foundAccount)
                 return new ServerResponse({
                     isError: true,
                     code: 404,
-                    msg: 'User not found',
+                    msg: 'Account not found.',
                 });
+
+            await foundAccount.$query().delete();
 
             return new ServerResponse({ code: 204, msg: 'Account deleted' });
         } catch (exception) {
             debug(exception.message);
             logger.error({
-                method: 'get_users',
+                method: 'delete_account',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -166,6 +186,13 @@ class AccountController {
         const regex = /(?<=_)\w+(?=_)/;
         const key = errorMsg.match(regex)[0];
         return `Duplicate ${key.charAt(0).toUpperCase().concat(key.slice(1))}.`;
+    }
+
+    #formatMsg(errorMsg) {
+        const regex = /\B(?=(\d{3})+(?!\d))/g;
+        let msg = `${errorMsg.replaceAll('"', '')}.`; // remove quotation marks.
+        msg = msg.replace(regex, ','); // add comma to numbers if present in error msg.
+        return msg;
     }
 }
 
