@@ -7,17 +7,16 @@ const userValidators = require('../validators/user.validator');
 
 class UserController {
     async createUser(userDto) {
-        try {
-            // validating user data transfer object
-            const { error, value: dto } =
-                userValidators.validateCreate(userDto);
-            if (error)
-                return new ServerResponse({
-                    isError: true,
-                    code: 400,
-                    msg: this.#formatMsg(error.details[0].message),
-                });
+        // validating user data transfer object
+        const { error, value: dto } = userValidators.validateCreate(userDto);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
 
+        try {
             const newUser = await User.query().insert(dto);
             await Account.query().insert({ userId: newUser.id }); // creates user account.
 
@@ -108,16 +107,16 @@ class UserController {
     }
 
     async updateUser(id, userDto) {
-        try {
-            // validating user data transfer object
-            const { error, value: dto } = userValidators.validateEdit(userDto);
-            if (error)
-                return new ServerResponse({
-                    isError: true,
-                    code: 400,
-                    msg: this.#formatMsg(error.details[0].message),
-                });
+        // validating user data transfer object
+        const { error, value: dto } = userValidators.validateEdit(userDto);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
 
+        try {
             const foundUser = await User.query().findById(id);
             if (!foundUser)
                 return new ServerResponse({

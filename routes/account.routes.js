@@ -11,6 +11,11 @@ router.get('/', async (req, res) => {
     return res.status(accounts.code).send(accounts.payload);
 });
 
+router.get('/balance', async (req, res) => {
+    const balance = await accountController.getBalance(56);
+    return res.status(balance.code).send(balance.payload);
+});
+
 router.get('/:id', async (req, res) => {
     const account = await accountController.getAccount(req.params.id);
     return res.status(account.code).send(account.payload);
@@ -29,7 +34,10 @@ router.delete('/:id', async (req, res) => {
     return res.status(response.code).send(response.payload);
 });
 
-// fund wallet auth
+router.post('/fund', async (req, res) => {
+    const account = await accountController.fundAccount(56, req.body.amount);
+    return res.status(account.code).send(account.payload);
+});
 
 // get balance auth
 

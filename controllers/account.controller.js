@@ -1,22 +1,26 @@
+const { Model } = require('objection');
+const { v4 } = require('uuid');
 const Account = require('../models/account.model');
 const accountValidators = require('../validators/account.validator');
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
 const ServerResponse = require('../utils/serverResponse');
 const User = require('../models/user.model');
+const Transaction = require('../models/transaction.model');
+const { balanceAfter } = require('../models/transaction.model');
 
 class AccountController {
     async createAccount(accountDto) {
-        try {
-            // validating account data transfer object
-            const { error } = accountValidators.validateCreate(accountDto);
-            if (error)
-                return new ServerResponse({
-                    isError: true,
-                    code: 400,
-                    msg: this.#formatMsg(error.details[0].message),
-                });
+        // validating account data transfer object
+        const { error } = accountValidators.validateCreate(accountDto);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
 
+        try {
             // checking if user exists
             const { userId } = accountDto;
             const foundUser = await User.query().findById(userId);
@@ -113,17 +117,16 @@ class AccountController {
     }
 
     async updateAccount(id, accountDto) {
-        try {
-            // validating account data transfer object
-            const { error } = accountValidators.validateEdit(accountDto);
-            console.log(error.details[0].context);
-            if (error)
-                return new ServerResponse({
-                    isError: true,
-                    code: 400,
-                    msg: this.#formatMsg(error.details[0].message),
-                });
+        // validating account data transfer object
+        const { error } = accountValidators.validateEdit(accountDto);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
 
+        try {
             const foundAccount = await Account.query().findById(id);
             if (!foundAccount)
                 return new ServerResponse({
@@ -184,6 +187,85 @@ class AccountController {
                     msg: 'Cannot delete account with transactions.',
                 });
 
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
+        }
+    }
+
+    async fundAccount(userId, amount) {
+        // validating amount
+        const { error } = accountValidators.validateAmount(amount);
+        if (error)
+            return new ServerResponse({
+                isError: true,
+                code: 400,
+                msg: this.#formatMsg(error.details[0].message),
+            });
+        
+        // starting transaction
+        const trx = await Model.startTransaction();
+        try {
+            const foundAccount = await Account.query(trx).findOne({ userId });
+            if (!foundAccount)
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    msg: 'Account not found.',
+                });
+
+            await foundAccount.$query(trx).increment('balance', amount);
+
+            await Transaction.query(trx).insert({
+                accountId: foundAccount.id,
+                txnType: 'credit',
+                purpose: 'deposit',
+                amount,
+                reference: v4(),
+                balanceBefore: Number(foundAccount.balance),
+                balanceAfter: Number(foundAccount.balance) + Number(amount),
+            });
+            await trx.commit();
+
+            return new ServerResponse({ msg: 'Account credited' });
+        } catch (exception) {
+            await trx.rollback(); // rollback changes
+            debug(exception.message);
+            logger.error({
+                method: 'fund_account',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            return new ServerResponse({
+                isError: true,
+                code: 500,
+                msg: 'Something went wrong.',
+            });
+        }
+    }
+
+    async getBalance(userId) {
+        try {
+            const accountBalance = await Account.query()
+                .findOne({ userId })
+                .select('id', 'balance');
+            if (!accountBalance)
+                return new ServerResponse({
+                    isError: true,
+                    code: 404,
+                    msg: 'Account not found.',
+                });
+
+            return new ServerResponse({ data: accountBalance });
+        } catch (exception) {
+            debug(exception.message);
+            logger.error({
+                method: 'get_balance',
+                message: exception.message,
+                meta: exception.stack,
+            });
             return new ServerResponse({
                 isError: true,
                 code: 500,
