@@ -8,8 +8,7 @@ const userValidators = require('../validators/user.validator');
 class UserController {
     async createUser(userDto) {
         // validating user data transfer object
-        const feed = userValidators.validateCreate(userDto);
-        return console.log(feed)
+        const {error} = userValidators.validateCreate(userDto);
         if (error)
             return new ServerResponse({
                 isError: true,
@@ -56,7 +55,7 @@ class UserController {
             if (foundUsers.length === 0)
                 return new ServerResponse({
                     isError: true,
-                    code: 404,
+                    code: 402,
                     msg: 'Users not found.',
                 });
 

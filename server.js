@@ -13,5 +13,6 @@ appMiddleware(app);
 appRoutes(app);
 
 const port = config.get('server.port');
-console.log(process.env.NODE_ENV)
-app.listen(port, () => debug(`Listening on port:[${port}]`));
+const server = app.listen(port, () => debug(`Listening on port:[${port}]`));
+
+module.exports = server;
