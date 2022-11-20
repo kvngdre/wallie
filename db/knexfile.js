@@ -20,6 +20,22 @@ module.exports = {
         ...knexSnakeCaseMappers(),
     },
 
+    test: {
+        client: 'mysql2',
+        connection: {
+            host: config.get('database.host'),
+            port: config.get('database.port'),
+            user: config.get('database.user'),
+            password: config.get('database.password'),
+            database: config.get('database.test_name'),
+        },
+        pool: { min: 0, max: 7 },
+        migrations: {
+            tableName: 'knex_migrations',
+        },
+        ...knexSnakeCaseMappers(),
+    },
+
     staging: {
         client: 'postgresql',
         connection: {

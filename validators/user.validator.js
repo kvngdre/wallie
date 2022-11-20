@@ -50,7 +50,6 @@ class UserValidator {
         const schema = joi.object({
             firstName: this.#nameSchema.label('First name'),
             lastName: this.#nameSchema.label('Last name'),
-            password: this.#passwordSchema,
         });
         return schema.validate(user);
     }
