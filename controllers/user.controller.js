@@ -17,7 +17,7 @@ class UserController {
             });
 
         try {
-            const newUser = await User.query().insert(dto);
+            const newUser = await User.query().insert(userDto);
             await Account.query().insert({ userId: newUser.id }); // creates user account.
 
             return new ServerResponse({
@@ -55,7 +55,7 @@ class UserController {
             if (foundUsers.length === 0)
                 return new ServerResponse({
                     isError: true,
-                    code: 402,
+                    code: 404,
                     msg: 'Users not found.',
                 });
 
@@ -125,12 +125,12 @@ class UserController {
                     msg: 'User not found.',
                 });
 
-            const user = await foundUser.$query().patch(dto).omitPassword();
+            const user = await foundUser.$query().patchAndFetch(dto);
             user.omitPassword();
 
             return new ServerResponse({
                 msg: 'User updated.',
-                data: updatedUser,
+                data: user,
             });
         } catch (exception) {
             debug(exception.message);

@@ -10,7 +10,6 @@ class User extends Model {
     }
 
     $beforeInsert() {
-        console.log('this was called', this);
         this.password = bcrypt.hashSync(this.password, 12);
     }
 

@@ -23,8 +23,5 @@ module.exports = async () => {
     } catch (error) {
         console.log(error);
         process.exit(1);
-    }finally{
-        knex.destroy();
-        process.exit(1);
     }
 };

@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
         const authHeader =
             req.header('Authorization') || req.header('authorization');
         if (!authHeader)
-            return res.status(401).send('No authorization header.');
+            return res.sendStatus(401);
 
         const [scheme, token] = authHeader.split(' ');
         if (scheme !== 'Bearer') return res.sendStatus(401);

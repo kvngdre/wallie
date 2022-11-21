@@ -12,7 +12,7 @@ exports.up = function (knex) {
             .references('id')
             .inTable('accounts')
             .onUpdate('CASCADE')
-            .onDelete('RESTRICT');
+            .onDelete('CASCADE');
         table.enum('txn_type', ['debit', 'credit']).notNullable();
         table
             .enum('purpose', ['deposit', 'transfer', 'withdrawal'])
