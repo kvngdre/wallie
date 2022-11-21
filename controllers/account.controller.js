@@ -115,48 +115,6 @@ class AccountController {
         }
     }
 
-    async updateAccount(id, accountDto) {
-        // validating account data transfer object
-        const { error } = accountValidators.validateEdit(accountDto);
-        if (error)
-            return new ServerResponse({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
-
-        try {
-            const foundAccount = await Account.query().findById(id);
-            if (!foundAccount)
-                return new ServerResponse({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
-
-            const account = await foundAccount
-                .$query()
-                .patchAndFetch(accountDto);
-
-            return new ServerResponse({
-                msg: 'Account updated',
-                data: account,
-            });
-        } catch (exception) {
-            debug(exception.message);
-            logger.error({
-                method: 'update_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
-        }
-    }
-
     async deleteAccount(id) {
         try {
             const foundAccount = await Account.query().findById(id);
@@ -177,15 +135,6 @@ class AccountController {
                 message: exception.message,
                 meta: exception.stack,
             });
-
-            // handling delete restriction error
-            if (exception?.nativeError.errno === 1451)
-                return new ServerResponse({
-                    isError: true,
-                    code: 403,
-                    msg: 'Cannot delete account with transactions.',
-                });
-
             return new ServerResponse({
                 isError: true,
                 code: 500,

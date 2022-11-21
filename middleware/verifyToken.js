@@ -13,6 +13,7 @@ module.exports = (req, res, next) => {
         if (scheme !== 'Bearer') return res.sendStatus(401);
         if (!token) return res.status(401).send('No token provided.');
 
+        
         const decoded = jwt.verify(token, config.get('jwt.secret'));
         if (
             decoded.iss !== config.get('jwt.issuer') ||

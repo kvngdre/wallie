@@ -1,5 +1,4 @@
 const userValidators = require('../../../validators/user.validator');
-// const {va} = require('../../../validators/user.validator');
 
 describe('validateCreate', () => {
     it('should return an object without property "error", if input passes validation.', () => {
@@ -14,7 +13,6 @@ describe('validateCreate', () => {
     });
 
     it.each([
-        [{ lastName: 'Bo', email: 'e@example.com', password: 'Password1!' }],
         [{ firstName: 'Jack', email: 'e@example.com', password: 'Password1!' }],
         [{ firstName: 1, lastName: 2, email: 'e@.com', password: true }],
     ])(

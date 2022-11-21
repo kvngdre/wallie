@@ -12,8 +12,8 @@ describe('users', () => {
     describe('GET /users', () => {
         let token;
 
-        const exec = async () => {
-            return await request(server)
+        const exec = () => {
+            return request(server)
                 .get('/api/users')
                 .set('Authorization', `Bearer ${token}`);
         };
@@ -42,8 +42,8 @@ describe('users', () => {
         let id;
         let token;
 
-        const exec = async () => {
-            return await request(server)
+        const exec = () => {
+            return request(server)
                 .get(`/api/users/${id}`)
                 .set('Authorization', `Bearer ${token}`);
         };
@@ -82,8 +82,8 @@ describe('users', () => {
         let email;
         let password;
 
-        const exec = async () => {
-            return await request(server).post('/api/users/new').send({
+        const exec = () => {
+            return request(server).post('/api/users/new').send({
                 firstName: 'Yin',
                 lastName: 'Yang',
                 email,
@@ -102,6 +102,16 @@ describe('users', () => {
             expect(foundUser).not.toBeNull();
             expect(newUser.data).toHaveProperty('id');
             expect(newUser.data.firstName).toBe('Yin');
+        });
+
+        it('should return 409 if user already exists', async () => {
+            email = 'ying@yang.com';
+            password = 'Password2@';
+            await exec();
+
+            const res = await exec();
+
+            expect(res.status).toBe(409);
         });
 
         it('should return 400 if email is not valid', async () => {
@@ -128,8 +138,8 @@ describe('users', () => {
         let token;
         let payload = { firstName: 'Jack' };
 
-        const exec = async () => {
-            return await request(server)
+        const exec = () => {
+            return request(server)
                 .patch(`/api/users/${id}`)
                 .set('Authorization', `Bearer ${token}`)
                 .send(payload);
@@ -180,8 +190,8 @@ describe('users', () => {
         let id;
         let token;
 
-        const exec = async () => {
-            return await request(server)
+        const exec = () => {
+            return request(server)
                 .delete(`/api/users/${id}`)
                 .set('Authorization', `Bearer ${token}`);
         };
