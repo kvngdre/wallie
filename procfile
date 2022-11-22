@@ -1,0 +1,3 @@
+web: npm start
+release: npx knex migrate:latest --knexfile db/knexfile.js
+release: npx knex seed run --knexfile db/knexfile.js
