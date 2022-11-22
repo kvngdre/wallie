@@ -48,7 +48,7 @@ module.exports = {
             port: config.get('database.port'),
             user: config.get('database.user'),
             password: config.get('database.password'),
-            database: config.get('database.test_name'),
+            database: config.get('database.name'),
         },
         pool: {
             min: 2,
