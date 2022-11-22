@@ -31,7 +31,7 @@ describe('users', () => {
         it('should return all users if client is logged in', async () => {
             const { body: users } = await exec();
 
-            expect(users.data.length).toBe(3);
+            expect(users.data.length).toBe(4);
             expect(
                 users.data.some((u) => u.firstName === 'Alice')
             ).toBeTruthy();
@@ -107,7 +107,6 @@ describe('users', () => {
         it('should return 409 if user already exists', async () => {
             email = 'ying@yang.com';
             password = 'Password2@';
-            await exec();
 
             const res = await exec();
 
@@ -124,7 +123,6 @@ describe('users', () => {
         });
 
         it('should return 400 if password does not contain a number or special character', async () => {
-            email = 'ying@yang.com';
             password = 'Password';
 
             const res = await exec();
@@ -146,7 +144,8 @@ describe('users', () => {
         };
 
         beforeEach(async () => {
-            id = (await User.query())[0].id;
+            const users = (await User.query());
+            id = users[users.length - 1].id;
             token = new User().generateAccessToken();
         });
 

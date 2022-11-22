@@ -13,8 +13,9 @@ class User extends Model {
         this.password = bcrypt.hashSync(this.password, 12);
     }
 
-    $afterInsert() {
+    async $afterInsert() {
         delete this.password;
+        await Account.query().insert({userId: this.id}); // create user account
     }
 
     $afterFind() {}

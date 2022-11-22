@@ -27,12 +27,13 @@ class AccountValidators {
         return schema.validate(amount);
     }
 
-    validateTransfer(dto) {
+    validateTransfer(userId, dto) {
         const schema = joi.object({
             amount: this.#amountSchema.required(),
             destinationAccountId: joi
                 .number()
                 .label('Destination account id')
+                .invalid(userId)
                 .positive()
                 .required(),
         });

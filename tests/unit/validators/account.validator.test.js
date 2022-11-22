@@ -39,7 +39,7 @@ describe('validateCreate', () => {
 
 describe('validateTransfer', () => {
     it('should return an object without property "error", if input has properties "amount" and "destinationAccountId" only.', () => {
-        const result = accountValidators.validateTransfer({
+        const result = accountValidators.validateTransfer(2, {
             amount: 100,
             destinationAccountId: 1,
         });
@@ -54,7 +54,7 @@ describe('validateTransfer', () => {
     ])(
         'should return an object with property "error", if input(%s) fails validation.',
         (val) => {
-            const result = accountValidators.validateTransfer(val);
+            const result = accountValidators.validateTransfer(2, val);
             expect(result).toHaveProperty('error');
             expect(result.error).toBeDefined();
         }

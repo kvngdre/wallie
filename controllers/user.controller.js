@@ -18,7 +18,6 @@ class UserController {
 
         try {
             const newUser = await User.query().insert(userDto);
-            await Account.query().insert({ userId: newUser.id }); // creates user account.
 
             return new ServerResponse({
                 code: 201,
