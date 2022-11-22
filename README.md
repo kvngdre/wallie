@@ -1,9 +1,6 @@
 # Demo Credit
 Demo Credit is a mobile lending app that grants wallet functionality to users. Borrowers now have a wallet to receive the loans they have been granted and also spend the money on goods, service and repayments.
 
-## Disclaimer
-All the code here may not exactly be _production ready_. I'm building this during livestreams, so I'm doing just enough for people to get the concepts.
-
 ## Getting Started
 ### Database Set Up
 Make sure you have [Node.js](https://nodejs.org/en/download) and [MySQL](https://dev.mysql.com/downloads/mysql/) installed.  
