@@ -15,7 +15,7 @@ class User extends Model {
 
     async $afterInsert() {
         delete this.password;
-        await Account.query().insert({userId: this.id}); // create user account
+        await Account.query().insert({ userId: this.id }); // create user account
     }
 
     $afterFind() {}

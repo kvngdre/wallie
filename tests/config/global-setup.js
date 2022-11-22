@@ -4,7 +4,6 @@ const config = require('config');
 const Knex = require('knex');
 const path = require('path');
 
-// const database = process.env.TEST_DB_NAME;
 const database = config.get('database.test_name');
 
 // Create the database

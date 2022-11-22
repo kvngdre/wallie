@@ -1,4 +1,3 @@
-const Account = require('../models/account.model');
 const debug = require('debug')('app:userCtrl');
 const logger = require('../utils/logger')('userCtrl.js');
 const ServerResponse = require('../utils/serverResponse');
@@ -8,7 +7,7 @@ const userValidators = require('../validators/user.validator');
 class UserController {
     async createUser(userDto) {
         // validating user data transfer object
-        const {error} = userValidators.validateCreate(userDto);
+        const { error } = userValidators.validateCreate(userDto);
         if (error)
             return new ServerResponse({
                 isError: true,

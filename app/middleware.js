@@ -1,6 +1,6 @@
+const compression = require('compression');
 const express = require('express');
 const helmet = require('helmet');
-const compression = require('compression');
 
 module.exports = app => {
     // parse JSON bodies (as sent by API clients)

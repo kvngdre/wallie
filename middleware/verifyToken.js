@@ -6,14 +6,12 @@ module.exports = (req, res, next) => {
     try {
         const authHeader =
             req.header('Authorization') || req.header('authorization');
-        if (!authHeader)
-            return res.sendStatus(401);
+        if (!authHeader) return res.sendStatus(401);
 
         const [scheme, token] = authHeader.split(' ');
         if (scheme !== 'Bearer') return res.sendStatus(401);
         if (!token) return res.status(401).send('No token provided.');
 
-        
         const decoded = jwt.verify(token, config.get('jwt.secret'));
         if (
             decoded.iss !== config.get('jwt.issuer') ||

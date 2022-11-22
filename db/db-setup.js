@@ -1,4 +1,5 @@
 const { Model } = require('objection');
+const debug = require('debug')('app:db');
 const Knex = require('knex');
 const knexfile = require('./knexfile');
 
@@ -8,9 +9,9 @@ function setupDB() {
 
     knex.raw('SELECT VERSION()')
         .then(() => {
-            console.log('Connected to MySQL DB');
+            debug('Connected to MySQL DB');
         })
-        .catch((error) => console.log(`Failed to connect to DB ${error}`));
+        .catch((error) => debug(`Failed to connect to DB ${error}`));
 
     Model.knex(knex);
 }

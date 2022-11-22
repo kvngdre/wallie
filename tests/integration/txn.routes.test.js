@@ -33,7 +33,7 @@ describe('transactions', () => {
         it('should return all accounts if client is logged in', async () => {
             const { body: transactions } = await exec();
 
-            expect(transactions.data.length).toBe(3);
+            expect(transactions.data.length).toBeGreaterThanOrEqual(3);
             expect(
                 transactions.data.some((t) => t.accountId === 1)
             ).toBeTruthy();

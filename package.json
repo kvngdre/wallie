@@ -7,7 +7,7 @@
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
     "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
     "down": "npx knex migrate:down --knexfile db/knexfile.js",
-    "test": "jest --config tests/jest.config.js --testTimeout=10000",
+    "test": "jest --config tests/jest.config.js --testTimeout=10000 --detectOpenHandles --coverage",
     "start": "node server.js"
   },
   "engines": {

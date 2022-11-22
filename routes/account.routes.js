@@ -28,17 +28,26 @@ router.delete('/:id', verifyToken, async (req, res) => {
 });
 
 router.post('/fund', verifyToken, async (req, res) => {
-    const response = await accountController.fundAccount(req.user.id, req.body.amount);
+    const response = await accountController.fundAccount(
+        req.user.id,
+        req.body.amount
+    );
     return res.status(response.code).send(response.payload);
 });
 
 router.post('/debit', verifyToken, async (req, res) => {
-    const response = await accountController.debitAccount(req.user.id, req.body.amount);
+    const response = await accountController.debitAccount(
+        req.user.id,
+        req.body.amount
+    );
     return res.status(response.code).send(response.payload);
 });
 
 router.post('/transfer', verifyToken, async (req, res) => {
-    const response = await accountController.transferFunds(req.user.id, req.body);
+    const response = await accountController.transferFunds(
+        req.user.id,
+        req.body
+    );
     return res.status(response.code).send(response.payload);
 });
 
