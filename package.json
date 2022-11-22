@@ -1,14 +1,15 @@
 {
-  "name": "Wallie",
+  "name": "Demo Credit",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
-    "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
     "down": "npx knex migrate:down --knexfile db/knexfile.js",
-    "test": "jest --config tests/jest.config.js --testTimeout=10000 --detectOpenHandles --coverage",
-    "start": "node server.js"
+    "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
+    "seed": "npx knex seed:run",
+    "start": "node server.js",
+    "test": "jest --config tests/jest.config.js --testTimeout=10000 --detectOpenHandles --coverage"
   },
   "engines": {
     "node": "18.12.1"
