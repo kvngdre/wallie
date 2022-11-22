@@ -282,14 +282,17 @@ class AccountController {
 
     async transferFunds(userId, transferFundsDto) {
         // validating amount
-        const { error } = accountValidators.validateTransfer(userId, transferFundsDto);
+        const { error } = accountValidators.validateTransfer(
+            userId,
+            transferFundsDto
+        );
         if (error)
             return new ServerResponse({
                 isError: true,
                 code: 400,
                 msg: this.#formatMsg(error.details[0].message),
             });
-        
+
         // starting transaction
         const trx = await Model.startTransaction();
         try {

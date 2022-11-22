@@ -7,18 +7,20 @@
     "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon server.js",
     "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
     "down": "npx knex migrate:down --knexfile db/knexfile.js",
-    "test": "jest --detectOpenHandles --config tests/jest.config.js --testTimeout=10000 --watchAll"
+    "test": "jest --config tests/jest.config.js --testTimeout=10000"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "compression": "^1.7.4",
     "config": "^3.3.8",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
+    "helmet": "^6.0.0",
     "joi": "^17.7.0",
     "joi-password": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
