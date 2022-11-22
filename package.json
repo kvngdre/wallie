@@ -10,6 +10,9 @@
     "test": "jest --config tests/jest.config.js --testTimeout=10000",
     "start": "node server.js"
   },
+  "engines": {
+    "node": "18.12.1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
