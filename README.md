@@ -44,7 +44,7 @@ Seed the database to create dummy data by running
 $ npx knex seed:run
 ```  
 
-> 💡 You can create your own users by calling the `createUser` [endpoint](). This would create user records both on the `users` table as well as accounts` table.   
+> 💡 You can create your own users by calling the `createUser` [endpoint](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection). This would create user records both on the `users` table as well as accounts` table.   
 
 You can go ahead and start the server by running:
 ```sh
@@ -73,7 +73,7 @@ $ npm test
 ```  
 
 ### Endpoints
-All server endpoints can be found [here]().
+All server endpoints can be found [here](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
   
 ### Feature Requests
 You can suggest a feature by creating an issue and adding the label `request` to it.

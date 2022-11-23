@@ -4,9 +4,9 @@ const joiPassword = joi.extend(joiPasswordExtendCore);
 
 class UserValidator {
     #nameSchema = joi.string().min(2).max(30).trim().messages({
-        'string.min': 'Invalid {#label}.',
-        'string.max': '{#label} is too long.',
-        'any.required': '{#label} is required.',
+        'string.min': 'Invalid {#label}',
+        'string.max': '{#label} is too long',
+        'any.required': '{#label} is required',
     });
 
     #emailSchema = joi
@@ -28,12 +28,12 @@ class UserValidator {
         .max(1024)
         .messages({
             'password.minOfUppercase':
-                '{#label} should contain at least {#min} uppercase character.',
+                '{#label} should contain at least {#min} uppercase character',
             'password.minOfSpecialCharacters':
-                '{#label} should contain at least {#min} special character.',
+                '{#label} should contain at least {#min} special character',
             'password.minOfNumeric':
-                '{#label} should contain at least {#min} number.',
-            'password.noWhiteSpaces': '{#label} cannot contain white spaces.',
+                '{#label} should contain at least {#min} number',
+            'password.noWhiteSpaces': '{#label} cannot contain white spaces',
         });
 
     validateCreate(user) {

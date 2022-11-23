@@ -9,7 +9,7 @@
     "migrate": "npx knex migrate:latest --knexfile db/knexfile.js",
     "seed": "npx knex seed:run",
     "start": "node server.js",
-    "test": "jest --config tests/jest.config.js --testTimeout=10000 --detectOpenHandles --coverage"
+    "test": "jest --config tests/jest.config.js --testTimeout=10000 --detectOpenHandles"
   },
   "engines": {
     "node": "18.12.1"
