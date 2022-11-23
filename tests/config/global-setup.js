@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config();
 const { knexSnakeCaseMappers } = require('objection');
 const config = require('config');
 const Knex = require('knex');

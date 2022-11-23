@@ -10,7 +10,7 @@ class User extends Model {
     }
 
     $beforeInsert() {
-        this.password = bcrypt.hashSync(this.password, 12);
+        this.password = bcrypt.hashSync(this.password, 12); // hash user password before insert
     }
 
     async $afterInsert() {

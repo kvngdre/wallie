@@ -5,4 +5,4 @@ module.exports = {
     testEnvironment: 'node',
     globalSetup: '<rootDir>/config/global-setup.js',
     globalTeardown: '<rootDir>/config/global-teardown.js',
-  }
+};

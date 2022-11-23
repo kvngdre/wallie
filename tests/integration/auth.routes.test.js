@@ -8,7 +8,6 @@ describe('auth', () => {
         server.close();
     });
 
-    
     describe('POST /api/auth/login', () => {
         let email;
         let password;
@@ -17,7 +16,7 @@ describe('auth', () => {
                 .post('/api/auth/login')
                 .send({ email, password });
         };
-    
+
         it('should return 401 if input is invalid', async () => {
             email = 'bojack@example.com';
             password = 'P@ssw1rd';
@@ -35,6 +34,6 @@ describe('auth', () => {
 
             expect(res.status).toBe(200);
             expect(res.body.data).toHaveProperty('token');
-        })
+        });
     });
 });

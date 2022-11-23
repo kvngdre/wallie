@@ -144,7 +144,7 @@ describe('users', () => {
         };
 
         beforeEach(async () => {
-            const users = (await User.query());
+            const users = await User.query();
             id = users[users.length - 1].id;
             token = new User().generateAccessToken();
         });
