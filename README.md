@@ -58,7 +58,7 @@ Each `user` has one `account` and every `transaction` belongs to an `account`.
 
 See the ER diagram below:
 
-<p align="center"><img src="./images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
+<p align="center" style="margin: 0"><img src="./images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
 
 <!-- ![database ER diagram](/images/schema%20pic.png)  
 _Entity Relationship Diagram_    -->
