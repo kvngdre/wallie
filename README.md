@@ -9,7 +9,7 @@ Make sure the mySQL database server is running, and then create two new database
 ```sh
 $ mysql -u root -p
 ```
-Now enter the password for the root user.
+Now enter the password for the root (yours might be called something else, use that) user.
 ```sh
 # create database demo_credit
 mysql> CREATE DATABASE ;
