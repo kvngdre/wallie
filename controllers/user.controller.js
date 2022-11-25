@@ -105,12 +105,7 @@ class UserController {
     async deleteUser(id) {
         try {
             const foundUser = await User.query().findById(id);
-            if (!foundUser)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'User not found.',
-                });
+            if (!foundUser) return new Response(404, 'User not found.');
 
             await foundUser.$query().delete();
 
