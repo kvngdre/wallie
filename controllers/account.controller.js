@@ -201,11 +201,7 @@ class AccountController {
                 meta: exception.stack,
             });
 
-            return new Response({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            return new Response(500, 'Something went wrong.');
         }
     }
 

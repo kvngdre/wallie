@@ -1,6 +1,6 @@
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
-const ServerResponse = require('../utils/serverResponse');
+const Response = require('../utils/serverResponse');
 const User = require('../models/user.model');
 const userValidators = require('../validators/user.validator');
 
@@ -9,38 +9,21 @@ class AuthController {
         // validating login payload
         const { error } = userValidators.validateLogin(userDto);
         if (error)
-            return new ServerResponse({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
+            return new Response(400, this.#formatMsg(error.details[0].message));
 
         try {
             const { email, password } = userDto;
 
             const foundUser = await User.query().findOne({ email });
-            if (!foundUser)
-                return new ServerResponse({
-                    isError: true,
-                    code: 401,
-                    msg: 'Invalid credentials',
-                });
+            if (!foundUser) return new Response(401, 'Invalid credentials');
 
             const isValid = await foundUser.isValidPassword(password);
-            if (!isValid)
-                return new ServerResponse({
-                    isError: true,
-                    code: 401,
-                    msg: 'Invalid credentials',
-                });
+            if (!isValid) return new Response(401, 'Invalid credentials');
 
             foundUser.token = foundUser.generateAccessToken();
             foundUser.omitPassword();
 
-            return new ServerResponse({
-                msg: 'Login successful',
-                data: foundUser,
-            });
+            return new Response(200, 'Login successful', foundUser);
         } catch (exception) {
             debug(exception.message);
             logger.error({
@@ -48,11 +31,7 @@ class AuthController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                message: 'Something went wrong',
-            });
+            return new Response(500, 'Something went wrong');
         }
     }
 
