@@ -19,22 +19,13 @@ class AccountController {
             // checking if user exists
             const { userId } = accountDto;
             const foundUser = await User.query().findById(userId);
-            if (!foundUser)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'User not found.',
-                });
+            if (!foundUser) return new Response(404, 'User not found.');
 
             const newAccount = await Account.query().insertAndFetch({
                 userId: foundUser.id,
             });
 
-            return new Response({
-                code: 201,
-                msg: 'Account created.',
-                data: newAccount,
-            });
+            return new Response(201, 'Account created.', newAccount);
         } catch (exception) {
             logger.error({
                 method: 'create_account',
@@ -45,13 +36,12 @@ class AccountController {
 
             // handling duplicate key error
             if (exception?.nativeError?.errno === 1062)
-                return new Response({
-                    isError: true,
-                    code: 409,
-                    msg: this.#getDuplicateErrorMsg(exception.constraint),
-                });
+                return new Response(
+                    409,
+                    this.#getDuplicateErrorMsg(exception.constraint)
+                );
 
-                return new Response(500, 'Something went wrong.');
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -59,13 +49,9 @@ class AccountController {
         try {
             const foundAccounts = await Account.query();
             if (foundAccounts.length === 0)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Accounts not found.',
-                });
+                return new Response(404, 'Accounts not found.');
 
-            return new Response({ data: foundAccounts });
+            return new Response(200, 'Successful', foundAccounts);
         } catch (exception) {
             logger.error({
                 method: 'get_accounts',
@@ -81,14 +67,9 @@ class AccountController {
     async getAccount(id) {
         try {
             const foundAccount = await Account.query().findById(id);
-            if (!foundAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
+            if (!foundAccount) return new Response(404, 'Account not found.');
 
-            return new Response({ data: foundAccount });
+            return new Response(200, 'Successful', foundAccount);
         } catch (exception) {
             logger.error({
                 method: 'get_account',
@@ -104,67 +85,14 @@ class AccountController {
     async deleteAccount(id) {
         try {
             const foundAccount = await Account.query().findById(id);
-            if (!foundAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
+            if (!foundAccount) return new Response(404, 'Account not found.');
 
             await foundAccount.$query().delete();
 
-            return new Response({ code: 204, msg: 'Account deleted' });
+            return new Response(204, 'Account deleted');
         } catch (exception) {
             logger.error({
                 method: 'delete_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
-    }
-
-    async fundAccount(userId, amount) {
-        // validating amount
-        const { error } = accountValidators.validateAmount(amount);
-        if (error)
-            return new Response({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
-
-        // starting transaction
-        const trx = await Model.startTransaction();
-        try {
-            const foundAccount = await Account.query(trx).findOne({ userId });
-            if (!foundAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
-
-            await foundAccount.$query(trx).increment('balance', amount);
-
-            await Transaction.query(trx).insert({
-                accountId: foundAccount.id,
-                txnType: 'credit',
-                purpose: 'deposit',
-                amount,
-                reference: v4(),
-                balanceBefore: Number(foundAccount.balance),
-                balanceAfter: Number(foundAccount.balance) + Number(amount),
-            });
-            await trx.commit();
-
-            return new Response({ msg: 'Account credited' });
-        } catch (exception) {
-            await trx.rollback(); // rollback changes
-            logger.error({
-                method: 'fund_account',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -179,17 +107,52 @@ class AccountController {
             const accountBalance = await Account.query()
                 .findOne({ userId })
                 .select('id', 'balance');
-            if (!accountBalance)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
+            if (!accountBalance) return new Response(404, 'Account not found.');
 
-            return new Response({ data: accountBalance });
+            return new Response(200, 'Successful', accountBalance);
         } catch (exception) {
             logger.error({
                 method: 'get_balance',
+                message: exception.message,
+                meta: exception.stack,
+            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
+        }
+    }
+
+    async fundAccount(userId, amount) {
+        // validating amount
+        const { error } = accountValidators.validateAmount(amount);
+        if (error)
+            return new Response(400, this.#formatMsg(error.details[0].message));
+
+        // starting transaction
+        const trx = await Model.startTransaction();
+        try {
+            const foundAccount = await Account.query(trx).findOne({ userId });
+            if (!foundAccount) return new Response(404, 'Account not found.');
+
+            await foundAccount.$query(trx).increment('balance', amount);
+
+            await Transaction.query(trx).insert({
+                accountId: foundAccount.id,
+                txnType: 'credit',
+                purpose: 'deposit',
+                amount,
+                reference: v4(),
+                balanceBefore: Number(foundAccount.balance),
+                balanceAfter: Number(foundAccount.balance) + Number(amount),
+            });
+            await trx.commit();
+
+            return new Response(200, 'Account credited');
+        } catch (exception) {
+            await trx.rollback(); // rollback changes
+
+            logger.error({
+                method: 'fund_account',
                 message: exception.message,
                 meta: exception.stack,
             });
@@ -203,29 +166,16 @@ class AccountController {
         // validating amount
         const { error } = accountValidators.validateAmount(amount);
         if (error)
-            return new Response({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
+            return new Response(400, this.#formatMsg(error.details[0].message));
 
         // starting transaction
         const trx = await Model.startTransaction();
         try {
             const foundAccount = await Account.query(trx).findOne({ userId });
-            if (!foundAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
+            if (!foundAccount) return new Response(404, 'Account not found.');
 
             if (foundAccount.balance < amount)
-                return new Response({
-                    isError: true,
-                    code: 402,
-                    msg: 'Insufficient balance.',
-                });
+                return new Response(402, 'Insufficient balance.');
 
             await foundAccount.$query(trx).decrement('balance', amount);
 
@@ -240,15 +190,17 @@ class AccountController {
             });
             await trx.commit();
 
-            return new Response({ msg: 'Withdrawal successful' });
+            return new Response(200, 'Withdrawal successful');
         } catch (exception) {
             await trx.rollback(); // rollback changes
+
             debug(exception.message);
             logger.error({
                 method: 'debit_account',
                 message: exception.message,
                 meta: exception.stack,
             });
+
             return new Response({
                 isError: true,
                 code: 500,
@@ -264,11 +216,7 @@ class AccountController {
             transferFundsDto
         );
         if (error)
-            return new Response({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
+            return new Response(400, this.#formatMsg(error.details[0].message));
 
         // starting transaction
         const trx = await Model.startTransaction();
@@ -279,29 +227,18 @@ class AccountController {
                 userId,
             });
             if (!foundSourceAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Account not found.',
-                });
+                return new Response(404, 'Account not found.');
 
             const foundDestinationAccount = await Account.query(trx).findOne({
                 userId: destinationAccountId,
             });
             if (!foundDestinationAccount)
-                return new Response({
-                    isError: true,
-                    code: 404,
-                    msg: 'Destination account not found.',
-                });
+                return new Response(404, 'Destination account not found.');
 
             if (foundSourceAccount.balance < amount)
-                return new Response({
-                    isError: true,
-                    code: 402,
-                    msg: 'Insufficient balance.',
-                });
+                return new Response(402, 'Insufficient balance.');
 
+            // debit source, credit destination
             await foundSourceAccount.$query(trx).decrement('balance', amount);
             await foundDestinationAccount
                 .$query(trx)
@@ -332,9 +269,10 @@ class AccountController {
             ]);
             await trx.commit();
 
-            return new Response({ msg: 'Transfer successful' });
+            return new Response(200, 'Transfer successful');
         } catch (exception) {
             await trx.rollback(); // rollback changes
+
             logger.error({
                 method: 'transfer_funds',
                 message: exception.message,
