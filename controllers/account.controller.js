@@ -4,7 +4,7 @@ const Account = require('../models/account.model');
 const accountValidators = require('../validators/account.validator');
 const debug = require('debug')('app:authCtrl');
 const logger = require('../utils/logger')('authCtrl.js');
-const ServerResponse = require('../utils/serverResponse');
+const Response = require('../utils/serverResponse');
 const Transaction = require('../models/transaction.model');
 const User = require('../models/user.model');
 
@@ -13,18 +13,14 @@ class AccountController {
         // validating account data transfer object
         const { error } = accountValidators.validateCreate(accountDto);
         if (error)
-            return new ServerResponse({
-                isError: true,
-                code: 400,
-                msg: this.#formatMsg(error.details[0].message),
-            });
+            return new Response(400, this.#formatMsg(error.details[0].message));
 
         try {
             // checking if user exists
             const { userId } = accountDto;
             const foundUser = await User.query().findById(userId);
             if (!foundUser)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'User not found.',
@@ -34,32 +30,28 @@ class AccountController {
                 userId: foundUser.id,
             });
 
-            return new ServerResponse({
+            return new Response({
                 code: 201,
                 msg: 'Account created.',
                 data: newAccount,
             });
         } catch (exception) {
-            debug(exception.message);
             logger.error({
                 method: 'create_account',
                 message: exception.message,
                 meta: exception.stack,
             });
+            debug(exception.message);
 
             // handling duplicate key error
             if (exception?.nativeError?.errno === 1062)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 409,
                     msg: this.#getDuplicateErrorMsg(exception.constraint),
                 });
 
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+                return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -67,25 +59,22 @@ class AccountController {
         try {
             const foundAccounts = await Account.query();
             if (foundAccounts.length === 0)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Accounts not found.',
                 });
 
-            return new ServerResponse({ data: foundAccounts });
+            return new Response({ data: foundAccounts });
         } catch (exception) {
-            debug(exception.message);
             logger.error({
                 method: 'get_accounts',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -93,25 +82,22 @@ class AccountController {
         try {
             const foundAccount = await Account.query().findById(id);
             if (!foundAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
                 });
 
-            return new ServerResponse({ data: foundAccount });
+            return new Response({ data: foundAccount });
         } catch (exception) {
-            debug(exception.message);
             logger.error({
                 method: 'get_account',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -119,7 +105,7 @@ class AccountController {
         try {
             const foundAccount = await Account.query().findById(id);
             if (!foundAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
@@ -127,19 +113,16 @@ class AccountController {
 
             await foundAccount.$query().delete();
 
-            return new ServerResponse({ code: 204, msg: 'Account deleted' });
+            return new Response({ code: 204, msg: 'Account deleted' });
         } catch (exception) {
-            debug(exception.message);
             logger.error({
                 method: 'delete_account',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -147,7 +130,7 @@ class AccountController {
         // validating amount
         const { error } = accountValidators.validateAmount(amount);
         if (error)
-            return new ServerResponse({
+            return new Response({
                 isError: true,
                 code: 400,
                 msg: this.#formatMsg(error.details[0].message),
@@ -158,7 +141,7 @@ class AccountController {
         try {
             const foundAccount = await Account.query(trx).findOne({ userId });
             if (!foundAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
@@ -177,20 +160,17 @@ class AccountController {
             });
             await trx.commit();
 
-            return new ServerResponse({ msg: 'Account credited' });
+            return new Response({ msg: 'Account credited' });
         } catch (exception) {
             await trx.rollback(); // rollback changes
-            debug(exception.message);
             logger.error({
                 method: 'fund_account',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -200,25 +180,22 @@ class AccountController {
                 .findOne({ userId })
                 .select('id', 'balance');
             if (!accountBalance)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
                 });
 
-            return new ServerResponse({ data: accountBalance });
+            return new Response({ data: accountBalance });
         } catch (exception) {
-            debug(exception.message);
             logger.error({
                 method: 'get_balance',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
@@ -226,7 +203,7 @@ class AccountController {
         // validating amount
         const { error } = accountValidators.validateAmount(amount);
         if (error)
-            return new ServerResponse({
+            return new Response({
                 isError: true,
                 code: 400,
                 msg: this.#formatMsg(error.details[0].message),
@@ -237,14 +214,14 @@ class AccountController {
         try {
             const foundAccount = await Account.query(trx).findOne({ userId });
             if (!foundAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
                 });
 
             if (foundAccount.balance < amount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 402,
                     msg: 'Insufficient balance.',
@@ -263,7 +240,7 @@ class AccountController {
             });
             await trx.commit();
 
-            return new ServerResponse({ msg: 'Withdrawal successful' });
+            return new Response({ msg: 'Withdrawal successful' });
         } catch (exception) {
             await trx.rollback(); // rollback changes
             debug(exception.message);
@@ -272,7 +249,7 @@ class AccountController {
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
+            return new Response({
                 isError: true,
                 code: 500,
                 msg: 'Something went wrong.',
@@ -287,7 +264,7 @@ class AccountController {
             transferFundsDto
         );
         if (error)
-            return new ServerResponse({
+            return new Response({
                 isError: true,
                 code: 400,
                 msg: this.#formatMsg(error.details[0].message),
@@ -302,7 +279,7 @@ class AccountController {
                 userId,
             });
             if (!foundSourceAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Account not found.',
@@ -312,14 +289,14 @@ class AccountController {
                 userId: destinationAccountId,
             });
             if (!foundDestinationAccount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 404,
                     msg: 'Destination account not found.',
                 });
 
             if (foundSourceAccount.balance < amount)
-                return new ServerResponse({
+                return new Response({
                     isError: true,
                     code: 402,
                     msg: 'Insufficient balance.',
@@ -355,20 +332,17 @@ class AccountController {
             ]);
             await trx.commit();
 
-            return new ServerResponse({ msg: 'Transfer successful' });
+            return new Response({ msg: 'Transfer successful' });
         } catch (exception) {
             await trx.rollback(); // rollback changes
-            debug(exception.message);
             logger.error({
                 method: 'transfer_funds',
                 message: exception.message,
                 meta: exception.stack,
             });
-            return new ServerResponse({
-                isError: true,
-                code: 500,
-                msg: 'Something went wrong.',
-            });
+            debug(exception.message);
+
+            return new Response(500, 'Something went wrong.');
         }
     }
 
