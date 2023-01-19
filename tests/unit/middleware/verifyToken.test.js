@@ -1,12 +1,12 @@
-const User = require('../../../models/user.model');
-const verifyToken = require('../../../middleware/verifyToken');
+const User = require('../../../src/models/user.model');
+const verifyToken = require('../../../src/middleware/isAuth');
 
 describe('verifyToken middleware', () => {
     it('should populate req.user with payload of valid JWT', () => {
         const user = {
             id: 1,
-            firstName: 'Yin',
-            lastName: 'Yan',
+            first_name: 'Yin',
+            last_name: 'Yan',
             email: 'yin@yan.com',
             password: 'pwd',
         };

@@ -1,10 +1,10 @@
-const userValidators = require('../../../validators/user.validator');
+const userValidators = require('../../../src/validators/user.validator');
 
 describe('validateCreate', () => {
     it('should return an object without property "error", if input passes validation.', () => {
         const userDto = {
-            firstName: 'Jack',
-            lastName: 'Bo',
+            first_name: 'Jack',
+            last_name: 'Bo',
             email: 'e@example.com',
             password: 'Password1!',
         };
@@ -13,8 +13,8 @@ describe('validateCreate', () => {
     });
 
     it.each([
-        [{ firstName: 'Jack', email: 'e@example.com', password: 'Password1!' }],
-        [{ firstName: 1, lastName: 2, email: 'e@.com', password: true }],
+        [{ first_name: 'Jack', email: 'e@example.com', password: 'Password1!' }],
+        [{ first_name: 1, last_name: 2, email: 'e@.com', password: true }],
     ])(
         'should return an object with property "error", if input does not pass validation.',
         (val) => {
@@ -28,14 +28,14 @@ describe('validateCreate', () => {
         [
             {
                 password: 'Password1',
-                firstName: 'Jack',
-                lastName: 'Bo',
+                first_name: 'Jack',
+                last_name: 'Bo',
                 email: 'e@example.com',
             },
             {
                 password: 'password!',
-                firstName: 'Jack',
-                lastName: 'Bo',
+                first_name: 'Jack',
+                last_name: 'Bo',
                 email: 'e@example.com',
             },
         ],
@@ -59,13 +59,13 @@ describe('validateCreate', () => {
 describe('validateEdit', () => {
     it('should return an object without property "error", ïf input passes validation.', () => {
         const result = userValidators.validateEdit({
-            firstName: 'Jack',
-            lastName: 'Bo',
+            first_name: 'Jack',
+            last_name: 'Bo',
         });
         expect(result).not.toHaveProperty('error');
     });
 
-    it.each([[{ firstName: true }], [{ lastName: -1, password: 'p@ssword2' }]])(
+    it.each([[{ first_name: true }], [{ last_name: -1, password: 'p@ssword2' }]])(
         'should return an object with property "error", if input does not pass validation.',
         (val) => {
             const result = userValidators.validateEdit(val);

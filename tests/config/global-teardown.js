@@ -1,6 +1,8 @@
 require('dotenv').config();
-const { knexSnakeCaseMappers } = require('objection');
+process.env["NODE_CONFIG_DIR"] = require('path').join(__dirname, '../../src/config');
 const config = require('config');
+
+const { knexSnakeCaseMappers } = require('objection');
 const Knex = require('knex');
 
 const database = process.env.TEST_DB_NAME;

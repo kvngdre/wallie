@@ -3,7 +3,7 @@ const request = require('supertest');
 let server;
 
 describe('auth', () => {
-    beforeEach(() => (server = require('../../server')));
+    beforeEach(() => (server = require('../../src/server')));
     afterEach(() => {
         server.close();
     });

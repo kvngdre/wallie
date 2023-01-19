@@ -1,11 +1,11 @@
 const request = require('supertest');
-const Transaction = require('../../models/transaction.model');
-const User = require('../../models/user.model');
+const Transaction = require('../../src/models/transaction.model');
+const User = require('../../src/models/user.model');
 
 let server;
 
 describe('transactions', () => {
-    beforeEach(() => (server = require('../../server')));
+    beforeEach(() => (server = require('../../src/server')));
     afterEach(() => {
         server.close();
     });

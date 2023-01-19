@@ -1,10 +1,10 @@
 const request = require('supertest');
-const User = require('../../models/user.model');
+const User = require('../../src/models/user.model');
 
 let server;
 
 describe('users', () => {
-    beforeEach(() => (server = require('../../server')));
+    beforeEach(() => (server = require('../../src/server')));
     afterEach(() => {
         server.close();
     });
@@ -33,7 +33,7 @@ describe('users', () => {
 
             expect(users.data.length).toBe(4);
             expect(
-                users.data.some((u) => u.firstName === 'Alice')
+                users.data.some((u) => u.first_name === 'Alice')
             ).toBeTruthy();
         });
     });
@@ -65,7 +65,7 @@ describe('users', () => {
             const { body: user } = await exec();
 
             expect(user.data.id).toBe(id);
-            expect(user.data.firstName).toBe('Bojack');
+            expect(user.data.first_name).toBe('Bojack');
         });
 
         it('should return 404 if invalid id is passed', async () => {
@@ -84,8 +84,8 @@ describe('users', () => {
 
         const exec = () => {
             return request(server).post('/api/users/new').send({
-                firstName: 'Yin',
-                lastName: 'Yang',
+                first_name: 'Yin',
+                last_name: 'Yang',
                 email,
                 password,
             });
@@ -97,11 +97,11 @@ describe('users', () => {
 
             const { body: newUser } = await exec();
 
-            const foundUser = await User.query().findOne({ firstName: 'Yin' });
+            const foundUser = await User.query().findOne({ first_name: 'Yin' });
 
             expect(foundUser).not.toBeNull();
             expect(newUser.data).toHaveProperty('id');
-            expect(newUser.data.firstName).toBe('Yin');
+            expect(newUser.data.first_name).toBe('Yin');
         });
 
         it('should return 409 if user already exists', async () => {
@@ -134,7 +134,7 @@ describe('users', () => {
     describe('PATCH /users/:id', () => {
         let id;
         let token;
-        let payload = { firstName: 'Jack' };
+        let payload = { first_name: 'Jack' };
 
         const exec = () => {
             return request(server)
@@ -169,11 +169,11 @@ describe('users', () => {
         it('should update and return user if input is valid', async () => {
             const res = await exec();
 
-            const foundUser = await User.query().findOne({ firstName: 'Jack' });
+            const foundUser = await User.query().findOne({ first_name: 'Jack' });
 
             expect(res.status).toBe(200);
             expect(foundUser).not.toBeNull();
-            expect(res.body.data.firstName).toBe('Jack');
+            expect(res.body.data.first_name).toBe('Jack');
         });
 
         it('should return 400 if input contains email or password', async () => {

@@ -1,11 +1,11 @@
-const Account = require('../../models/account.model');
+const Account = require('../../src/models/account.model');
 const request = require('supertest');
-const User = require('../../models/user.model');
+const User = require('../../src/models/user.model');
 
 let server;
 
 describe('accounts', () => {
-    beforeEach(() => (server = require('../../server')));
+    beforeEach(() => (server = require('../../src/server')));
     afterEach(() => {
         server.close();
     });

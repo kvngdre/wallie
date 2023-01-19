@@ -1,4 +1,4 @@
-const accountValidators = require('../../../validators/account.validator');
+const accountValidators = require('../../../src/validators/account.validator');
 
 describe('validateAmount', () => {
     it('should return an object without the property "error", if input is positive.', () => {
