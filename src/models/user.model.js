@@ -19,27 +19,9 @@ class User extends Model {
 
         // Create an account for the new user.
         await Account.query()
-            .insert({ userId: this.id })
+            .insert({ user_id: this.id })
             .onConflict('user_id')
-            .ignore(); 
-    }
-
-    $afterFind() {}
-
-    static get first_name() {
-        return 'first_name';
-    }
-
-    static get last_name() {
-        return 'last_name';
-    }
-
-    static get email() {
-        return 'email';
-    }
-
-    static get password() {
-        return 'password';
+            .ignore();
     }
 
     static get jsonSchema() {

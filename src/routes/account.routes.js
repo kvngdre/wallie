@@ -1,6 +1,6 @@
 const accountController = require('../controllers/account.controller');
 const router = require('express').Router();
-const verifyToken = require('../middleware/isAuth');
+const verifyToken = require('../middleware/auth');
 
 router.post('/new', verifyToken, async (req, res) => {
     const newAccount = await accountController.createAccount(req.body);

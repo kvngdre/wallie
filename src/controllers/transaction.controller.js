@@ -1,6 +1,6 @@
 const debug = require('debug')('app:txnCtrl');
-const logger = require('../utils/logger')('txnCtrl.js');
-const Response = require('../utils/ServerResponse');
+const logger = require('../utils/logger2_')('txnCtrl.js');
+const Response = require('../utils/APIResponse');
 const Transaction = require('../models/transaction.model');
 
 class TransactionController {

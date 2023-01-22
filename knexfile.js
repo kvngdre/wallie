@@ -23,7 +23,7 @@ module.exports = {
         seeds: {
             directory: path.join(__dirname, '/src/db/seeds/'),
         },
-        ...knexSnakeCaseMappers(),
+        // ...knexSnakeCaseMappers(),
     },
 
     test: {

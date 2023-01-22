@@ -1,6 +1,6 @@
 const debug = require('debug')('app:authCtrl');
-const logger = require('../utils/logger')('authCtrl.js');
-const ServerResponse = require('../utils/ServerResponse');
+const logger = require('../utils/logger2_')('authCtrl.js');
+const ServerResponse = require('../utils/APIResponse');
 const User = require('../models/user.model');
 const userValidators = require('../validators/user.validator');
 
@@ -24,10 +24,10 @@ class AuthController {
             const isValid = await foundUser.comparePasswords(password);
             if (!isValid) return new ServerResponse('Invalid credentials', 401);
 
-            foundUser.token = foundUser.generateAccessToken();
             foundUser.omitPassword();
+            foundUser.token = foundUser.generateAccessToken();
 
-            return new ServerResponse('Login successful', 200, foundUser);
+            return new ServerResponse('Login successful', foundUser);
         } catch (exception) {
             debug(exception.message);
             logger.error({

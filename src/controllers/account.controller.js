@@ -3,8 +3,8 @@ const { v4 } = require('uuid');
 const Account = require('../models/account.model');
 const accountValidators = require('../validators/account.validator');
 const debug = require('debug')('app:authCtrl');
-const logger = require('../utils/logger')('authCtrl.js');
-const Response = require('../utils/ServerResponse');
+const logger = require('../utils/logger2_')('authCtrl.js');
+const Response = require('../utils/APIResponse');
 const Transaction = require('../models/transaction.model');
 const User = require('../models/user.model');
 

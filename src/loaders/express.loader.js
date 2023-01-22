@@ -1,8 +1,8 @@
 const cors = require('cors');
-const debug = require('debug')('app:expressLoader');
+const errorMiddleware = require('../middleware/error');
 const express = require('express');
+const NotFoundError = require('../errors/NotFoundError');
 const routes = require('../routes/index');
-const logger = require('../utils/logger')('express.loader.js');
 
 module.exports = (app) => {
     app.get('/status', (req, res) => {
@@ -19,37 +19,16 @@ module.exports = (app) => {
 
     // Parse JSON bodies (as sent by API clients)
     app.use(express.json());
+
     // Load API routes
     app.use('/api', routes());
 
     // Catch and handle 404
     app.use((req, res, next) => {
-        res.status(404).json({
-            message: 'Not Found',
-        });
-        next();
+        const err = new NotFoundError('Not Found');
+        next(err);
     });
 
-    app.use((err, req, res, next) => {
-        if (err instanceof SyntaxError && 'body' in err) {
-            debug(err.message);
-            return res.status(400).json({
-                success: false,
-                message: 'Error in JSON object.',
-            });
-        }
-
-        debug(err);
-        logger.error({
-            method: 'global_error_handler',
-            message: err.message,
-            stack: err.stack
-        })
-        res.status(500).json({
-            success: false,
-            message: 'Internal Server Error',
-        });
-
-        next();
-    });
+    // Error handling middleware
+    app.use(errorMiddleware);
 };

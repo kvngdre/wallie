@@ -1,46 +1,67 @@
 const User = require('../models/user.model');
-const debug = require('debug')('app:userDao');
-const logger = require('../utils/logger')('userDao.js');
+const ValidationError = require('../errors/ValidationError');
 
-class UserDao {
-    async insert({ firstName, lastName, email, password }) {
+class UserDAO {
+    static async insert(createUserDto) {
         try {
-            const newUser = await User.query()
-                .insert({
-                    firstName,
-                    lastName,
-                    email,
-                    password,
-                })
+            const newRecord = await User.query()
+                .insert(createUserDto)
                 .onConflict('email')
                 .ignore();
 
-            return newUser;
+            return newRecord;
         } catch (exception) {
-            debug(exception);
-            logger.error({
-                method: 'insert',
-                message: exception.message,
-                meta: exception.stack,
-            });
+            if (exception.name === 'ValidationError')
+                throw new ValidationError(exception.message);
+
             throw exception;
         }
     }
 
-    async findAll() {
-        try{
-            const foundUsers = await User.query();
-            return foundUsers
-        }catch(exception) {
-            debug(exception);
-            logger.error({
-                method: 'find_all',
-                message: exception.message,
-                meta: exception.stack,
-            });
+    static async findAll() {
+        try {
+            const foundRecords = await User.query().orderBy(
+                'created_at',
+                'desc'
+            );
+            return foundRecords;
+        } catch (exception) {
+            throw exception;
+        }
+    }
+
+    static async findOne(userId) {
+        try {
+            const foundRecord = await User.query().findById(userId);
+            return foundRecord;
+        } catch (exception) {
+            throw exception;
+        }
+    }
+
+    static async update(userId, updateUserDto) {
+        try {
+            const updatedRecord = await User.query().patchAndFetchById(
+                userId,
+                updateUserDto
+            );
+            return updatedRecord;
+        } catch (exception) {
+            if (exception.name === 'ValidationError')
+                throw new ValidationError(exception.message);
+
+            throw exception;
+        }
+    }
+
+    static async delete(userId) {
+        try {
+            const deletedRecord = await User.query().deleteById(userId);
+            return deletedRecord;
+        } catch (exception) {
             throw exception;
         }
     }
 }
 
-module.exports = new UserDao();
+module.exports = UserDAO;

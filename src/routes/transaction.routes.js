@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const txnController = require('../controllers/transaction.controller');
-const verifyToken = require('../middleware/isAuth');
+const verifyToken = require('../middleware/auth');
 
 router.get('/', verifyToken, async (req, res) => {
     const transactions = await txnController.getTransactions();

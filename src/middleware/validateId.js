@@ -1,8 +1,9 @@
+const ServerResponse = require('../utils/APIResponse');
+
 module.exports = (req, res, next) => {
     const { id } = req.params;
     try {
-        const isInvalidId = typeof id !== 'number' || id <= 0;
-        if (isInvalidId) throw new Error('Invalid id');
+        if (isNaN(id)) throw new Error('Invalid Id');
 
         next();
     } catch (exception) {

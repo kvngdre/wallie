@@ -5,8 +5,8 @@ class Account extends Model {
         return 'accounts';
     }
 
-    static get userId() {
-        return 'userId';
+    static get user_id() {
+        return 'user_id';
     }
 
     static get balance() {
@@ -16,10 +16,10 @@ class Account extends Model {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['userId'],
+            required: ['user_id'],
             properties: {
                 id: { type: 'integer' },
-                userId: { type: 'integer' },
+                user_id: { type: 'integer' },
                 balance: { type: 'integer' },
             },
         };

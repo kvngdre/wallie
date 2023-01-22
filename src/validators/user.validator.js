@@ -1,15 +1,16 @@
 const { joiPasswordExtendCore } = require('joi-password');
-const joi = require('joi');
-const joiPassword = joi.extend(joiPasswordExtendCore);
+const Joi = require('joi');
+const joiPassword = Joi.extend(joiPasswordExtendCore);
+const formatMsg = require('../utils/formatMsg');
 
 class UserValidator {
-    #nameSchema = joi.string().min(2).max(30).trim().messages({
+    #nameSchema = Joi.string().min(2).max(30).trim().messages({
         'string.min': 'Invalid {#label}',
         'string.max': '{#label} is too long',
         'any.required': '{#label} is required',
     });
 
-    #emailSchema = joi
+    #emailSchema = Joi
         .string()
         .email()
         .lowercase()
@@ -36,28 +37,29 @@ class UserValidator {
             'password.noWhiteSpaces': '{#label} cannot contain white spaces',
         });
 
-    validateNewUserDto(user) {
-        const schema = joi.object({
+    validateNewUserDto = (user) => {
+        const schema = Joi.object({
             first_name: this.#nameSchema.label('First name').required(),
             last_name: this.#nameSchema.label('Last name').required(),
             email: this.#emailSchema.required(),
             password: this.#passwordSchema.required(),
         });
-        return schema.validate(user);
-    }
 
-    validateUpdateUserDto(user) {
-        const schema = joi.object({
+        return schema.validate(user);
+    };
+
+    validateUpdateUserDto = (user) => {
+        const schema = Joi.object({
             first_name: this.#nameSchema.label('First name'),
             last_name: this.#nameSchema.label('Last name'),
         });
         return schema.validate(user);
     }
 
-    validateLogin(user) {
-        const schema = joi.object({
+    validateLogin = (user) => {
+        const schema = Joi.object({
             email: this.#emailSchema.required(),
-            password: joi.string().label('Password').required(),
+            password: Joi.string().label('Password').required(),
         });
         return schema.validate(user);
     }
