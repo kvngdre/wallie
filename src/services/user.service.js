@@ -1,50 +1,67 @@
-const APIResponse = require('../utils/APIResponse');
+const { admin, user } = require('../utils/userRoles');
+const events = require('../utils/events');
+const pubsub = require('../utils/PubSub');
 const UserDAO = require('../daos/user.dao');
-const NotFoundError = require('../errors/NotFoundError');
+const ConflictException = require('../errors/ConflictError');
+const User = require('../models/user.model');
 
 class UserService {
     async createUser(createUserDto) {
-        const newUser = await UserDAO.insert(createUserDto);
-        if (newUser.id == 0)
-            throw new NotFoundError('Email is already in use.');
+        // Assigning user role
+        try {
+            await this.getUsers({ role: admin });
+            createUserDto.role = user;
+        } catch (e) {
+            createUserDto.role = admin;
+        }
 
-        return new APIResponse('User Created', newUser);
+        const newUser = await UserDAO.insert(createUserDto);
+        newUser.omitPassword();
+
+        // Emitting user sign up event.
+        await pubsub.publish(events.user.signUp, newUser);
+
+        return newUser;
     }
 
-    async getAllUsers() {
-        const foundUsers = await UserDAO.findAll();
-        if (foundUsers.length == 0) throw new NotFoundError('No users found');
+    async getUsers(queryObj) {
+        const foundUsers = await UserDAO.findAll(queryObj);
+        const count = Intl.NumberFormat('en-US').format(foundUsers.length);
 
         // Modify array inplace to delete user passwords.
         foundUsers.forEach((user) => user.omitPassword());
 
-        const numberOfUsers = Intl.NumberFormat('en-US').format(
-            foundUsers.length
-        );
-        return new APIResponse(`${numberOfUsers} users found`, foundUsers);
+        return { count, foundUsers };
     }
 
     async getUser(userId) {
-        const foundUser = await UserDAO.findOne(userId);
-        if (!foundUser) throw new NotFoundError('User not found');
-
+        const foundUser = await UserDAO.findById(userId);
         foundUser.omitPassword();
-        return new APIResponse('User found', foundUser);
+
+        return foundUser;
     }
 
-    async updateUser(userId, updateUserDto) {
-        const updatedUser = await UserDAO.update(userId, updateUserDto);
-        if (!updatedUser) throw new NotFoundError('User not found');
-
+    async updateUser(currentUser, updateUserDto) {
+        const updatedUser = await UserDAO.update(currentUser, updateUserDto);
         updatedUser.omitPassword();
-        return new APIResponse('User updated', updatedUser);
+
+        return updatedUser;
     }
 
-    async deleteUser(userId) {
-        const deletedUser = await UserDAO.delete(userId);
-        if (!deletedUser) throw new NotFoundError('User not found');
+    async deleteUser(currentUser, userId) {
+        if (currentUser.id == userId) {
+            const [{ count }] = await User.query()
+                .where({ role: user })
+                .count({ count: 'id' });
 
-        return new APIResponse('User deleted');
+            if (count > 0)
+                throw new ConflictException(
+                    'Conflict! Admin user must be the only user.'
+                );
+        }
+        // @TODO: invalidate access token...
+        // possible solution is to implement refresh tokens with short lived access tokens.
+        return await UserDAO.delete(userId);
     }
 }
 

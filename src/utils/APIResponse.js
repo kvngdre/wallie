@@ -1,5 +1,5 @@
 /**
- * Creates a new Server Response.
+ * Creates a new API Response.
  * @class
  */
 class APIResponse {

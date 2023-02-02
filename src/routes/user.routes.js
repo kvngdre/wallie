@@ -1,4 +1,5 @@
 const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 const Router = require('express').Router;
 const UserController = require('../controllers/user.controller');
 const validateId = require('../middleware/validateId');
@@ -7,12 +8,14 @@ const router = Router();
 
 router.post('/new', UserController.createUser);
 
-router.get('/', [auth], UserController.getUsers);
+router.get('/', [auth, isAdmin], UserController.getAllUsers);
 
-router.get('/:id', [auth, validateId], UserController.getUser);
+router.get('/me', [auth], UserController.getCurrentUser);
 
-router.patch('/:id', [auth, validateId], UserController.updateUser);
+router.get('/:id', [auth, isAdmin, validateId], UserController.getUser);
 
-router.delete('/:id', [auth, validateId], UserController.deleteUser);
+router.patch('/', [auth], UserController.updateUser);
+
+router.delete('/:id', [auth, isAdmin, validateId], UserController.deleteUser);
 
 module.exports = router;

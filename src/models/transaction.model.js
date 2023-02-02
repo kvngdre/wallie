@@ -1,62 +1,14 @@
 const { Model } = require('objection');
 const Account = require('./account.model');
+const NotFoundException = require('../errors/NotFoundError');
 
 class Transaction extends Model {
     static get tableName() {
         return 'transactions';
     }
 
-    static get accountId() {
-        return 'accountId';
-    }
-
-    static get txnType() {
-        return 'txnType';
-    }
-
-    static get purpose() {
-        return 'purpose';
-    }
-
-    static get amount() {
-        return 'amount';
-    }
-
-    static get reference() {
-        return 'reference';
-    }
-
-    static get balanceBefore() {
-        return 'balanceBefore';
-    }
-
-    static get balanceAfter() {
-        return 'balanceAfter';
-    }
-
-    static get jsonSchema() {
-        return {
-            type: 'object',
-            required: [
-                'accountId',
-                'txnType',
-                'purpose',
-                'amount',
-                'reference',
-                'balanceBefore',
-                'balanceAfter',
-            ],
-            properties: {
-                id: { type: 'integer' },
-                accountId: { type: 'integer' },
-                txnType: { type: 'string' },
-                purpose: { type: 'string' },
-                amount: { type: 'integer' },
-                reference: { type: 'string' },
-                balanceBefore: { type: 'integer' },
-                balanceAfter: { type: 'integer' },
-            },
-        };
+    static createNotFoundError(queryContext, message) {
+        return new NotFoundException(message);
     }
 
     static get relationMappings() {
@@ -65,9 +17,35 @@ class Transaction extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: Account,
                 join: {
-                    from: 'transactions.accountId',
+                    from: 'transactions.account_id',
                     to: 'accounts.id',
                 },
+            },
+        };
+    }
+
+    static get jsonSchema() {
+        return {
+            type: 'object',
+            required: [
+                'account_id',
+                'type',
+                'purpose',
+                'amount',
+                'reference',
+                'bal_before',
+                'bal_after',
+            ],
+            properties: {
+                id: { type: 'integer' },
+                account_id: { type: 'integer' },
+                type: { type: 'string' },
+                purpose: { type: 'string' },
+                amount: { type: 'number' },
+                reference: { type: 'string' },
+                description: { type: 'string' },
+                bal_before: { type: 'number' },
+                bal_after: { type: 'number' },
             },
         };
     }

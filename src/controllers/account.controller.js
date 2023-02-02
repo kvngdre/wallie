@@ -1,297 +1,122 @@
-const { Model } = require('objection');
-const { v4 } = require('uuid');
-const Account = require('../models/account.model');
-const accountValidators = require('../validators/account.validator');
-const debug = require('debug')('app:authCtrl');
-const logger = require('../utils/logger2_')('authCtrl.js');
-const Response = require('../utils/APIResponse');
-const Transaction = require('../models/transaction.model');
-const User = require('../models/user.model');
+const {
+    validateCreditAccountDto,
+    validateDebitAccountDto,
+    validateNewAccountDto,
+    validateTransferDto,
+} = require('../validators/account.validator');
+const { httpStatusCodes } = require('../utils/constants');
+const accountService = require('../services/account.service');
+const formatErrorMsg = require('../utils/formatErrorMsg');
+const ValidationException = require('../errors/ValidationError');
+const APIResponse = require('../utils/APIResponse');
 
 class AccountController {
-    async createAccount(accountDto) {
-        // validating account data transfer object
-        const { error } = accountValidators.validateCreate(accountDto);
-        if (error)
-            return new Response(400, this.#formatMsg(error.details[0].message));
+    static async createAccount(req, res) {
+        const { body, currentUser } = req;
 
-        try {
-            // checking if user exists
-            const { userId } = accountDto;
-            const foundUser = await User.query().findById(userId);
-            if (!foundUser) return new Response(404, 'User not found.');
-
-            const newAccount = await Account.query().insertAndFetch({
-                userId: foundUser.id,
-            });
-
-            return new Response(201, 'Account created.', newAccount);
-        } catch (exception) {
-            logger.error({
-                method: 'create_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            // handling duplicate key error
-            if (exception?.nativeError?.errno === 1062)
-                return new Response(
-                    409,
-                    this.#getDuplicateErrorMsg(exception.constraint)
-                );
-
-            return new Response(500, 'Something went wrong.');
+        // Validating new account dto
+        const { error } = validateNewAccountDto(body);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
         }
+
+        const account = await accountService.createAccount(body, currentUser);
+        const response = new APIResponse('Account created', account);
+
+        return res.status(httpStatusCodes.CREATED).json(response);
     }
 
-    async getAccounts() {
-        try {
-            const foundAccounts = await Account.query();
-            if (foundAccounts.length === 0)
-                return new Response(404, 'Accounts not found.');
+    static async getAllAccounts(req, res) {
+        const { count, foundAccounts } = await accountService.getAccounts();
 
-            return new Response(200, 'Successful', foundAccounts);
-        } catch (exception) {
-            logger.error({
-                method: 'get_accounts',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
+        function getMessage() {
+            if (count == 1) return `${count} record found.`;
+            return `${count} records found.`;
         }
+        const response = new APIResponse(getMessage(), foundAccounts);
+
+        return res.status(httpStatusCodes.OK).json(response);
     }
 
-    async getAccount(id) {
-        try {
-            const foundAccount = await Account.query().findById(id);
-            if (!foundAccount) return new Response(404, 'Account not found.');
+    static async getCurrentUserAccount(req, res) {
+        const account = await accountService.getAccount(req.currentUser.id);
+        const response = new APIResponse('Fetched account', account);
 
-            return new Response(200, 'Successful', foundAccount);
-        } catch (exception) {
-            logger.error({
-                method: 'get_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
+        return res.status(httpStatusCodes.OK).json(response);
     }
 
-    async deleteAccount(id) {
-        try {
-            const foundAccount = await Account.query().findById(id);
-            if (!foundAccount) return new Response(404, 'Account not found.');
+    static async getAccount(req, res) {
+        const account = await accountService.getAccount(req.params.id);
+        const response = new APIResponse('Fetched account', account);
 
-            await foundAccount.$query().delete();
-
-            return new Response(204, 'Account deleted');
-        } catch (exception) {
-            logger.error({
-                method: 'delete_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
+        return res.status(httpStatusCodes.OK).json(response);
     }
 
-    async getBalance(userId) {
-        try {
-            const accountBalance = await Account.query()
-                .findOne({ userId })
-                .select('id', 'balance');
-            if (!accountBalance) return new Response(404, 'Account not found.');
+    static async deleteAccount(req, res) {
+        await accountService.deleteAccount(req.params.id);
+        const response = new APIResponse('Account deleted');
 
-            return new Response(200, 'Successful', accountBalance);
-        } catch (exception) {
-            logger.error({
-                method: 'get_balance',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
+        return res.status(httpStatusCodes.OK).send(response);
     }
 
-    async fundAccount(userId, amount) {
-        // validating amount
-        const { error } = accountValidators.validateAmount(amount);
-        if (error)
-            return new Response(400, this.#formatMsg(error.details[0].message));
+    static async getBalance(req, res) {
+        const accountBalance = await accountService.getBalance(req.currentUser);
+        const response = new APIResponse('Fetched balance', accountBalance);
 
-        // starting transaction
-        const trx = await Model.startTransaction();
-        try {
-            const foundAccount = await Account.query(trx).findOne({ userId });
-            if (!foundAccount) return new Response(404, 'Account not found.');
-
-            await foundAccount.$query(trx).increment('balance', amount);
-
-            await Transaction.query(trx).insert({
-                accountId: foundAccount.id,
-                txnType: 'credit',
-                purpose: 'deposit',
-                amount,
-                reference: v4(),
-                balanceBefore: Number(foundAccount.balance),
-                balanceAfter: Number(foundAccount.balance) + Number(amount),
-            });
-            await trx.commit();
-
-            return new Response(200, 'Account credited');
-        } catch (exception) {
-            await trx.rollback(); // rollback changes
-
-            logger.error({
-                method: 'fund_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
+        return res.status(httpStatusCodes.OK).json(response);
     }
 
-    async debitAccount(userId, amount) {
-        // validating amount
-        const { error } = accountValidators.validateAmount(amount);
-        if (error)
-            return new Response(400, this.#formatMsg(error.details[0].message));
+    static async fundAccount(req, res) {
+        const { body, currentUser } = req;
 
-        // starting transaction
-        const trx = await Model.startTransaction();
-        try {
-            const foundAccount = await Account.query(trx).findOne({ userId });
-            if (!foundAccount) return new Response(404, 'Account not found.');
-
-            if (foundAccount.balance < amount)
-                return new Response(402, 'Insufficient balance.');
-
-            await foundAccount.$query(trx).decrement('balance', amount);
-
-            await Transaction.query(trx).insert({
-                accountId: foundAccount.id,
-                txnType: 'debit',
-                purpose: 'withdrawal',
-                amount,
-                reference: v4(),
-                balanceBefore: Number(foundAccount.balance),
-                balanceAfter: Number(foundAccount.balance) - Number(amount),
-            });
-            await trx.commit();
-
-            return new Response(200, 'Withdrawal successful');
-        } catch (exception) {
-            await trx.rollback(); // rollback changes
-
-            debug(exception.message);
-            logger.error({
-                method: 'debit_account',
-                message: exception.message,
-                meta: exception.stack,
-            });
-
-            return new Response(500, 'Something went wrong.');
+        // Validating fund account dto
+        const { error } = validateCreditAccountDto(req.body);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
         }
+
+        const account = await accountService.creditAccount(currentUser, body);
+        const response = new APIResponse('Account credited', account);
+
+        return res.status(httpStatusCodes.OK).json(response);
     }
 
-    async transferFunds(userId, transferFundsDto) {
-        // validating amount
-        const { error } = accountValidators.validateTransfer(
-            userId,
-            transferFundsDto
+    static async debitAccount(req, res) {
+        const { body, currentUser } = req;
+
+        // Validating debit account dto
+        const { error } = validateDebitAccountDto(body);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
+        }
+
+        const account = await accountService.debitAccount(currentUser, body);
+        const response = new APIResponse('Account debited', account);
+
+        return res.status(httpStatusCodes.OK).json(response);
+    }
+
+    static async transferFunds(req, res) {
+        const { body, currentUser } = req;
+
+        // Validating transfer funds dto
+        const { error } = validateTransferDto(body, currentUser);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
+        }
+
+        const account = await accountService.transferFunds(
+            currentUser.id,
+            body
         );
-        if (error)
-            return new Response(400, this.#formatMsg(error.details[0].message));
+        const response = new APIResponse('Transfer successful', account);
 
-        // starting transaction
-        const trx = await Model.startTransaction();
-        try {
-            const { amount, destinationAccountId } = transferFundsDto;
-
-            const foundSourceAccount = await Account.query(trx).findOne({
-                userId,
-            });
-            if (!foundSourceAccount)
-                return new Response(404, 'Account not found.');
-
-            const foundDestinationAccount = await Account.query(trx).findOne({
-                userId: destinationAccountId,
-            });
-            if (!foundDestinationAccount)
-                return new Response(404, 'Destination account not found.');
-
-            if (foundSourceAccount.balance < amount)
-                return new Response(402, 'Insufficient balance.');
-
-            // debit source, credit destination
-            await foundSourceAccount.$query(trx).decrement('balance', amount);
-            await foundDestinationAccount
-                .$query(trx)
-                .increment('balance', amount);
-
-            await trx('transactions').insert([
-                {
-                    accountId: foundSourceAccount.id,
-                    txnType: 'debit',
-                    purpose: 'transfer',
-                    amount,
-                    reference: v4(),
-                    balanceBefore: Number(foundSourceAccount.balance),
-                    balanceAfter:
-                        Number(foundSourceAccount.balance) - Number(amount),
-                },
-                {
-                    accountId: foundDestinationAccount.id,
-                    txnType: 'credit',
-                    purpose: 'transfer',
-                    amount,
-                    reference: v4(),
-                    balanceBefore: Number(foundDestinationAccount.balance),
-                    balanceAfter:
-                        Number(foundDestinationAccount.balance) +
-                        Number(amount),
-                },
-            ]);
-            await trx.commit();
-
-            return new Response(200, 'Transfer successful');
-        } catch (exception) {
-            await trx.rollback(); // rollback changes
-
-            logger.error({
-                method: 'transfer_funds',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            debug(exception.message);
-
-            return new Response(500, 'Something went wrong.');
-        }
-    }
-
-    #getDuplicateErrorMsg(errorMsg) {
-        const regex = /(?<=_)\w+(?=_)/;
-        const key = errorMsg.match(regex)[0];
-        return 'Duplicate '.concat(key);
-    }
-
-    #formatMsg(errorMsg) {
-        const regex = /\B(?=(\d{3})+(?!\d))/g;
-        let msg = `${errorMsg.replaceAll('"', '')}.`; // remove quotation marks.
-        msg = msg.replace(regex, ','); // add comma to numbers if present in error msg.
-        return msg;
+        return res.status(httpStatusCodes.OK).json(response);
     }
 }
 
-module.exports = new AccountController();
+module.exports = AccountController;

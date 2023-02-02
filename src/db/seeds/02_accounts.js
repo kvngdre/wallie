@@ -1,13 +1,16 @@
+const bcrypt = require('bcrypt');
+
 /**
  * @param { import("knex").Knex } knex
- * @returns { Promise<void> } 
+ * @returns { Promise<void> }
  */
-exports.seed = async function(knex) {
-  // Deletes ALL existing entries
-  await knex('accounts').del()
-  await knex('accounts').insert([
-    {id: 1, userId: 1, balance: 100},
-    {id: 2, userId: 2, balance: 200},
-    {id: 3, userId: 3, balance: 300},
-  ]);
+exports.seed = async function (knex) {
+    // Deletes all existing account records.
+    await knex('accounts').del();
+
+    await knex('accounts').insert([
+        { id: 1, user_id: 1, pin: bcrypt.hashSync('1234', 10), balance: 100 },
+        { id: 2, user_id: 2, pin: bcrypt.hashSync('4567', 10), balance: 200 },
+        { id: 3, user_id: 3, pin: bcrypt.hashSync('7890', 10), balance: 300 },
+    ]);
 };

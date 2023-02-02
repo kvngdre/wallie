@@ -1,12 +1,16 @@
-const ServerResponse = require('../utils/APIResponse');
+const { httpStatusCodes } = require('../utils/constants');
+const APIError = require('../errors/APIError');
+const roles = require('../utils/userRoles');
 
 module.exports = (req, res, next) => {
-    const { id } = req.params;
-    try {
-        if (isNaN(id)) throw new Error('Invalid Id');
+    const { currentUser, params } = req;
 
-        next();
-    } catch (exception) {
-        return res.status(400).json(new ServerResponse(exception.message));
-    }
+    if (
+        isNaN(params.id) ||
+        params.id < 1 ||
+        !Number.isInteger(Number(params.id))
+    )
+        throw new APIError(httpStatusCodes.BAD_REQUEST, true, 'Invalid id');
+
+    next();
 };

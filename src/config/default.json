@@ -1,3 +1,4 @@
 {
+    "api": { "prefix": "/api" },
     "port": 4000
 }

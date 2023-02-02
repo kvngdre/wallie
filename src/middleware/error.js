@@ -8,7 +8,6 @@ module.exports = (err, req, res, next) => {
         return res.status(err.code).json({
             success: false,
             errors: {
-                name: err.name,
                 message: err.message,
             },
         });
@@ -17,7 +16,6 @@ module.exports = (err, req, res, next) => {
     res.status(httpStatusCodes.INTERNAL_SERVER).json({
         success: false,
         errors: {
-            name: 'Error',
             message: 'Something went wrong',
         },
     });

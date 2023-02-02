@@ -1,9 +1,9 @@
 const BaseError = require('../errors/BaseError');
-const logger = require('./logger');
+const logger = require('../loaders/logger');
 
 class ErrorHandler {
     handleError(error) {
-        logger.error({ message: error.message, meta: error.stack });
+        logger.error(error.message, error.stack);
         // send email to admin if critical
         // send to sentry for monitoring
     }

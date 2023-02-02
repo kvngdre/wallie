@@ -1,12 +1,11 @@
-const path = require('path');
 require('dotenv').config();
-process.env["NODE_CONFIG_DIR"] = path.join(__dirname, '../../src/config');
 
-const { knexSnakeCaseMappers } = require('objection');
-const config = require('config');
+const path = require('path');
 const Knex = require('knex');
+process.env["NODE_CONFIG_DIR"] = path.join(__dirname, '../../src/config');
+const config = require('config');
 
-const database = config.get('database.name');
+const database = config.get('database.name.test');
 
 // Create the database
 async function createTestDatabase() {
@@ -19,7 +18,6 @@ async function createTestDatabase() {
             password: config.get('database.password'),
         },
         pool: { min: 0, max: 7 },
-        ...knexSnakeCaseMappers(),
     });
 
     try {
@@ -41,7 +39,7 @@ async function runMigrationsAndSeedTestDatabase() {
             port: config.get('database.port'),
             user: config.get('database.user'),
             password: config.get('database.password'),
-            database: config.get('database.name'),
+            database: database,
         },
         pool: { min: 0, max: 7 },
         migrations: {
@@ -49,9 +47,8 @@ async function runMigrationsAndSeedTestDatabase() {
             tableName: 'knex_migrations',
         },
         seeds: {
-            directory: path.join(__dirname, '../../src/db/seeds/'),
+            directory: path.join(__dirname, '../../src/db/seeds'),
         },
-        ...knexSnakeCaseMappers(),
     });
 
     try {

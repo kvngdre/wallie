@@ -13,15 +13,17 @@ exports.up = function (knex) {
             .inTable('accounts')
             .onUpdate('CASCADE')
             .onDelete('CASCADE');
-        table.enum('txn_type', ['debit', 'credit']).notNullable();
+        table.enum('type', ['debit', 'credit']).notNullable();
         table
             .enum('purpose', ['deposit', 'transfer', 'withdrawal'])
             .notNullable();
         table.decimal('amount').unsigned().notNullable();
         table.string('reference').unique().notNullable();
-        table.decimal('balanceBefore').unsigned().notNullable();
-        table.decimal('balanceAfter').unsigned().notNullable();
-        table.timestamps(true, true);
+        table.string('description', 50);
+        table.decimal('bal_before').unsigned().notNullable();
+        table.decimal('bal_after').unsigned().notNullable();
+        table.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
+        table.dateTime('updated_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
     });
 };
 

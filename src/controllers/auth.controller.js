@@ -1,50 +1,23 @@
-const debug = require('debug')('app:authCtrl');
-const logger = require('../utils/logger2_')('authCtrl.js');
-const ServerResponse = require('../utils/APIResponse');
-const User = require('../models/user.model');
-const userValidators = require('../validators/user.validator');
-
+const { httpStatusCodes } = require('../utils/constants');
+const { validateUserSignInDto: validateUserLoginDto } = require('../validators/user.validator');
+const APIResponse = require('../utils/APIResponse');
+const AuthService = require('../services/auth.service');
+const formatErrorMsg = require('../utils/formatErrorMsg');
+const ValidationException = require('../errors/ValidationError');
 class AuthController {
-    async login(userDto) {
-        // validating login payload
-        const { error } = userValidators.validateLogin(userDto);
-        if (error)
-            return new ServerResponse(
-                400,
-                this.#formatMsg(error.details[0].message)
-            );
-
-        try {
-            const { email, password } = userDto;
-
-            const foundUser = await User.query().findOne({ email });
-            if (!foundUser)
-                return new ServerResponse('Invalid credentials', 401);
-
-            const isValid = await foundUser.comparePasswords(password);
-            if (!isValid) return new ServerResponse('Invalid credentials', 401);
-
-            foundUser.omitPassword();
-            foundUser.token = foundUser.generateAccessToken();
-
-            return new ServerResponse('Login successful', foundUser);
-        } catch (exception) {
-            debug(exception.message);
-            logger.error({
-                method: 'login',
-                message: exception.message,
-                meta: exception.stack,
-            });
-            return ServerResponse._500;
+    static async login(req, res) {
+        // Validating user login dto
+        const { error } = validateUserLoginDto(req.body);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
         }
-    }
 
-    #formatMsg(errorMsg) {
-        const regex = /\B(?=(\d{3})+(?!\d))/g;
-        let msg = `${errorMsg.replaceAll('"', '')}.`; // remove quotation marks.
-        msg = msg.replace(regex, ','); // add comma to numbers if present in error msg.
-        return msg;
+        const user = await AuthService.signIn(req.body);
+        const response = new APIResponse('Successful', user);
+
+        return res.status(httpStatusCodes.OK).json(response);
     }
 }
 
-module.exports = new AuthController();
+module.exports = AuthController;

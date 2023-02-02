@@ -1,44 +1,60 @@
-const joi = require('joi');
+const Joi = require('joi');
 
 class AccountValidators {
-    #amountSchema = joi.number().label('Amount').positive();
-
-    #balanceSchema = joi
-        .number()
-        .min(0)
-        .max(999999.99)
-        .precision(2)
-        .label('Balance')
-        .messages({
-            'number.max': '{#label} must be less than or equal to {#limit}',
-        });
-
-    #userIdSchema = joi.number().positive().label('User Id');
-
-    validateCreate(dto) {
-        const schema = joi.object({
-            userId: this.#userIdSchema.required(),
-        });
-        return schema.validate(dto);
+    #amountSchema;
+    #descSchema;
+    #idSchema;
+    #pinSchema;
+    constructor() {
+        this.#amountSchema = Joi.number().label('Amount').positive();
+        this.#descSchema = Joi.string().max(50).label('Description');
+        this.#idSchema = Joi.number().positive();
+        this.#pinSchema = Joi.string()
+            .length(4)
+            .pattern(/^[0-9]{4}$/)
+            .label('Pin')
+            .messages({
+                'string.length': '{#label} must be {#limit} digits long',
+                'string.pattern.base': 'Invalid {#label}',
+            });
     }
 
-    validateAmount(amount) {
-        const schema = this.#amountSchema.required();
-        return schema.validate(amount);
-    }
+    validateNewAccountDto = (newAccountDto) => {
+        const schema = Joi.object({
+            pin: this.#pinSchema.required(),
+        });
+        return schema.validate(newAccountDto);
+    };
 
-    validateTransfer(userId, dto) {
-        const schema = joi.object({
+    validateCreditAccountDto = (accountEntryDto) => {
+        const schema = Joi.object({
             amount: this.#amountSchema.required(),
-            destinationAccountId: joi
-                .number()
-                .label('Destination account id')
-                .invalid(userId)
-                .positive()
-                .required(),
+            desc: this.#descSchema,
         });
-        return schema.validate(dto);
-    }
+        return schema.validate(accountEntryDto);
+    };
+
+    validateDebitAccountDto = (accountEntryDto) => {
+        const schema = Joi.object({
+            amount: this.#amountSchema.required(),
+            pin: this.#pinSchema.required(),
+            desc: this.#descSchema,
+        });
+        return schema.validate(accountEntryDto);
+    };
+
+    validateTransferDto = (transferDto, currentUser) => {
+        const schema = Joi.object({
+            amount: this.#amountSchema.required(),
+            dest_id: this.#idSchema
+                .label('Destination account id')
+                .invalid(currentUser.id)
+                .required(),
+                pin: this.#pinSchema.required(),
+            desc: this.#descSchema,
+        });
+        return schema.validate(transferDto);
+    };
 }
 
 module.exports = new AccountValidators();

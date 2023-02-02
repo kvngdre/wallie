@@ -1,11 +1,13 @@
 require('dotenv').config();
-process.env["NODE_CONFIG_DIR"] = require('path').join(__dirname, '../../src/config');
+process.env['NODE_CONFIG_DIR'] = require('path').join(
+    __dirname,
+    '../../src/config'
+);
 const config = require('config');
-
-const { knexSnakeCaseMappers } = require('objection');
 const Knex = require('knex');
 
-const database = process.env.TEST_DB_NAME;
+const database = config.get('database.name.test');
+
 const knex = Knex({
     client: 'mysql2',
     connection: {
@@ -13,10 +15,9 @@ const knex = Knex({
         port: config.get('database.port'),
         user: config.get('database.user'),
         password: config.get('database.password'),
-        database: config.get('database.test_name'),
+        database: database,
     },
     pool: { min: 0, max: 7 },
-    ...knexSnakeCaseMappers(),
 });
 
 module.exports = async () => {

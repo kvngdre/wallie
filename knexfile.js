@@ -1,9 +1,7 @@
 const path = require('path');
 process.env['NODE_CONFIG_DIR'] = path.join(__dirname, '/src/config');
 require('dotenv').config();
-
 const config = require('config');
-const { knexSnakeCaseMappers } = require('objection');
 
 module.exports = {
     development: {
@@ -13,7 +11,7 @@ module.exports = {
             port: config.get('database.port'),
             user: config.get('database.user'),
             password: config.get('database.password'),
-            database: config.get('database.name'),
+            database: config.get('database.name.dev'),
         },
         pool: { min: 0, max: 7 },
         migrations: {
@@ -23,7 +21,6 @@ module.exports = {
         seeds: {
             directory: path.join(__dirname, '/src/db/seeds/'),
         },
-        // ...knexSnakeCaseMappers(),
     },
 
     test: {
@@ -33,7 +30,7 @@ module.exports = {
             port: config.get('database.port'),
             user: config.get('database.user'),
             password: config.get('database.password'),
-            database: config.get('database.name'),
+            database: config.get('database.name.test'),
         },
         pool: { min: 0, max: 7 },
         migrations: {
@@ -43,7 +40,6 @@ module.exports = {
         seeds: {
             directory: path.join(__dirname, '/src/db/seeds/'),
         },
-        ...knexSnakeCaseMappers(),
     },
 
     production: {
@@ -53,7 +49,7 @@ module.exports = {
             port: config.get('database.port'),
             user: config.get('database.user'),
             password: config.get('database.password'),
-            database: config.get('database.name'),
+            database: config.get('database.name.prod'),
         },
         pool: {
             min: 2,
@@ -63,6 +59,5 @@ module.exports = {
             directory: path.join(__dirname, '/src/db/migrations'),
             tableName: 'knex_migrations',
         },
-        ...knexSnakeCaseMappers(),
     },
 };

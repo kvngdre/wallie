@@ -12,9 +12,13 @@ module.exports = (req, res, next) => {
          *
          */
         function getTokenFromHeader(req) {
+            /**
+             * @TODO Edge and Internet Explorer do some weird things with the headers
+             * So I believe that this should handle more 'edge' cases ;)
+             */
             if (
                 req.headers?.authorization?.split(' ')[0] === 'Bearer' ||
-                req.headers?.authorization?.split(' ')[0] === 'Bearer'
+                req.headers?.authorization?.split(' ')[0] === 'Token'
             ) {
                 return req.headers.authorization.split(' ')[1];
             }
@@ -30,20 +34,18 @@ module.exports = (req, res, next) => {
             decoded.aud !== config.get('jwt.audience')
         ) {
             throw new APIError(
-                'Auth Error',
-                httpStatusCodes.UNAUTHORISED,
+                httpStatusCodes.UNAUTHORIZED,
                 true,
                 'Invalid token provided.'
             );
         }
 
-        req.user = decoded;
+        req.currentUser = decoded;
 
         next();
     } catch (exception) {
         throw new APIError(
-            'Auth Error',
-            httpStatusCodes.UNAUTHORISED,
+            httpStatusCodes.UNAUTHORIZED,
             true,
             exception.message
         );

@@ -1,15 +1,19 @@
-const router = require('express').Router();
-const txnController = require('../controllers/transaction.controller');
-const verifyToken = require('../middleware/auth');
+const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
+const Router = require('express').Router;
+const TxnController = require('../controllers/transaction.controller');
+const validateId = require('../middleware/validateId');
 
-router.get('/', verifyToken, async (req, res) => {
-    const transactions = await txnController.getTransactions();
-    return res.status(transactions.code).send(transactions.payload);
-});
+const router = Router();
 
-router.get('/:id', verifyToken, async (req, res) => {
-    const transaction = await txnController.getTransaction(req.params.id);
-    return res.status(transaction.code).send(transaction.payload);
-});
+router.post('/new', [auth, isAdmin], TxnController.createTransaction);
+
+router.get('/', [auth], TxnController.getAllTransactions);
+
+router.get('/:id', [auth, validateId], TxnController.getTransaction);
+
+router.patch('/:id', [auth, isAdmin, validateId], TxnController.updateTransaction);
+
+router.delete('/:id', [auth, isAdmin, validateId], TxnController.deleteTransaction);
 
 module.exports = router;

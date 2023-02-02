@@ -1,7 +1,9 @@
 # Demo Credit
 Demo Credit is a mobile lending app that grants wallet functionality to users. Borrowers now have a wallet to receive the loans they have been granted and also spend the money on goods, service and repayments.
-
+<br/>
+<br/>
 ## Getting Started
+---
 ### Database Set Up
 Make sure you have [Node.js](https://nodejs.org/en/download) and [MySQL](https://dev.mysql.com/downloads/mysql/) installed.  
 
@@ -50,7 +52,6 @@ You can go ahead and start the server by running:
 ```sh
 $ npm run dev
 ```
-You can now test each account function.
 
 ### Database structure
 
@@ -58,7 +59,7 @@ Each `user` has one `account` and every `transaction` belongs to an `account`.
 
 See the ER diagram below:
 
-<p align="center" style="margin: 0"><img src="./images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
+<p align="center" style="margin: 0"><img src="./src/images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
 
 <!-- ![database ER diagram](/images/schema%20pic.png)  
 _Entity Relationship Diagram_    -->
@@ -73,7 +74,7 @@ $ npm test
 ```  
 
 ### Endpoints
-All server endpoints can be found [here](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
+All server endpoints can be found in the `src/routes` directory or [here](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
   
 ### Feature Requests
 You can suggest a feature by creating an issue and adding the label `request` to it.

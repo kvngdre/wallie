@@ -7,9 +7,11 @@ exports.up = function (knex) {
         table.increments('id').primary();
         table.string('first_name', 30).notNullable();
         table.string('last_name', 30).notNullable();
-        table.string('email', 50).unique().notNullable();
+        table.string('email', 100).unique().notNullable();
         table.text('password').notNullable();
-        table.timestamps(true, true);
+        table.string('role', 2).notNullable()
+        table.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
+        table.dateTime('updated_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
     });
 };
 

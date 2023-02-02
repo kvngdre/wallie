@@ -1,11 +1,20 @@
+const errorHandler = require('../utils/errorHandler');
 const dbLoader = require('./db.loader');
 const expressLoader = require('./express.loader');
-const logger = require('../utils/logger');
+const logger = require('./logger');
 
 module.exports = (app) => {
-    dbLoader()
-    logger.info({message: 'DB loaded and connected'});
+    process.on('uncaughtException', (error) => {
+        errorHandler.handleError(error);
+        if (!errorHandler.isTrustedError(error)) {
+            logger.warn('Uncaught');
+            process.exit(1);
+        }
+    });
 
-    expressLoader(app)
-    logger.info({message: 'Express loaded'}); 
-}
+    dbLoader();
+    logger.info('DB loaded and connected ✔');
+
+    expressLoader(app);
+    logger.info('Express loaded ✔');
+};

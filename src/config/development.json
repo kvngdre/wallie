@@ -1,6 +1,3 @@
 {
-    "name": "demo-credit::Dev",
-    "database": {
-        "name": "lendsqr"
-    }
+    "name": "demo-credit::Dev"   
 }

@@ -8,8 +8,6 @@ function isDevEnvironment() {
     return false;
 }
 
-const delimiter = '**';
-
 const customLevels = {
     levels: { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, silly: 5 },
     colors: {
@@ -24,10 +22,11 @@ const customLevels = {
 
 const devFormatter = combine(
     colorize(),
+    format.cli(),
     timestamp({ format: 'HH:mm:ss' }),
     printf(({ timestamp, level, message, meta }) => {
-        return `[${level}]${timestamp} ${delimiter}${message} ${
-            meta ? `${delimiter}${JSON.stringify(meta, null, 2)}` : ''
+        return `[${level}]${timestamp} ${message} ${
+            meta ? `${JSON.stringify(meta, null, 2)}` : ''
         }`;
     })
 );
@@ -50,7 +49,7 @@ class Logger {
 
         const prodTransport = new transports.File({
             level: 'error',
-            filename: 'src/logs/error2.log',
+            filename: 'src/logs/error.log',
             format: prodFormatter,
             json: true,
         });
@@ -64,27 +63,27 @@ class Logger {
         addColors(customLevels.colors);
     }
 
-    fatal({ message, meta }) {
-        this.logger.log('fatal', { message, meta });
+    fatal(message, meta) {
+        this.logger.log('fatal', { message: message, meta });
     }
 
-    error({ message, meta }) {
+    error(message, meta) {
         this.logger.error({ message, meta });
     }
 
-    warn({ message, meta }) {
+    warn(message, meta) {
         this.logger.warn({ message, meta });
     }
 
-    info({ message, meta }) {
+    info(message, meta) {
         this.logger.info({ message, meta });
     }
 
-    debug({ message, meta }) {
+    debug(message, meta) {
         this.logger.debug({ message, meta });
     }
 
-    silly({ message, meta }) {
+    silly(message, meta) {
         this.logger.silly({ message, meta });
     }
 }

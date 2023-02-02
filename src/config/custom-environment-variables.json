@@ -1,7 +1,6 @@
-{   
+{
     "database": {
-        "nameu": "DB_NAME",
-        "test_name": "TEST_DB_NAME",
+        "name": { "dev": "DB_NAME_DEV", "test": "DB_NAME_TEST", "prod": "DB_NAME_PROD" },
         "host": "DB_HOST",
         "user": "DB_USER",
         "password": "DB_PASSWORD",
@@ -13,7 +12,7 @@
         "issuer": "JWT_ISSUER",
         "audience": "JWT_AUDIENCE"
     },
-    "seed":{
+    "seed": {
         "user_password": "SEED_USER_PASSWORD"
     }
 }
