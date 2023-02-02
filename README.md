@@ -3,7 +3,6 @@ Demo Credit is a mobile lending app that grants wallet functionality to users. B
 <br/>
 <br/>
 ## Getting Started
----
 ### Database Set Up
 Make sure you have [Node.js](https://nodejs.org/en/download) and [MySQL](https://dev.mysql.com/downloads/mysql/) installed.  
 
@@ -66,9 +65,9 @@ _Entity Relationship Diagram_    -->
 
 
 ### Test Structure  
-With that complete, let's look at the current test structure. All tests live in the "test" directory in the root of the application.  
+With that complete, let's take a look at the current test structure. All tests live in the "test" directory in the root of the application.  
 
-Run the tests:
+To run the tests:
 ```sh
 $ npm test
 ```  
