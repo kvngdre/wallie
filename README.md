@@ -4,7 +4,6 @@ Demo Credit is a mobile lending app that grants wallet functionality to users. B
 
 ## Getting Started
 
----
 
 ### Database Set Up
 
