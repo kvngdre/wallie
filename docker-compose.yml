@@ -1,6 +1,20 @@
 version: "3.8"
 services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_NAME_PROD
+    ports:
+      - 3307:3306
+    volumes:
+      - wallie:/var/lib/mysql
   app:
+    depends_on:
+      - mysqldb
     build: .
     restart: unless-stopped
     ports:
@@ -13,18 +27,7 @@ services:
       DB_PASSWORD: $DB_PASSWORD
       DB_NAME: $DB_NAME_PROD
       DB_PORT: $DB_PORT 
-    
-  mysqldb:
-    image: mysql:5.7
-    restart: unless-stopped
-    env_file:
-      - ./.env
-    environment:
-      ROOT_PASSWORD: $DB_PASSWORD
-      DB_NAME: $DB_NAME_PROD
-    ports:
-      - 3306:3306
-    volumes:
-      -
+volumes:
+  wallie:
 
 
