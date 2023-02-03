@@ -4,11 +4,11 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "cross-env DEBUG=app:* NODE_ENV=development nodemon src/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon src/server.js",
     "down": "npx knex migrate:down",
     "migrate": "npx knex migrate:latest",
     "seed": "npx knex seed:run",
-    "start": "node server.js",
+    "start": "node src/server.js",
     "test": "jest --detectOpenHandles"
   },
   "engines": {

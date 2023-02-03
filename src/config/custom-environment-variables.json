@@ -11,8 +11,5 @@
         "exp_time": "JWT_ACCESS_EXP_TIME",
         "issuer": "JWT_ISSUER",
         "audience": "JWT_AUDIENCE"
-    },
-    "seed": {
-        "user_password": "SEED_USER_PASSWORD"
     }
 }
