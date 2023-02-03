@@ -1,6 +1,6 @@
 {
     "version": 2,
     "name": "wallie",
-    "builds": [{ "src": "src/*.js", "use": "@vercel/node" }],
-    "routes": [{ "src": "/(.*)", "dest": "/src/loaders/express.loader.js" }]
+    "builds": [{ "src": "./src/server.js", "use": "@now/node-server" }],
+    "routes": [{"handle": "filesystem"}, { "src": "/(.*)", "dest": "./src/server.js" }]
 }
