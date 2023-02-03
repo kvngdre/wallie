@@ -4,7 +4,6 @@ Wallie is a node API that grants wallet functionality to users. Borrowers now ha
 
 ## Getting Started
 
-
 ### Database Set Up
 
 Make sure you have [Node.js](https://nodejs.org/en/download) and [MySQL](https://dev.mysql.com/downloads/mysql/) installed.  
