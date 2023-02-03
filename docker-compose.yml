@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+    env_file:
+      - ./.env
+    environment:
+      DB_HOST: mysqldb
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME_PROD
+      DB_PORT: $DB_PORT 
+    
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      ROOT_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME_PROD
+    ports:
+      - 3306:3306
+    volumes:
+      -
+
+

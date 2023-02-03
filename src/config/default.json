@@ -1,4 +1,5 @@
 {
+    "name": "Wallie::Dev",
     "api": { "prefix": "/api" },
     "port": 4000
 }

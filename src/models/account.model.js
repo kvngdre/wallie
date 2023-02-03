@@ -1,5 +1,5 @@
 const { Model } = require('objection');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const NotFoundException = require('../errors/NotFoundError');
 
 class Account extends Model {

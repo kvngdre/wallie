@@ -1,11 +1,13 @@
-const errorHandler = require('../utils/errorHandler');
 const dbLoader = require('./db.loader');
+const errorHandler = require('../utils/errorHandler');
 const expressLoader = require('./express.loader');
+const logger = require('./logger');
 
 module.exports = (app) => {
     process.on('uncaughtException', (error) => {
         errorHandler.handleError(error);
         if (!errorHandler.isTrustedError(error)) {
+            console.log(error.message)
             console.error('UncaughtException');
             process.exit(1);
         }

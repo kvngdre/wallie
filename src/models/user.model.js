@@ -1,6 +1,6 @@
 const { Model } = require('objection');
 const Account = require('./account.model');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const config = require('config');
 const jwt = require('jsonwebtoken');
 const NotFoundException = require('../errors/NotFoundError');

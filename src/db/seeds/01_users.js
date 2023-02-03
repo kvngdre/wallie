@@ -1,5 +1,5 @@
 const { admin, user } = require('../../utils/userRoles');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const hashedPwd = bcrypt.hashSync('Password1!', 10);
 

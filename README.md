@@ -1,6 +1,6 @@
-# Demo Credit
+# Wallie
 
-Demo Credit is a mobile lending app that grants wallet functionality to users. Borrowers now have a wallet to receive the loans they have been granted and also spend the money on goods, service and repayments.
+Wallie is a node API that grants wallet functionality to users. Borrowers now have a wallet to receive the loans they have been granted and also spend the money on goods, service and repayments.
 
 ## Getting Started
 
