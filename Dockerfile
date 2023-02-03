@@ -9,4 +9,3 @@ ENV NODE_ENV=production
 EXPOSE 4000
 
 ENTRYPOINT ["npm", "start"]
-

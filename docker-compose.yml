@@ -12,11 +12,14 @@ services:
       - 3307:3306
     volumes:
       - wallie:/var/lib/mysql
+  
   app:
     depends_on:
       - mysqldb
+      - migration
     build: .
-    restart: unless-stopped
+    image: wallie-img
+    restart: on-failure
     ports:
       - 4000:4000
     env_file:
@@ -27,6 +30,13 @@ services:
       DB_PASSWORD: $DB_PASSWORD
       DB_NAME: $DB_NAME_PROD
       DB_PORT: $DB_PORT 
+
+  migration:
+    depends_on:
+      - mysqldb
+    image: wallie-img
+    command: sh -c "npm run migrate"
+
 volumes:
   wallie:
 
