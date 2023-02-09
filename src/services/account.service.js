@@ -2,10 +2,10 @@ const { Model } = require('objection');
 const { txnPurposes, txnTypes } = require('../utils/constants');
 const AccountDAO = require('../daos/account.dao');
 const ConflictException = require('../errors/ConflictError');
-const events = require('../utils/events');
+const events = require('../pubsub/events');
 const InsufficientFundsException = require('../errors/InsufficientFundsError');
 const logger = require('../loaders/logger');
-const pubsub = require('../utils/PubSub');
+const pubsub = require('../pubsub/PubSub');
 const roles = require('../utils/userRoles');
 const UnauthorizedException = require('../errors/UnauthorizedError');
 

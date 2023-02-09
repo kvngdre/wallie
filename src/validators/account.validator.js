@@ -15,7 +15,7 @@ class AccountValidators {
             .label('Pin')
             .messages({
                 'string.length': '{#label} must be {#limit} digits long',
-                'string.pattern.base': 'Invalid {#label}',
+                'string.pattern.base': 'Invalid {#label}. Only numbers allowed.',
             });
     }
 

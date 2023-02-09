@@ -1,6 +1,6 @@
 const { admin, user } = require('../utils/userRoles');
-const events = require('../utils/events');
-const pubsub = require('../utils/PubSub');
+const events = require('../pubsub/events');
+const pubsub = require('../pubsub/PubSub');
 const UserDAO = require('../daos/user.dao');
 const ConflictException = require('../errors/ConflictError');
 const User = require('../models/user.model');

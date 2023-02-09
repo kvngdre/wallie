@@ -5,7 +5,6 @@ class BaseError extends Error {
 
         this.code = httpCode;
         this.isOperational = isOperational;
-        this.message = description;
 
         Error?.captureStackTrace(this, this.constructor);
     }

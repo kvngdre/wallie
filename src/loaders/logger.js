@@ -1,5 +1,5 @@
 const { addColors, createLogger, format, transports } = require('winston');
-const { align, colorize, combine, printf, splat, timestamp } = format;
+const { align, colorize, combine, printf, timestamp } = format;
 
 function isDevEnvironment() {
     const env = process.env.NODE_ENV;
@@ -64,7 +64,7 @@ class Logger {
     }
 
     fatal(message, meta) {
-        this.logger.log('fatal', { message: message, meta });
+        this.logger.log('fatal', { message, meta });
     }
 
     error(message, meta) {

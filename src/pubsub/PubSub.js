@@ -27,6 +27,7 @@ class PubSub {
             // Emit or publish the event to anyone who is subscribed.
             if (this.#events[eventName]) {
                 const handlerFns = this.#events[eventName];
+                
                 for (let fn of handlerFns) {
                     await fn(data, trx);
                 }
