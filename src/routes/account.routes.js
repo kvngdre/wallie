@@ -16,12 +16,12 @@ router.get('/me', [auth], AccountController.getCurrentUserAccount);
 
 router.get('/:id', [auth, isAdmin, validateId], AccountController.getAccount);
 
+router.delete('/:id', [auth, isAdmin, validateId], AccountController.deleteAccount);
+
 router.post('/debit', [auth], AccountController.debitAccount);
 
 router.post('/fund', [auth], AccountController.fundAccount);
 
 router.post('/transfer-funds', [auth], AccountController.transferFunds);
-
-router.delete('/:id', [auth, isAdmin, validateId], AccountController.deleteAccount);
 
 module.exports = router;

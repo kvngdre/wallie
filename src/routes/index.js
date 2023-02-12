@@ -1,16 +1,16 @@
-const accountRouter = require('./account.routes');
-const authRouter = require('./auth.routes');
-const transactionRouter = require('./transaction.routes');
-const userRouter = require('./user.routes');
+const accountRoutes = require('./account.routes');
+const authRoutes = require('./auth.routes');
+const transactionRoutes = require('./transaction.routes');
+const userRoutes = require('./user.routes');
 const Router = require('express').Router;
 
 const router = Router();
 
 module.exports = () => {
-    router.use('/accounts', accountRouter);
-    router.use('/auth', authRouter);
-    router.use('/transactions', transactionRouter);
-    router.use('/users', userRouter);
+    router.use('/accounts', accountRoutes);
+    router.use('/auth', authRoutes);
+    router.use('/transactions', transactionRoutes);
+    router.use('/users', userRoutes);
 
     return router;
 };
