@@ -14,7 +14,13 @@
   "engines": {
     "node": "18.13.0"
   },
-  "keywords": ["javascript", "node", "express", "wallet", "e-wallet"],
+  "keywords": [
+    "javascript",
+    "node",
+    "express",
+    "wallet",
+    "e-wallet"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -36,6 +42,7 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "jest": "^29.3.1",
+    "nodemon": "^2.0.20",
     "supertest": "^6.3.1"
   }
 }
