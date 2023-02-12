@@ -14,7 +14,7 @@
   "engines": {
     "node": "18.13.0"
   },
-  "keywords": [],
+  "keywords": ["javascript", "node", "express", "wallet", "e-wallet"],
   "author": "",
   "license": "ISC",
   "dependencies": {

@@ -3,7 +3,9 @@ const logger = require('../loaders/logger');
 
 class ErrorHandler {
     handleError(error) {
-        logger.error(error.message, error.stack);
+        if (this.isTrustedError(error))
+            logger.error(error.message, error.stack);
+        else logger.fatal(error.message, error.stack);
         // send email to admin if critical
         // send to sentry for monitoring
     }
