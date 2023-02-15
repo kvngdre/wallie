@@ -11,6 +11,7 @@ loaders(app);
 
 const appName = config.get('name');
 const port = config.get('port') || 4040;
+console.log(process.env.NODE_ENV);
 const server = app.listen(port, () =>
     console.log(`${appName}- Listening on [${port}]`)
 );
