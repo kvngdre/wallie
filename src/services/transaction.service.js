@@ -2,7 +2,7 @@ const { admin } = require('../utils/userRoles');
 const { v4 } = require('uuid');
 const events = require('../pubsub/events');
 const pubsub = require('../pubsub/PubSub');
-const TransactionDAO = require('../daosz/transaction.dao');
+const TransactionDAO = require('../daos/transaction.dao');
 
 class TransactionService {
     constructor() {

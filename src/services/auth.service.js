@@ -1,6 +1,6 @@
 const logger = require('../loaders/logger');
 const UnauthorizedError = require('../errors/UnauthorizedError');
-const UserDAO = require('../daosz/user.dao');
+const UserDAO = require('../daos/user.dao');
 
 class AuthService {
     static async signIn(loginDto) {

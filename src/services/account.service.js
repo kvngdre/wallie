@@ -1,6 +1,6 @@
 const { Model } = require('objection');
 const { txnPurposes, txnTypes } = require('../utils/constants');
-const AccountDAO = require('../daosz/account.dao');
+const AccountDAO = require('../daos/account.dao');
 const ConflictException = require('../errors/ConflictError');
 const events = require('../pubsub/events');
 const InsufficientFundsException = require('../errors/InsufficientFundsError');
