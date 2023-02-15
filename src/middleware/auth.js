@@ -1,6 +1,6 @@
 const { httpStatusCodes } = require('../utils/constants');
 const APIError = require('../errors/APIError');
-const config = require('config');
+const config = require('../config/config');
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
@@ -27,11 +27,11 @@ module.exports = (req, res, next) => {
         }
 
         const token = getTokenFromHeader(req);
-        const decoded = jwt.verify(token, config.get('jwt.secret'));
+        const decoded = jwt.verify(token, config.jwt.secret);
 
         if (
-            decoded.iss !== config.get('jwt.issuer') ||
-            decoded.aud !== config.get('jwt.audience')
+            decoded.iss !== config.jwt.issuer ||
+            decoded.aud !== config.jwt.audience
         ) {
             throw new APIError(
                 httpStatusCodes.UNAUTHORIZED,

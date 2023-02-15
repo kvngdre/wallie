@@ -1,4 +1,4 @@
-const config = require('config');
+const config = require('../config/config');
 const cors = require('cors');
 const errorMiddleware = require('../middleware/error');
 const express = require('express');
@@ -29,7 +29,7 @@ module.exports = (app) => {
     app.use(express.json());
 
     // Load API routes
-    app.use(config.get('api.prefix'), routes());
+    app.use(config.api.prefix, routes());
 
     // Catch and handle 404
     app.use((req, res, next) => {

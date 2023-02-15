@@ -1,7 +1,7 @@
 const { Model } = require('objection');
 const Account = require('./account.model');
 const bcrypt = require('bcryptjs');
-const config = require('config');
+const config = require('../config/config');
 const jwt = require('jsonwebtoken');
 const NotFoundException = require('../errors/NotFoundError');
 
@@ -53,18 +53,14 @@ class User extends Model {
 
     comparePasswords = (pwd) => {
         return bcrypt.compareSync(pwd, this.password);
-    }
+    };
 
     generateAccessToken() {
-        return jwt.sign(
-            { id: this.id, role: this.role },
-            config.get('jwt.secret'),
-            {
-                audience: config.get('jwt.audience'),
-                expiresIn: parseInt(config.get('jwt.exp_time')),
-                issuer: config.get('jwt.issuer'),
-            }
-        );
+        return jwt.sign({ id: this.id, role: this.role }, config.jwt.secret, {
+            audience: config.jwt.audience,
+            expiresIn: parseInt(config.jwt.exp_time),
+            issuer: config.jwt.issuer,
+        });
     }
 }
 
