@@ -4,7 +4,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const foundEnv = dotenv.config();
 
-if (foundEnv.error) throw new Error('Failed to locate .env file');
+if (foundEnv.error && process.env.NODE_ENV !== 'production')
+    throw new Error('Failed to locate .env file');
 
 const configurations = {
     api: { prefix: '/api' },
