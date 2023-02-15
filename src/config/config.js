@@ -8,7 +8,7 @@ if (foundEnv.error && process.env.NODE_ENV !== 'production')
     throw new Error('Failed to locate .env file');
 
 const configurations = {
-    api: { prefix: '/api' },
+    api: { prefix: '/api', version: '/v1' },
     db: {
         dev: {
             user: process.env.DEV_DB_USER,

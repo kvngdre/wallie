@@ -6,6 +6,8 @@ const helmet = require('helmet');
 const NotFoundError = require('../errors/NotFoundError');
 const routes = require('../routes/index');
 
+const { api } = config;
+
 module.exports = (app) => {
     /**
      * Health check endpoints
@@ -29,7 +31,7 @@ module.exports = (app) => {
     app.use(express.json());
 
     // Load API routes
-    app.use(config.api.prefix, routes());
+    app.use(api.prefix + api.version, routes());
 
     // Catch and handle 404
     app.use((req, res, next) => {
