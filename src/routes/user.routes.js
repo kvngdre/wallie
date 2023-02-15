@@ -6,7 +6,7 @@ const validateId = require('../middleware/validateId');
 
 const router = Router();
 
-router.post('/new', UserController.createUser);
+router.post('/signup', UserController.createUser);
 
 router.get('/', [auth, isAdmin], UserController.getAllUsers);
 
