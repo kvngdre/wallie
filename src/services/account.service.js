@@ -232,6 +232,15 @@ async function incrementBalance(account, amount, trx) {
     await account.$query(trx).patch({ balance: Number(balance) + amount });
 }
 
+/**
+ * Constructs a new transaction object.
+ * @param {number} id 
+ * @param {string} type 
+ * @param {string} purpose 
+ * @param {number} amount 
+ * @param {string} desc 
+ * @param {number} balance 
+ */
 function NewTransaction(id, type, purpose, amount, desc, balance) {
     this.account_id = id;
     this.type = type;
