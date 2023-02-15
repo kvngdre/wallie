@@ -13,7 +13,7 @@ module.exports = (app) => {
      * These are useful to quickly check if api is up and debugging.
      */
     app.get('/status', (req, res) => {
-        res.status(200).end();
+        res.status(200).send('OK ✔');
     });
 
     app.use(helmet());
