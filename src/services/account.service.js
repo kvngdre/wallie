@@ -239,8 +239,10 @@ function NewTransaction(id, type, purpose, amount, desc, balance) {
     this.amount = amount;
     this.description = desc;
     this.bal_before = Number(balance);
-    if (type === txnTypes.DEBIT) this.bal_after = Number(balance) - amount;
-    else this.bal_after = Number(balance) + amount;
+    this.bal_after =
+        type === txnTypes.DEBIT
+            ? Number(balance) - amount
+            : Number(balance) + amount;
 }
 
 module.exports = new AccountService();
