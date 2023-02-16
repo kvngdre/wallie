@@ -16,6 +16,8 @@ router.get('/me', [auth], AccountController.getCurrentUserAccount);
 
 router.get('/:id', [auth, isAdmin, validateId], AccountController.getAccount);
 
+router.patch('/', [auth], AccountController.updateAccount);
+
 router.delete('/:id', [auth, isAdmin, validateId], AccountController.deleteAccount);
 
 router.post('/debit', [auth], AccountController.debitAccount);

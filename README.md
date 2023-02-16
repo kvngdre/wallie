@@ -46,13 +46,13 @@ As well as the JSON web token details:
 - JWT_ISSUER=
 - JWT_AUDIENCE=
 
-Next, run the migrations to create database tables by running:
+Next, run the migrations to create database tables:
 
 ```sh
-npm run migrate
+npm run migrations
 ```
 
-Seed the database to create dummy data by running
+Seed the database to create dummy data:
 
 ```sh
 npm run seed
@@ -86,6 +86,10 @@ To run the tests:
 ```sh
 npm test
 ```  
+
+### Branches
+
+Branches are properly named and created per feature. So to see the code for a particular feature, you can switch to the corresponding branch in the UI or terminal.
 
 ### Endpoints
 

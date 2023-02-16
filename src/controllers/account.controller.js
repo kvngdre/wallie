@@ -3,6 +3,7 @@ const {
     validateDebitAccountDto,
     validateNewAccountDto,
     validateTransferDto,
+    validateUpdateAccountDto,
 } = require('../validators/account.validator');
 const { httpStatusCodes } = require('../utils/constants');
 const accountService = require('../services/account.service');
@@ -49,6 +50,20 @@ class AccountController {
     static async getAccount(req, res) {
         const account = await accountService.getAccount(req.params.id);
         const response = new APIResponse('Fetched account.', account);
+
+        return res.status(httpStatusCodes.OK).json(response);
+    }
+
+    static async updateAccount(req, res) {
+        // Validating new account dto
+        const { error } = validateUpdateAccountDto(req.body);
+        if (error) {
+            const errorMsg = formatErrorMsg(error.details[0].message);
+            throw new ValidationException(errorMsg);
+        }
+
+        const updatedAccount = await accountService.updateAccount(req.currentUser.id, req.body);
+        const response = new APIResponse('Account updated.', updatedAccount);
 
         return res.status(httpStatusCodes.OK).json(response);
     }

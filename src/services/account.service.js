@@ -36,10 +36,7 @@ class AccountService {
         return foundAccount;
     }
 
-    async updateAccount(currentUser, accountId, updateAccountDto) {
-        if (currentUser.id !== user_id && currentUser.role !== roles.admin)
-            throw new ConflictException('Cannot perform operation.');
-
+    async updateAccount(accountId, updateAccountDto) {
         const updatedAccount = await AccountDAO.update(
             accountId,
             updateAccountDto
@@ -234,12 +231,12 @@ async function incrementBalance(account, amount, trx) {
 
 /**
  * Constructs a new transaction object.
- * @param {number} id 
- * @param {string} type 
- * @param {string} purpose 
- * @param {number} amount 
- * @param {string} desc 
- * @param {number} balance 
+ * @param {number} id
+ * @param {string} type
+ * @param {string} purpose
+ * @param {number} amount
+ * @param {string} desc
+ * @param {number} balance
  */
 function NewTransaction(id, type, purpose, amount, desc, balance) {
     this.account_id = id;

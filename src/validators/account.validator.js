@@ -15,7 +15,8 @@ class AccountValidators {
             .label('Pin')
             .messages({
                 'string.length': '{#label} must be {#limit} digits long',
-                'string.pattern.base': 'Invalid {#label}. Only numbers allowed.',
+                'string.pattern.base':
+                    'Invalid {#label}. Only numbers allowed.',
             });
     }
 
@@ -24,6 +25,13 @@ class AccountValidators {
             pin: this.#pinSchema.required(),
         });
         return schema.validate(newAccountDto);
+    };
+
+    validateUpdateAccountDto = (updateAccountDto) => {
+        const schema = Joi.object({
+            pin: this.#pinSchema,
+        });
+        return schema.validate(updateAccountDto);
     };
 
     validateCreditAccountDto = (accountEntryDto) => {
@@ -50,7 +58,7 @@ class AccountValidators {
                 .label('Destination account id')
                 .invalid(currentUser.id)
                 .required(),
-                pin: this.#pinSchema.required(),
+            pin: this.#pinSchema.required(),
             desc: this.#descSchema,
         });
         return schema.validate(transferDto);
