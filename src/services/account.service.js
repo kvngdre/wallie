@@ -216,18 +216,18 @@ class AccountService {
 }
 
 async function decrementBalance(account, amount, trx) {
-    const { balance } = account;
+    const balance = Number(account.balance);
     if (balance < amount)
-        throw new InsufficientFundsException('Insufficient funds');
+        throw new InsufficientFundsException('Insufficient funds.');
 
-    const newBalance = Number(balance - amount).toFixed(2);
+    const newBalance = Number((balance - amount).toFixed(2));
     await account.$query(trx).patch({ balance: newBalance });
 }
 
 async function incrementBalance(account, amount, trx) {
-    const { balance } = account;
+    const balance = Number(account.balance);
 
-    const newBalance = Number(balance + amount).toFixed(2);
+    const newBalance = Number((balance + amount).toFixed(2));
     await account.$query(trx).patch({ balance: newBalance });
 }
 
