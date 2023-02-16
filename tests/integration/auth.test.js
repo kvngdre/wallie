@@ -10,11 +10,11 @@ describe('authentication', () => {
         server.close();
     });
 
-    describe('POST - sign in user - /api/auth/sign-in', () => {
+    describe('POST - sign in user - /api/v1/auth/sign-in', () => {
         let payload = { email: 'bojack@email.com', password: 'Password1!' };
 
         const exec = () => {
-            return request(server).post('/api/auth/sign-in').send(payload);
+            return request(server).post('/api/v1/auth/sign-in').send(payload);
         };
 
         it('returns 400 if input does not pass validation', async () => {

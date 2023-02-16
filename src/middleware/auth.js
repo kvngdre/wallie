@@ -1,7 +1,6 @@
-const { httpStatusCodes } = require('../utils/constants');
-const APIError = require('../errors/APIError');
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
+const UnauthorizedException = require('../errors/UnauthorizedError');
 
 module.exports = (req, res, next) => {
     try {
@@ -33,21 +32,13 @@ module.exports = (req, res, next) => {
             decoded.iss !== config.jwt.issuer ||
             decoded.aud !== config.jwt.audience
         ) {
-            throw new APIError(
-                httpStatusCodes.UNAUTHORIZED,
-                true,
-                'Invalid token provided.'
-            );
+            throw new UnauthorizedException('Invalid token provided.');
         }
 
         req.currentUser = decoded;
 
         next();
     } catch (exception) {
-        throw new APIError(
-            httpStatusCodes.UNAUTHORIZED,
-            true,
-            exception.message
-        );
+        throw new UnauthorizedException(exception.message);
     }
 };

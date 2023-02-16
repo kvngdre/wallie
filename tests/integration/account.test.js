@@ -11,14 +11,14 @@ describe('accounts', () => {
         server.close();
     });
 
-    describe('POST - create new account - /api/accounts/new', () => {
+    describe('POST - create new account - /api/v1/accounts/new', () => {
         let id = 4;
         let pin;
         let token;
 
         const exec = () => {
             return request(server)
-                .post('/api/accounts/new')
+                .post('/api/v1/accounts/new')
                 .set('authorization', `Bearer ${token}`)
                 .send({ pin });
         };
@@ -63,12 +63,12 @@ describe('accounts', () => {
         });
     });
 
-    describe('GET - get all accounts - /api/accounts', () => {
+    describe('GET - get all accounts - /api/v1/accounts', () => {
         let token;
 
         const exec = () => {
             return request(server)
-                .get('/api/accounts')
+                .get('/api/v1/accounts')
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -117,13 +117,13 @@ describe('accounts', () => {
         });
     });
 
-    describe('GET - get current user account - /api/accounts/me', () => {
+    describe('GET - get current user account - /api/v1/accounts/me', () => {
         let id = 4;
         let token;
 
         const exec = () => {
             return request(server)
-                .get('/api/accounts/me')
+                .get('/api/v1/accounts/me')
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -151,13 +151,13 @@ describe('accounts', () => {
         });
     });
 
-    describe('GET - get an account - /api/accounts/:id', () => {
+    describe('GET - get an account - /api/v1/accounts/:id', () => {
         let id;
         let token;
 
         const exec = () => {
             return request(server)
-                .get(`/api/accounts/${id}`)
+                .get(`/api/v1/accounts/${id}`)
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -231,7 +231,7 @@ describe('accounts', () => {
         });
     });
 
-    // describe('PATCH - update an account - /api/accounts/:id', () => {
+    // describe('PATCH - update an account - /api/v1/accounts/:id', () => {
     //     let id;
     //     let token;
     //     let amount;
@@ -239,7 +239,7 @@ describe('accounts', () => {
 
     //     const exec = () => {
     //         return request(server)
-    //             .get(`/api/accounts/${id}`)
+    //             .get(`/api/v1/accounts/${id}`)
     //             .set('authorization', `Bearer ${token}`)
     //             .send(payload);
     //     };
@@ -287,13 +287,13 @@ describe('accounts', () => {
     //     });
     // });
 
-    describe('GET - get account balance - /api/accounts/balance', () => {
+    describe('GET - get account balance - /api/v1/accounts/balance', () => {
         let id = 4;
         let token;
 
         const exec = () => {
             return request(server)
-                .get(`/api/accounts/balance`)
+                .get(`/api/v1/accounts/balance`)
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -321,7 +321,7 @@ describe('accounts', () => {
         });
     });
 
-    describe('POST - credit account - /api/accounts/fund', () => {
+    describe('POST - credit account - /api/v1/accounts/fund', () => {
         let currentUserId;
         let token;
         let role = roles.user;
@@ -329,7 +329,7 @@ describe('accounts', () => {
 
         const exec = () => {
             return request(server)
-                .post(`/api/accounts/fund/`)
+                .post(`/api/v1/accounts/fund/`)
                 .set('authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -392,14 +392,14 @@ describe('accounts', () => {
         });
     });
 
-    describe('POST - debit account - /api/accounts/debit', () => {
+    describe('POST - debit account - /api/v1/accounts/debit', () => {
         let currentUserId;
         let token;
         let payload = { desc: 'Chop life crew', pin: '0000' };
 
         const exec = () => {
             return request(server)
-                .post(`/api/accounts/debit`)
+                .post(`/api/v1/accounts/debit`)
                 .set('authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -501,7 +501,7 @@ describe('accounts', () => {
         });
     });
 
-    describe('POST - transfer funds to another account - /api/accounts/transfer-funds', () => {
+    describe('POST - transfer funds to another account - /api/v1/accounts/transfer-funds', () => {
         let currentUserId;
         let token;
         let payload = {
@@ -513,7 +513,7 @@ describe('accounts', () => {
 
         const exec = () => {
             return request(server)
-                .post(`/api/accounts/transfer-funds`)
+                .post(`/api/v1/accounts/transfer-funds`)
                 .set('authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -608,7 +608,7 @@ describe('accounts', () => {
         });
     });
 
-    describe('DELETE - deleted an account - /api/accounts/:id', () => {
+    describe('DELETE - deleted an account - /api/v1/accounts/:id', () => {
         let id;
         let token;
         let currentUserId = 1;
@@ -616,7 +616,7 @@ describe('accounts', () => {
 
         const exec = () => {
             return request(server)
-                .delete(`/api/accounts/${id}`)
+                .delete(`/api/v1/accounts/${id}`)
                 .set('Authorization', `Bearer ${token}`);
         };
 

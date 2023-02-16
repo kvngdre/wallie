@@ -28,7 +28,7 @@ describe('transactions', () => {
 
         const exec = () => {
             return request(server)
-                .post('/api/transactions/new')
+                .post('/api/v1/transactions/new')
                 .set('authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -116,7 +116,7 @@ describe('transactions', () => {
 
         const exec = () => {
             return request(server)
-                .get('/api/transactions')
+                .get('/api/v1/transactions')
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -155,7 +155,7 @@ describe('transactions', () => {
 
         const exec = () => {
             return request(server)
-                .get(`/api/transactions/${id}`)
+                .get(`/api/v1/transactions/${id}`)
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -215,7 +215,7 @@ describe('transactions', () => {
 
         const exec = () => {
             return request(server)
-                .patch(`/api/transactions/${id}`)
+                .patch(`/api/v1/transactions/${id}`)
                 .set('Authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -290,7 +290,7 @@ describe('transactions', () => {
 
         const exec = () => {
             return request(server)
-                .delete(`/api/transactions/${id}`)
+                .delete(`/api/v1/transactions/${id}`)
                 .set('Authorization', `Bearer ${token}`);
         };
 

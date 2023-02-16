@@ -15,7 +15,7 @@ describe('users', () => {
         let password = 'Password1!';
 
         const exec = () => {
-            return request(server).post('/api/users/new').send({
+            return request(server).post('/api/v1/users/signup').send({
                 first_name: 'Jack',
                 last_name: 'Sparrow',
                 email,
@@ -61,7 +61,7 @@ describe('users', () => {
 
         const exec = () => {
             return request(server)
-                .get('/api/users')
+                .get('/api/v1/users')
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -118,7 +118,7 @@ describe('users', () => {
 
         const exec = () => {
             return request(server)
-                .get('/api/users/me')
+                .get('/api/v1/users/me')
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -152,7 +152,7 @@ describe('users', () => {
 
         const exec = () => {
             return request(server)
-                .get(`/api/users/${id}`)
+                .get(`/api/v1/users/${id}`)
                 .set('authorization', `Bearer ${token}`);
         };
 
@@ -236,7 +236,7 @@ describe('users', () => {
 
         const exec = () => {
             return request(server)
-                .patch(`/api/users/`)
+                .patch(`/api/v1/users/`)
                 .set('Authorization', `Bearer ${token}`)
                 .send(payload);
         };
@@ -295,7 +295,7 @@ describe('users', () => {
 
         const exec = () => {
             return request(server)
-                .delete(`/api/users/${id}`)
+                .delete(`/api/v1/users/${id}`)
                 .set('Authorization', `Bearer ${token}`);
         };
 

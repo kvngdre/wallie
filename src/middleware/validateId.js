@@ -1,16 +1,14 @@
-const { httpStatusCodes } = require('../utils/constants');
-const APIError = require('../errors/APIError');
-const roles = require('../utils/userRoles');
+const ValidationException = require('../errors/ValidationError');
 
 module.exports = (req, res, next) => {
-    const { currentUser, params } = req;
+    const { params } = req;
 
     if (
         isNaN(params.id) ||
         params.id < 1 ||
         !Number.isInteger(Number(params.id))
     )
-        throw new APIError(httpStatusCodes.BAD_REQUEST, true, 'Invalid id');
+        throw new ValidationException('Invalid ID');
 
     next();
 };

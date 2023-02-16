@@ -1,35 +1,41 @@
 # Wallie
 
-Wallie is a node API that grants wallet functionality to users. Borrowers now have a wallet to receive the loans they have been granted and also spend the money on goods, service and repayments.
+Wallie is a node API that grants wallet functionality to users. Users can sign up, deposit, withdraw and transfer funds. More features will be added over time.
 
 ## Getting Started
 
-### Database Set Up
+You are required to have installed [NodeJS](https://nodejs.org/en/download) on your machine.
 
-Make sure you have [Node.js](https://nodejs.org/en/download) and [MySQL](https://dev.mysql.com/downloads/mysql/) installed.  
+### Database Setup
 
-Make sure the mySQL database server is running, and then create two new databases in [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html), for development and testing:
+Ensure you have [MySQL](https://dev.mysql.com/downloads/mysql/) installed and the mySQL database server is running.
+
+Create two new databases for development and testing, this can be accomplished with [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
+
+Open a terminal window and run the command below to spin up [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
 
 ```sh
 mysql -u root -p
 ```
 
-Now enter the password for the root user (your user might be different, use that).
+Next, enter the password for the root user (your user might be different, use that).
+
+Create a new database for development, run:
 
 ```sh
-# create database demo_credit
-mysql> CREATE DATABASE ;
-# create database test_demo_credit
-mysql> CREATE DATABASE ;
+# create development database
+mysql> CREATE DATABASE dev_wallie;
 ```
 
-Install project dependencies by running:  
+### App Setup
+
+Clone the repo and install project dependencies:  
 
 ```sh
 npm install
 ```
 
-Create a `.env` file in the root directory or you can use the ``.env.example`` file I have included then add your database details in it. It should have these properties:
+Create a `.env` file in the root directory or you can use the `.env.example` file, it should contain these properties:
 
 - DB_PORT=
 
@@ -58,19 +64,28 @@ Seed the database to create dummy data:
 npm run seed
 ```  
 
-> 💡 You can create your own users by calling the `createUser` [endpoint](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
-
-You can go ahead and start the server by running:
+You can go ahead and start the server:
 
 ```sh
 npm run dev
 ```
 
+Great!🚀 You should be ready to start making API calls. Verify the health of the API by hitting this [endpoint](http://localhost:4000/status).
+<br></br>
+
+> 💡 &nbsp; If you do not want to go through all those steps, you can skip that by using Docker. Please note you must have Docker installed and set up on your machine.
+>
+> To spin up the docker containers, run in the root directory:
+>
+>```sh
+> docker-compose up 
+>```
+>
+> If successful, the API, MySQL database and database migrations should all have been created and taken care of, with the server running on port `4000`.
+
 ### Database structure
 
-Each `user` has one `account` and every `transaction` belongs to an `account`.
-
-See the ER diagram below:
+Every `transaction` belongs to an `account` and every `account` belongs to a `user`. See the ER diagram below for relationship mapping:
 
 <p align="center" style="margin: 0"><img src="./src/images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
 
@@ -79,21 +94,21 @@ _Entity Relationship Diagram_    -->
 
 ### Test Structure
 
-With that complete, let's take a look at the current test structure. All tests live in the "test" directory in the root of the application.  
+With that complete, lets take a look at the current test structure. All tests live in the "test" directory in the root of the application. Test suite has been split into `unit` and `integration` tests.
 
-To run the tests:
+To run the test suite:
 
 ```sh
 npm test
 ```  
 
+### Endpoints
+
+All server endpoints can be found in the `src/routes` directory or view API documentation [here](https://documenter.getpostman.com/view/22366860/2s93CExwfx).
+
 ### Branches
 
 Branches are properly named and created per feature. So to see the code for a particular feature, you can switch to the corresponding branch in the UI or terminal.
-
-### Endpoints
-
-All server endpoints can be found in the `src/routes` directory or [here](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
   
 ### Feature Requests
 

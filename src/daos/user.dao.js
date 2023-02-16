@@ -26,41 +26,29 @@ class UserDAO {
     }
 
     static async findAll(queryObj = {}, message = 'No users found') {
-        try {
-            const foundRecords = await User.query()
-                .where(queryObj)
-                .throwIfNotFound(message)
-                .orderBy('id', 'desc');
+        const foundRecords = await User.query()
+            .where(queryObj)
+            .throwIfNotFound(message)
+            .orderBy('id', 'desc');
 
-            return foundRecords;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecords;
     }
 
     static async findById(id, message = 'User not found') {
-        try {
-            const foundRecord = await User.query()
-                .findById(id)
-                .throwIfNotFound(message);
+        const foundRecord = await User.query()
+            .findById(id)
+            .throwIfNotFound(message);
 
-            return foundRecord;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecord;
     }
 
     static async findOne(queryObj, message = 'User not found') {
-        try {
-            const foundRecord = await User.query()
-                .where(queryObj)
-                .first()
-                .throwIfNotFound(message);
+        const foundRecord = await User.query()
+            .where(queryObj)
+            .first()
+            .throwIfNotFound(message);
 
-            return foundRecord;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecord;
     }
 
     static async update(
@@ -90,15 +78,11 @@ class UserDAO {
     }
 
     static async delete(id, message = 'User not found') {
-        try {
-            const numberOfDeletedRows = await User.query()
-                .deleteById(id)
-                .throwIfNotFound(message);
+        const numberOfDeletedRows = await User.query()
+            .deleteById(id)
+            .throwIfNotFound(message);
 
-            return numberOfDeletedRows;
-        } catch (exception) {
-            throw exception;
-        }
+        return numberOfDeletedRows;
     }
 }
 

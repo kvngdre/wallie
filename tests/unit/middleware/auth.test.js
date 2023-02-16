@@ -1,6 +1,6 @@
-const APIError = require('../../../src/errors/APIError');
 const auth = require('../../../src/middleware/auth');
 const jwt = require('jsonwebtoken');
+const UnauthorizedError = require('../../../src/errors/UnauthorizedError');
 const User = require('../../../src/models/user.model');
 
 describe('auth middleware', () => {
@@ -26,7 +26,7 @@ describe('auth middleware', () => {
         expect(req.currentUser).toMatchObject({ id: 1, role: 'W2' });
     });
 
-    it('should throw an APIError if API specified issuer and/or audience does not match decode payload.', () => {
+    it('throws an UnauthorizedError if JWT claim issuer and/or audience does not match decode payload.', () => {
         const token = jwt.sign({ id: 1, role: 'W2' }, 'secretKey', {
             audience: 'api',
             issuer: 'myAPI',
@@ -38,11 +38,11 @@ describe('auth middleware', () => {
         const res = {};
         const next = jest.fn();
 
-        expect(() => auth(req, res, next)).toThrow(APIError);
+        expect(() => auth(req, res, next)).toThrow(UnauthorizedError);
     });
 
     it.each([[{ headers: {} }], [{ headers: { authorization: `Bearer ` } }]])(
-        'should throw an APIError if no token is provided',
+        'throws an UnauthorizedError if no token is provided.',
         (val) => {
             const req = val;
             const res = {};
@@ -50,7 +50,7 @@ describe('auth middleware', () => {
 
             expect(() => {
                 auth(req, res, next);
-            }).toThrow(APIError);
+            }).toThrow(UnauthorizedError);
         }
     );
 });

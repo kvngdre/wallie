@@ -1,20 +1,15 @@
-require('dotenv').config();
-process.env['NODE_CONFIG_DIR'] = require('path').join(
-    __dirname,
-    '../../src/config'
-);
-const config = require('config');
+const config = require('../../src/config/config');
 const Knex = require('knex');
 
-const database = config.get('database.name.test');
+const database = config.db.test.name;
 
 const knex = Knex({
     client: 'mysql2',
     connection: {
-        host: config.get('database.host'),
-        port: config.get('database.port'),
-        user: config.get('database.user'),
-        password: config.get('database.password'),
+        host: config.db.test.host,
+        port: config.db.test.port,
+        user: config.db.test.user,
+        password: config.db.test.password,
         database: database,
     },
     pool: { min: 0, max: 7 },
@@ -23,8 +18,9 @@ const knex = Knex({
 module.exports = async () => {
     try {
         await knex.raw(`DROP DATABASE IF EXISTS ${database}`);
+        console.log('Test DB dropped.');
     } catch (error) {
-        console.log(error);
+        console.error(error.message, error.stack);
         process.exit(1);
     } finally {
         knex.destroy();

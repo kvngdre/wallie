@@ -36,43 +36,31 @@ class TransactionDAO {
     }
 
     static async findAll(queryObj, message = 'No transactions found') {
-        try {
-            const foundRecords = await Transaction.query()
-                .joinRelated('account')
-                .where(queryObj)
-                .throwIfNotFound(message)
-                .orderBy('id', 'desc');
+        const foundRecords = await Transaction.query()
+            .joinRelated('account')
+            .where(queryObj)
+            .throwIfNotFound(message)
+            .orderBy('id', 'desc');
 
-            return foundRecords;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecords;
     }
 
     static async findById(txnId, message = 'Transaction not found') {
-        try {
-            const foundRecord = await Transaction.query()
-                .findById(txnId)
-                .throwIfNotFound(message);
+        const foundRecord = await Transaction.query()
+            .findById(txnId)
+            .throwIfNotFound(message);
 
-            return foundRecord;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecord;
     }
 
     static async findOne(queryObj, message = 'Transaction not found') {
-        try {
-            const foundRecord = await Transaction.query()
-                .joinRelated('account')
-                .where(queryObj)
-                .first()
-                .throwIfNotFound(message);
+        const foundRecord = await Transaction.query()
+            .joinRelated('account')
+            .where(queryObj)
+            .first()
+            .throwIfNotFound(message);
 
-            return foundRecord;
-        } catch (exception) {
-            throw exception;
-        }
+        return foundRecord;
     }
 
     static async update(id, updateTxnDto, message = 'Transaction not found') {
@@ -98,15 +86,11 @@ class TransactionDAO {
     }
 
     static async delete(id, message = 'Transaction not found') {
-        try {
-            const numberOfDeletedRows = await Transaction.query()
-                .deleteById(id)
-                .throwIfNotFound(message);
+        const numberOfDeletedRows = await Transaction.query()
+            .deleteById(id)
+            .throwIfNotFound(message);
 
-            return numberOfDeletedRows;
-        } catch (exception) {
-            throw exception;
-        }
+        return numberOfDeletedRows;
     }
 }
 

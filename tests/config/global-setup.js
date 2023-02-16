@@ -1,29 +1,27 @@
-require('dotenv').config();
-
-const path = require('path');
 const Knex = require('knex');
-process.env["NODE_CONFIG_DIR"] = path.join(__dirname, '../../src/config');
-const config = require('config');
+const config = require('../../src/config/config');
+const path = require('path');
 
-const database = config.get('database.name.test');
+const dbName = config.db.test.name || 'wallie_test';
 
 // Create the database
 async function createTestDatabase() {
     const knex = Knex({
         client: 'mysql2',
         connection: {
-            host: config.get('database.host'),
-            port: config.get('database.port'),
-            user: config.get('database.user'),
-            password: config.get('database.password'),
+            host: config.db.test.host,
+            port: config.db.test.port,
+            user: config.db.test.user,
+            password: config.db.test.password,
         },
         pool: { min: 0, max: 7 },
     });
 
     try {
-        await knex.raw(`DROP DATABASE IF EXISTS ${database}`);
-        await knex.raw(`CREATE DATABASE ${database}`);
+        await knex.raw(`DROP DATABASE IF EXISTS ${dbName}`);
+        await knex.raw(`CREATE DATABASE ${dbName}`);
     } catch (error) {
+        console.log(error);
         throw new Error(error);
     } finally {
         await knex.destroy();
@@ -35,11 +33,11 @@ async function runMigrationsAndSeedTestDatabase() {
     const knex = Knex({
         client: 'mysql2',
         connection: {
-            host: config.get('database.host'),
-            port: config.get('database.port'),
-            user: config.get('database.user'),
-            password: config.get('database.password'),
-            database: database,
+            host: config.db.test.host,
+            port: config.db.test.port,
+            user: config.db.test.user,
+            password: config.db.test.password,
+            database: dbName,
         },
         pool: { min: 0, max: 7 },
         migrations: {
@@ -65,9 +63,9 @@ module.exports = async () => {
     try {
         await createTestDatabase();
         await runMigrationsAndSeedTestDatabase();
-        console.log('Test database created successfully');
+        console.log('Test database created successfully 🚀');
     } catch (error) {
-        console.log(error);
+        console.error(error.message, error?.stack);
         process.exit(1);
     }
 };
