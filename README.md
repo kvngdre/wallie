@@ -10,8 +10,6 @@ You are required to have installed [NodeJS](https://nodejs.org/en/download) on y
 
 Ensure you have [MySQL](https://dev.mysql.com/downloads/mysql/) installed and the mySQL database server is running.
 
-Create two new databases for development and testing, this can be accomplished with [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
-
 Open a terminal window and run the command below to spin up [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
 
 ```sh
