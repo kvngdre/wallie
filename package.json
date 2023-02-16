@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/server.js",
     "down": "npx knex migrate:down",
-    "migrate": "knex migrate:latest",
+    "migrations": "knex migrate:latest",
     "seed": "npx knex seed:run",
     "start": "node src/server.js",
     "test": "jest --detectOpenHandles"

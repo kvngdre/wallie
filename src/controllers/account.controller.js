@@ -22,7 +22,7 @@ class AccountController {
         }
 
         const account = await accountService.createAccount(body, currentUser);
-        const response = new APIResponse('Account created', account);
+        const response = new APIResponse('Account created.', account);
 
         return res.status(httpStatusCodes.CREATED).json(response);
     }
@@ -41,28 +41,28 @@ class AccountController {
 
     static async getCurrentUserAccount(req, res) {
         const account = await accountService.getAccount(req.currentUser.id);
-        const response = new APIResponse('Fetched account', account);
+        const response = new APIResponse('Fetched account.', account);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
 
     static async getAccount(req, res) {
         const account = await accountService.getAccount(req.params.id);
-        const response = new APIResponse('Fetched account', account);
+        const response = new APIResponse('Fetched account.', account);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
 
     static async deleteAccount(req, res) {
         await accountService.deleteAccount(req.params.id);
-        const response = new APIResponse('Account deleted');
+        const response = new APIResponse('Account deleted.');
 
         return res.status(httpStatusCodes.OK).send(response);
     }
 
     static async getBalance(req, res) {
         const accountBalance = await accountService.getBalance(req.currentUser);
-        const response = new APIResponse('Fetched balance', accountBalance);
+        const response = new APIResponse('Fetched balance.', accountBalance);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
@@ -78,7 +78,7 @@ class AccountController {
         }
 
         const account = await accountService.creditAccount(currentUser, body);
-        const response = new APIResponse('Account credited', account);
+        const response = new APIResponse('Account credited.', account);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
@@ -94,7 +94,7 @@ class AccountController {
         }
 
         const account = await accountService.debitAccount(currentUser, body);
-        const response = new APIResponse('Account debited', account);
+        const response = new APIResponse('Account debited.', account);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
@@ -113,7 +113,7 @@ class AccountController {
             currentUser.id,
             body
         );
-        const response = new APIResponse('Transfer successful', account);
+        const response = new APIResponse('Transfer successful.', account);
 
         return res.status(httpStatusCodes.OK).json(response);
     }

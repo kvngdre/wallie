@@ -17,7 +17,7 @@ class TransactionController {
         }
 
         const transaction = await txnService.createTransaction(req.body);
-        const response = new APIResponse('Transaction created', transaction);
+        const response = new APIResponse('Transaction created.', transaction);
 
         return res.status(httpStatusCodes.CREATED).json(response);
     }
@@ -41,7 +41,7 @@ class TransactionController {
             req.currentUser.id,
             req.params.id
         );
-        const response = new APIResponse('Fetched transaction', transaction);
+        const response = new APIResponse('Fetched transaction.', transaction);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
@@ -57,14 +57,14 @@ class TransactionController {
         }
 
         const transaction = await txnService.updateTransaction(params.id, body);
-        const response = new APIResponse('Transaction updated', transaction);
+        const response = new APIResponse('Transaction updated.', transaction);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
 
     static async deleteTransaction(req, res) {
         await txnService.deleteTransaction(req.params.id);
-        const response = new APIResponse('Transaction deleted');
+        const response = new APIResponse('Transaction deleted.');
 
         return res.status(httpStatusCodes.OK).json(response);
     }

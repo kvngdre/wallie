@@ -31,11 +31,13 @@ npm install
 
 Create a `.env` file in the root directory or you can use the ``.env.example`` file I have included then add your database details in it. It should have these properties:
 
-- DB_HOST=
-- DB_USER=
-- DB_PASSWORD=
-- DB_NAME=
 - DB_PORT=
+
+- DEV_DB_HOST=
+- DEV_DB_USER=
+- DEV_DB_PASSWORD=
+- DEV_DB_NAME=
+- TEST_DB_NAME=
 
 As well as the JSON web token details:
 
@@ -56,7 +58,7 @@ Seed the database to create dummy data by running
 npm run seed
 ```  
 
-> 💡 You can create your own users by calling the `createUser` [endpoint](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection). This would create user records both on the `users` table as well as accounts` table.
+> 💡 You can create your own users by calling the `createUser` [endpoint](https://elements.getpostman.com/redirect?entityId=24564656-c350a319-b0a6-445c-b251-312dbda89ba0&entityType=collection).
 
 You can go ahead and start the server by running:
 

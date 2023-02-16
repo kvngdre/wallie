@@ -14,7 +14,7 @@ class AuthController {
         }
 
         const user = await AuthService.signIn(req.body);
-        const response = new APIResponse('Successful', user);
+        const response = new APIResponse('Login Successful.', user);
 
         return res.status(httpStatusCodes.OK).json(response);
     }

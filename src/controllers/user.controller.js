@@ -18,7 +18,7 @@ class UserController {
         }
 
         const user = await userService.createUser(req.body);
-        const response = new APIResponse('User Created', user);
+        const response = new APIResponse('User Created.', user);
 
         return res.status(httpStatusCodes.CREATED).json(response);
     }
@@ -37,14 +37,14 @@ class UserController {
 
     static async getUser(req, res) {
         const user = await userService.getUser(req.params.id);
-        const response = new APIResponse('Fetched user', user);
+        const response = new APIResponse('Fetched user.', user);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
 
     static async getCurrentUser(req, res) {
         const user = await userService.getUser(req.currentUser.id);
-        const response = new APIResponse('Fetched current user', user);
+        const response = new APIResponse('Fetched current user.', user);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
@@ -60,14 +60,14 @@ class UserController {
         }
 
         const user = await userService.updateUser(currentUser, body);
-        const response = new APIResponse('User updated', user);
+        const response = new APIResponse('User updated.', user);
 
         return res.status(httpStatusCodes.OK).json(response);
     }
 
     static async deleteUser(req, res) {
         await userService.deleteUser(req.currentUser, req.params.id);
-        const response = new APIResponse('User deleted');
+        const response = new APIResponse('User deleted.');
 
         return res.status(httpStatusCodes.OK).json(response);
     }
