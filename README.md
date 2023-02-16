@@ -29,7 +29,7 @@ mysql> CREATE DATABASE dev_wallie;
 
 ### App Setup
 
-Clone the repo and install project dependencies:  
+Clone the repo and install project dependencies:
 
 ```sh
 npm install
@@ -37,20 +37,20 @@ npm install
 
 Create a `.env` file in the root directory or you can use the `.env.example` file, it should contain these properties:
 
-- DB_PORT=
+-   DB_PORT=
 
-- DEV_DB_HOST=
-- DEV_DB_USER=
-- DEV_DB_PASSWORD=
-- DEV_DB_NAME=
-- TEST_DB_NAME=
+-   DEV_DB_HOST=
+-   DEV_DB_USER=
+-   DEV_DB_PASSWORD=
+-   DEV_DB_NAME=
+-   TEST_DB_NAME=
 
 As well as the JSON web token details:
 
-- JWT_ACCESS_KEY=
-- JWT_ACCESS_EXP_TIME=
-- JWT_ISSUER=
-- JWT_AUDIENCE=
+-   JWT_ACCESS_KEY=
+-   JWT_ACCESS_EXP_TIME=
+-   JWT_ISSUER=
+-   JWT_AUDIENCE=
 
 Next, run the migrations to create database tables:
 
@@ -62,7 +62,7 @@ Seed the database to create dummy data:
 
 ```sh
 npm run seed
-```  
+```
 
 You can go ahead and start the server:
 
@@ -77,9 +77,9 @@ Great!🚀 You should be ready to start making API calls. Verify the health of t
 >
 > To spin up the docker containers, run in the root directory:
 >
->```sh
-> docker-compose up 
->```
+> ```sh
+> docker-compose up
+> ```
 >
 > If successful, the API, MySQL database and database migrations should all have been created and taken care of, with the server running on port `4000`.
 
@@ -89,7 +89,7 @@ Every `transaction` belongs to an `account` and every `account` belongs to a `us
 
 <p align="center" style="margin: 0"><img src="./src/images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
 
-<!-- ![database ER diagram](/images/schema%20pic.png)  
+<!-- ![database ER diagram](/images/schema%20pic.png)
 _Entity Relationship Diagram_    -->
 
 ### Test Structure
@@ -100,7 +100,9 @@ To run the test suite:
 
 ```sh
 npm test
-```  
+```
+
+To view the test coverage, open the `index.html` file in your browser located in the generated `coverage` folder in the root directory.
 
 ### Endpoints
 
@@ -109,7 +111,7 @@ All server endpoints can be found in the `src/routes` directory or view API docu
 ### Branches
 
 Branches are properly named and created per feature. So to see the code for a particular feature, you can switch to the corresponding branch in the UI or terminal.
-  
+
 ### Feature Requests
 
 You can suggest a feature by creating an issue and adding the label `request` to it.
