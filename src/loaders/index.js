@@ -17,5 +17,5 @@ module.exports = (app) => {
     logger.info('DB loaded and connected ✔');
 
     expressLoader(app);
-    logger.info('Express loaded ✔');
+    logger.info('Express loaded 🚀');
 };

@@ -8,8 +8,14 @@ class Account extends Model {
     }
 
     $beforeInsert() {
-        // Hash user password before insert.
+        // Hash account pin before insert.
         this.pin = bcrypt.hashSync(this.pin, 10);
+    }
+
+    $beforeUpdate() {
+        // Hash account pin before update.
+        if (this.hasOwnProperty('pin'))
+            this.pin = bcrypt.hashSync(this.pin, 10);
     }
 
     static createNotFoundError(queryContext, message) {

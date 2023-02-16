@@ -10,7 +10,7 @@ const loaders = require('./loaders/index');
 loaders(app);
 
 const appName = `${config.name}::${process.env.NODE_ENV}`;
-const port = config.port || 4040;
+const port = config.port || 4000;
 const server = app.listen(port, () =>
     console.log(`${appName}- Listening on [${port}]`)
 );
