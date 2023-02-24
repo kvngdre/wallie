@@ -1,7 +1,4 @@
-// require('dotenv').config();
 require('express-async-errors');
-process.env['NODE_CONFIG_DIR'] = __dirname + '/config/';
-
 const app = require('express')();
 const config = require('./config/config');
 const loaders = require('./loaders/index');

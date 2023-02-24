@@ -14,7 +14,7 @@ class PubSub {
     unsubscribe = (eventName, fn) => {
         logger.silly('Unsubscribing from ${evName}');
 
-        if (this.#events[eventName])
+        if (this.#events[eventName])  
             this.#events[eventName] = this.#events[eventName].filter(
                 (f) => f !== fn
             );

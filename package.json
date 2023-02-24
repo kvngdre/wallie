@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon src/server.js",
+    "dev": "nodemon src/server.js",
     "down": "npx knex migrate:down",
     "migrations": "knex migrate:latest",
     "seed": "npx knex seed:run",

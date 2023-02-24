@@ -1,4 +1,4 @@
-const BaseError = require('../errors/BaseError');
+const BaseError = require('./BaseError');
 const logger = require('../loaders/logger');
 
 class ErrorHandler {

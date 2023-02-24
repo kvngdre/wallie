@@ -1,5 +1,5 @@
 const { httpStatusCodes } = require('../utils/constants');
-const errorHandler = require('../utils/errorHandler');
+const errorHandler = require('../errors/errorHandler');
 
 module.exports = (err, req, res, next) => {
     errorHandler.handleError(err);

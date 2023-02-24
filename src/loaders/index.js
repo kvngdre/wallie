@@ -1,5 +1,5 @@
 const dbLoader = require('./db.loader');
-const errorHandler = require('../utils/errorHandler');
+const errorHandler = require('../errors/errorHandler');
 const expressLoader = require('./express.loader');
 const logger = require('./logger');
 
