@@ -106,9 +106,9 @@ To view the test coverage, open the `index.html` file in your browser located in
 
 All server endpoints can be found in the `src/routes` directory or view API documentation [here](https://documenter.getpostman.com/view/22366860/2s93CExwfx).
 
-### Branches
+### TODO
 
-Branches are properly named and created per feature. So to see the code for a particular feature, you can switch to the corresponding branch in the UI or terminal.
+Integration of a payment gateway such as Paystack to enable funds transfer outside of Wallie ecosystem.
 
 ### Feature Requests
 
