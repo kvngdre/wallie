@@ -2,14 +2,14 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
-const configurations = {
+export default {
   api: { prefix: 'api', version: 'v1' },
   db: {
-    user: process.env.DEV_DB_USER,
-    password: process.env.DEV_DB_PASSWORD,
-    host: process.env.DEV_DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    name: process.env.DEV_DB_NAME,
+    name: process.env.DB_NAME,
   },
   jwt: {
     secret: process.env.JWT_ACCESS_KEY,
@@ -17,8 +17,6 @@ const configurations = {
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
   },
-  name: 'Wallie App',
   port: process.env.PORT,
+  salt: process.env.SALT,
 };
-
-module.exports = configurations;

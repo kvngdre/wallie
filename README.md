@@ -22,7 +22,7 @@ Create a new database for development, run:
 
 ```sh
 # create development database
-mysql> CREATE DATABASE dev_wallie;
+mysql> CREATE DATABASE e-wallet;
 ```
 
 ### App Setup

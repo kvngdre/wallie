@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { admin, user } from '../../utils/userRoles.utils';
 
 const hashedPassword = bcrypt.hashSync('Password1!', 12);
 
@@ -18,7 +17,6 @@ exports.seed = async function (knex) {
       last_name: 'Horseman',
       email: 'bojack@email.com',
       password: hashedPassword,
-      role: admin,
     },
     {
       id: 2,
@@ -26,7 +24,6 @@ exports.seed = async function (knex) {
       last_name: 'George',
       email: 'alice@email.com',
       password: hashedPassword,
-      role: user,
     },
     {
       id: 3,
@@ -34,7 +31,6 @@ exports.seed = async function (knex) {
       last_name: 'Messi',
       email: 'lionel@email.com',
       password: hashedPassword,
-      role: user,
     },
     {
       id: 4,
@@ -42,7 +38,6 @@ exports.seed = async function (knex) {
       last_name: 'Gate',
       email: 'musa@email.com',
       password: hashedPassword,
-      role: user,
     },
   ]);
 };

@@ -1,31 +1,33 @@
-const { UniqueViolationError, ValidationError } = require('objection');
-const getDuplicateKey = require('../utils/getDuplicateKey');
-const ParamInUseException = require('../errors/ConflictError');
-const User = require('./user.model');
-const ValidationException = require('../errors/ValidationError');
+import { QueryBuilder, UniqueViolationError, ValidationError } from 'objection';
+import DuplicateError from '../errors/duplicate.error.js';
+import ValidationError from '../errors/validation.error.js';
+import getDuplicateField from '../utils/getDuplicateField.utils.js';
+import User from './user.model.js';
 
-class UserDAO {
-  static async insert(createUserDto) {
+class UserRepository {
+  /**
+   * Inserts a new user record into the database.
+   * @param {NewUserDto} newUserDto
+   * @returns {Promise<User>}
+   */
+  async insert(newUserDto) {
     try {
-      const newRecord = await User.query().insert(createUserDto);
-
-      return newRecord;
+      return await User.query().insert(newUserDto);
     } catch (exception) {
-      // Catch duplicate field error
       if (exception instanceof UniqueViolationError) {
-        const key = getDuplicateKey(exception);
-        throw new ParamInUseException(`${key} already in use.`);
+        const field = getDuplicateField(exception);
+        throw new DuplicateError(`${field} already in use`);
       }
 
-      // Catch data validation error
-      if (exception instanceof ValidationError)
-        throw new ValidationException(exception.message);
+      if (exception instanceof ValidationError) {
+        throw new ValidationError(exception.message);
+      }
 
       throw exception;
     }
   }
 
-  static async findAll(queryObj = {}, message = 'No users found') {
+  async findAll(queryObj = {}, message = 'No users found') {
     const foundRecords = await User.query()
       .where(queryObj)
       .throwIfNotFound(message)
@@ -34,7 +36,7 @@ class UserDAO {
     return foundRecords;
   }
 
-  static async findById(id, message = 'User not found') {
+  async findById(id, message = 'User not found') {
     const foundRecord = await User.query()
       .findById(id)
       .throwIfNotFound(message);
@@ -42,7 +44,7 @@ class UserDAO {
     return foundRecord;
   }
 
-  static async findOne(queryObj, message = 'User not found') {
+  async findOne(queryObj, message = 'User not found') {
     const foundRecord = await User.query()
       .where(queryObj)
       .first()
@@ -51,7 +53,7 @@ class UserDAO {
     return foundRecord;
   }
 
-  static async update(currentUser, updateUserDto, message = 'User not found') {
+  async update(currentUser, updateUserDto, message = 'User not found') {
     try {
       const foundRecord = await User.query()
         .patchAndFetchById(currentUser.id, updateUserDto)
@@ -73,7 +75,7 @@ class UserDAO {
     }
   }
 
-  static async delete(id, message = 'User not found') {
+  async delete(id, message = 'User not found') {
     const numberOfDeletedRows = await User.query()
       .deleteById(id)
       .throwIfNotFound(message);
@@ -82,4 +84,4 @@ class UserDAO {
   }
 }
 
-module.exports = UserDAO;
+export default UserRepository;

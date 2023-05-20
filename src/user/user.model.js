@@ -1,22 +1,17 @@
-const { Model } = require('objection');
-const Account = require('../models/account.model');
-const bcrypt = require('bcryptjs');
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-const NotFoundException = require('../errors/NotFoundError');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { Model } from 'objection';
+import config from '../config/index.js';
+import Account from '../models/account.model.js';
 
-class User extends Model {
+export default class User extends Model {
   static get tableName() {
     return 'users';
   }
 
   $beforeInsert() {
     // Hash user password before insert.
-    this.password = bcrypt.hashSync(this.password, 10);
-  }
-
-  static createNotFoundError(queryContext, message) {
-    return new NotFoundException(message);
+    this.password = bcrypt.hashSync(this.password, config.salt);
   }
 
   static get relationMappings() {
@@ -42,17 +37,17 @@ class User extends Model {
         last_name: { type: 'string', minLength: 2, maxLength: 30 },
         email: { type: 'string', maxLength: 255 },
         password: { type: 'string' },
-        role: { type: 'string', maxLength: 2 },
       },
     };
   }
 
-  omitPassword() {
+  toObject() {
     delete this.password;
+    return this;
   }
 
-  comparePasswords = (pwd) => {
-    return bcrypt.compareSync(pwd, this.password);
+  comparePasswords = (password) => {
+    return bcrypt.compareSync(password, this.password);
   };
 
   generateAccessToken() {
@@ -63,5 +58,3 @@ class User extends Model {
     });
   }
 }
-
-module.exports = User;

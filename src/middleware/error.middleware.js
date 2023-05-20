@@ -1,24 +1,28 @@
-const { httpStatusCodes } = require('../utils/constants');
-const ErrorHandler = require('../utils/errorHandler.utils');
+import BaseError from '../errors/base.error.js';
+import ErrorHandler from '../utils/errorHandler.utils.js';
+import HttpCode from '../utils/httpCodes.utils.js';
+
+/**
+ *
+ * @param {(Error|BaseError)} error
+ * @returns
+ */
+function getErrorMessage(error) {
+  if (error.statusCode === HttpCode.INTERNAL_SERVER || !error.statusCode)
+    return 'Something went wrong';
+
+  return error.message;
+}
 
 const errorHandler = new ErrorHandler();
 
-module.exports = (err, req, res, next) => {
+export default (err, req, res, next) => {
   errorHandler.handleError(err);
 
-  if (errorHandler.isTrustedError(err)) {
-    return res.status(err.code).json({
-      success: false,
-      errors: {
-        message: err.message,
-      },
-    });
-  }
-
-  res.status(httpStatusCodes.INTERNAL_SERVER).json({
+  return res.status(err.statusCode || HttpCode.INTERNAL_SERVER).json({
     success: false,
-    errors: {
-      message: 'Something went wrong',
-    },
+    message: getErrorMessage(err),
+    errors: err?.errors ? { ...err.errors } : undefined,
+    data: err?.data,
   });
 };

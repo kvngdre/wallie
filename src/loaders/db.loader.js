@@ -1,6 +1,6 @@
 import Knex from 'knex';
 import { Model } from 'objection';
-import knexfile from '../../knexfile';
+import knexfile from '../../knexfile.js';
 import Logger from '../utils/logger.utils.js';
 
 const logger = new Logger();

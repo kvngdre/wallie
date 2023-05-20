@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import userRoutes from '../user/user.routes';
-import accountRoutes from './account.routes';
-import authRoutes from './auth.routes';
-import transactionRoutes from './transaction.routes';
+import userRoutes from '../user/user.routes.js';
+import accountRoutes from './account.routes.js';
+import authRoutes from './auth.routes.js';
+import transactionRoutes from './transaction.routes.js';
 
 /**
  *
