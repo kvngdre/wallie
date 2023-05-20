@@ -9,11 +9,12 @@ class UserRepository {
   /**
    * Inserts a new user record into the database.
    * @param {NewUserDto} newUserDto
+   * @param {objection.Transaction} trx Knex transaction
    * @returns {Promise<User>}
    */
-  async insert(newUserDto) {
+  async insert(newUserDto, trx) {
     try {
-      return await User.query().insert(newUserDto);
+      return await User.query(trx).insert(newUserDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
@@ -90,7 +91,7 @@ class UserRepository {
   async delete(id) {
     const foundRecord = await User.query().findById(id);
     if (!foundRecord) {
-      throw new NotFoundError('Operation failed. User not found.');
+      throw new NotFoundError('Operation failed. User profile not found.');
     }
 
     return await foundRecord.$query().delete();

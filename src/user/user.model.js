@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Model } from 'objection';
+import Account from '../account/account.model.js';
 import config from '../config/index.js';
-import Account from '../models/account.model.js';
 
 export default class User extends Model {
   static get tableName() {
@@ -10,7 +10,7 @@ export default class User extends Model {
   }
 
   $beforeInsert() {
-    // Hash user password before insert.
+    // ! Hash user password before insert.
     this.password = bcrypt.hashSync(this.password, config.salt);
   }
 

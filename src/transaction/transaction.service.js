@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
-import TransactionDAO from '../daos/transaction.dao.js';
 import pubsub from '../pubsub/PubSub.js';
 import events from '../pubsub/events.js';
+import TransactionDAO from './transaction.dao.js';
 
 class TransactionService {
   constructor() {

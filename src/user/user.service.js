@@ -1,17 +1,29 @@
+import { Model } from 'objection';
+import AccountRepository from '../account/account.repository.js';
 import DuplicateError from '../errors/duplicate.error.js';
-import pubsub from '../pubsub/PubSub.js';
-import events from '../pubsub/events.js';
-import User from './user.model.js';
+import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
 const userRepository = new UserRepository();
+const accountRepository = new AccountRepository();
 
 class UserService {
-  async signUp(createUserDto) {
-    const newUser = await userRepository.insert(createUserDto);
-    newUser.toObject;
+  /**
+   *
+   * @param {SignUpDto} signUpDto
+   * @returns
+   */
+  async signUp(signUpDto) {
+    return await Model.transaction(async (trx) => {
+      const [newUser] = await Promise.all([
+        userRepository.insert(signUpDto, trx),
+        accountRepository.insert(),
+      ]);
 
-    return newUser;
+      newUser.toObject;
+
+      return newUser;
+    });
   }
 
   async getUsers(queryObj) {
@@ -40,7 +52,7 @@ class UserService {
 
   async deleteUser(currentUser, userId) {
     if (currentUser.id == userId) {
-      const [{ count }] = await User.query()
+      const [{ count }] = await UserModel.query()
         .where({ role: user })
         .count({ count: 'id' });
 

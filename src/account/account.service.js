@@ -1,5 +1,4 @@
 import { Model } from 'objection';
-import AccountDAO from '../daos/account.dao.js';
 import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
 import DuplicateError from '../errors/duplicate.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
@@ -9,6 +8,7 @@ import { TxnPurpose } from '../utils/common.utils.js';
 import { TxnType } from '../utils/constants.utils.js';
 import Logger from '../utils/logger.utils.js';
 import { UserRole } from '../utils/userRoles.utils.js';
+import AccountDAO from './account.dao.js';
 
 const logger = new Logger();
 

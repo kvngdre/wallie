@@ -1,9 +1,9 @@
 import ValidationError from '../errors/validation.error.js';
-import AccountService from '../services/account.service.js';
 import APIResponse from '../utils/APIResponse.js';
 import formatErrorMsg from '../utils/formatErrorMsg.js';
 import HttpCode from '../utils/httpCodes.utils.js';
-import AccountValidator from '../validators/account.validator.js';
+import AccountService from './account.service.js';
+import AccountValidator from './account.validator.js';
 
 const accountValidator = new AccountValidator();
 const accountService = new AccountService();
