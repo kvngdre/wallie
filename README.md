@@ -35,20 +35,20 @@ npm install
 
 Create a `.env` file in the root directory or you can use the `.env.example` file, it should contain these properties:
 
--   DB_PORT=
+- DB_PORT=
 
--   DEV_DB_HOST=
--   DEV_DB_USER=
--   DEV_DB_PASSWORD=
--   DEV_DB_NAME=
--   TEST_DB_NAME=
+- DEV_DB_HOST=
+- DEV_DB_USER=
+- DEV_DB_PASSWORD=
+- DEV_DB_NAME=
+- TEST_DB_NAME=
 
 As well as the JSON web token details:
 
--   JWT_ACCESS_KEY=
--   JWT_ACCESS_EXP_TIME=
--   JWT_ISSUER=
--   JWT_AUDIENCE=
+- JWT_ACCESS_KEY=
+- JWT_ACCESS_EXP_TIME=
+- JWT_ISSUER=
+- JWT_AUDIENCE=
 
 Next, run the migrations to create database tables:
 

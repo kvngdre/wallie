@@ -1,13 +1,13 @@
 const { httpStatusCodes } = require('../utils/constants');
 const BaseError = require('./base.error');
 
-class ValidationError extends BaseError {
+class NotFoundError extends BaseError {
   constructor(description) {
-    const httpCode = httpStatusCodes.BAD_REQUEST;
+    const httpCode = httpStatusCodes.NOT_FOUND;
     const isOperational = true;
 
     super(httpCode, isOperational, description);
   }
 }
 
-module.exports = ValidationError;
+module.exports = NotFoundError;

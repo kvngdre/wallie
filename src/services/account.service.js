@@ -143,7 +143,7 @@ class AccountService {
         try {
             const updatedAccount = await Model.transaction(async (trx) => {
                 const { findById, findOne } = AccountDAO;
-                const { amount, desc, dest_id, pin, src_id } = transferFundsDto;
+                const { amount, desc, dest_id, pin } = transferFundsDto;
 
                 const [sourceAccount, destinationAccount] = await Promise.all([
                     findOne(

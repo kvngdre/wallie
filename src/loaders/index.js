@@ -1,21 +1,12 @@
 const dbLoader = require('./db.loader');
-const errorHandler = require('../errors/errorHandler');
+const errorHandler = require('../utils/ErrorHandler');
 const expressLoader = require('./express.loader');
-const logger = require('./logger');
+const logger = require('../utils/logger.utils');
+import { connectDatabase } from './db.loader';
 
-module.exports = (app) => {
-    process.on('uncaughtException', (error) => {
-        errorHandler.handleError(error);
-        if (!errorHandler.isTrustedError(error)) {
-            console.log(error.message)
-            console.error('UncaughtException');
-            process.exit(1);
-        }
-    });
+module.exports = async (app) => {
+  await connectDatabase();
 
-    dbLoader();
-    logger.info('DB loaded and connected ✔');
-
-    expressLoader(app);
-    logger.info('Express loaded 🚀');
+  expressLoader(app);
+  logger.info('Express loaded 🚀');
 };

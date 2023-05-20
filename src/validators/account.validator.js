@@ -6,7 +6,7 @@ class AccountValidators {
     #idSchema;
     #pinSchema;
     constructor() {
-        this.#amountSchema = Joi.number().label('Amount').positive();
+        this.#amountSchema = Joi.number().label("Amount").positive();
         this.#descSchema = Joi.string().max(50).label('Description');
         this.#idSchema = Joi.number().positive();
         this.#pinSchema = Joi.string()

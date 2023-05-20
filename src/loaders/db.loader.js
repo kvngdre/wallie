@@ -1,17 +1,27 @@
-const { Model } = require('objection');
-const Knex = require('knex');
-const knexfile = require('../../knexfile');
-const logger = require('./logger');
+import Knex from 'knex';
+import { Model } from 'objection';
+import knexfile from '../../knexfile';
+import Logger from '../utils/logger.utils';
 
-function setupDB() {
+const logger = new Logger();
+
+/**
+ * Connects app to MySql database.
+ */
+export async function connectDatabase() {
+  try {
     const config = knexfile[process.env.NODE_ENV];
     const knex = Knex(config);
 
-    knex.raw('SELECT VERSION()').catch((error) =>
-        logger.fatal(`Failed to connect to DB ${error}`)
-    );
-
+    await knex.raw('SELECT VERSION()');
     Model.knex(knex);
+
+    logger.info('Database Connected!');
+  } catch (error) {
+    // /**@type {Error} */
+    const err = error;
+    logger.fatal('Failed to connect to Database', err.stack);
+  }
 }
 
-module.exports = setupDB;
+module.exports = connectDatabase;
