@@ -1,234 +1,229 @@
-const { Model } = require('objection');
-const { txnPurposes, txnTypes } = require('../utils/constants');
-const AccountDAO = require('../daos/account.dao');
-const ConflictException = require('../errors/ConflictError');
-const events = require('../pubsub/events');
-const InsufficientFundsException = require('../errors/InsufficientFundsError');
-const logger = require('../loaders/logger');
-const pubsub = require('../pubsub/PubSub');
-const roles = require('../utils/userRoles');
-const UnauthorizedException = require('../errors/UnauthorizedError');
+import { Model } from 'objection';
+import AccountDAO from '../daos/account.dao.js';
+import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
+import DuplicateError from '../errors/duplicate.error.js';
+import UnauthorizedError from '../errors/unauthorized.error.js';
+import pubsub from '../pubsub/PubSub.js';
+import events from '../pubsub/events.js';
+import { TxnPurpose } from '../utils/common.utils.js';
+import { TxnType } from '../utils/constants.utils.js';
+import Logger from '../utils/logger.utils.js';
+import { UserRole } from '../utils/userRoles.utils.js';
 
-class AccountService {
-    async createAccount(newAccountDto, currentUser) {
-        newAccountDto.user_id = currentUser.id;
+const logger = new Logger();
 
-        const newAccount = await AccountDAO.insert(newAccountDto);
-        newAccount.omitPin();
+export default class AccountService {
+  async createAccount(newAccountDto, currentUser) {
+    newAccountDto.user_id = currentUser.id;
 
-        return newAccount;
-    }
+    const newAccount = await AccountDAO.insert(newAccountDto);
+    newAccount.omitPin();
 
-    async getAccounts() {
-        const foundAccounts = await AccountDAO.findAll();
-        const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
+    return newAccount;
+  }
 
-        // Modifying accounts array inplace to omit account pin.
-        foundAccounts.forEach((acc) => acc.omitPin());
+  async getAccounts() {
+    const foundAccounts = await AccountDAO.findAll();
+    const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
 
-        return { count, foundAccounts };
-    }
+    // Modifying accounts array inplace to omit account pin.
+    foundAccounts.forEach((acc) => acc.omitPin());
 
-    async getAccount(accountId) {
-        const foundAccount = await AccountDAO.findById(accountId);
-        foundAccount.omitPin();
+    return { count, foundAccounts };
+  }
 
-        return foundAccount;
-    }
+  async getAccount(accountId) {
+    const foundAccount = await AccountDAO.findById(accountId);
+    foundAccount.omitPin();
 
-    async updateAccount(accountId, updateAccountDto) {
-        const updatedAccount = await AccountDAO.update(
-            accountId,
-            updateAccountDto
-        );
-        updatedAccount.omitPin();
+    return foundAccount;
+  }
 
-        return updatedAccount;
-    }
+  async updateAccount(accountId, updateAccountDto) {
+    const updatedAccount = await AccountDAO.update(accountId, updateAccountDto);
+    updatedAccount.omitPin();
 
-    async deleteAccount(accountId) {
-        return await AccountDAO.delete(accountId);
-    }
+    return updatedAccount;
+  }
 
-    async getBalance(currentUser) {
-        const { balance } = await AccountDAO.findOne({
-            user_id: currentUser.id,
+  async deleteAccount(accountId) {
+    return await AccountDAO.delete(accountId);
+  }
+
+  async getBalance(currentUser) {
+    const { balance } = await AccountDAO.findOne({
+      user_id: currentUser.id,
+    });
+
+    return { balance };
+  }
+
+  async creditAccount(currentUser, fundAccountDto) {
+    try {
+      const updatedAccount = await Model.transaction(async (trx) => {
+        const foundAccount = await AccountDAO.findOne({
+          user_id: currentUser.id,
         });
 
-        return { balance };
+        const { amount, desc } = fundAccountDto;
+        const { id, balance, omitPin } = foundAccount;
+        omitPin();
+
+        logger.silly('Performing transaction.');
+        await incrementBalance(foundAccount, amount, trx);
+
+        // Emitting onAccountCredit event.
+        await pubsub.publish(
+          events.account.credit,
+          new NewTransaction(
+            id,
+            TxnType.CREDIT,
+            TxnPurpose.DEPOSIT,
+            amount,
+            desc,
+            balance,
+          ),
+          trx,
+        );
+
+        // Transaction is committed and result returned.
+        return foundAccount;
+      });
+
+      return updatedAccount;
+    } catch (exception) {
+      // Transaction is rolled back on exception.
+      throw exception;
     }
+  }
 
-    async creditAccount(currentUser, fundAccountDto) {
-        try {
-            const updatedAccount = await Model.transaction(async (trx) => {
-                const foundAccount = await AccountDAO.findOne({
-                    user_id: currentUser.id,
-                });
+  async debitAccount(currentUser, debitAccountDto) {
+    try {
+      const updatedAccount = await Model.transaction(async (trx) => {
+        const foundAccount = await AccountDAO.findOne({
+          user_id: currentUser.id,
+        });
 
-                const { amount, desc } = fundAccountDto;
-                const { id, balance, omitPin } = foundAccount;
-                omitPin();
+        const { amount, desc, pin } = debitAccountDto;
+        const { id, balance, comparePins, omitPin } = foundAccount;
 
-                logger.silly('Performing transaction.');
-                await incrementBalance(foundAccount, amount, trx);
+        const isMatch = comparePins(pin);
+        if (!isMatch) throw new UnauthorizedError('Invalid pin');
+        else omitPin();
 
-                // Emitting onAccountCredit event.
-                await pubsub.publish(
-                    events.account.credit,
-                    new NewTransaction(
-                        id,
-                        txnTypes.CREDIT,
-                        txnPurposes.DEPOSIT,
-                        amount,
-                        desc,
-                        balance
-                    ),
-                    trx
-                );
+        logger.silly('Pin ok, performing transaction.');
+        await decrementBalance(foundAccount, amount, trx);
 
-                // Transaction is committed and result returned.
-                return foundAccount;
-            });
+        // Emitting onAccountDebit event.
+        await pubsub.publish(
+          events.account.debit,
+          new NewTransaction(
+            id,
+            TxnType.DEBIT,
+            TxnPurpose.WITHDRAW,
+            amount,
+            desc,
+            balance,
+          ),
+          trx,
+        );
 
-            return updatedAccount;
-        } catch (exception) {
-            // Transaction is rolled back on exception.
-            throw exception;
+        // Transaction is committed and result returned.
+        return foundAccount;
+      });
+
+      return updatedAccount;
+    } catch (exception) {
+      // Transaction is rolled back on exception.
+      throw exception;
+    }
+  }
+
+  async transferFunds(currentUserId, transferFundsDto) {
+    try {
+      const updatedAccount = await Model.transaction(async (trx) => {
+        const { findById, findOne } = AccountDAO;
+        const { amount, desc, dest_id, pin } = transferFundsDto;
+
+        const [sourceAccount, destinationAccount] = await Promise.all([
+          findOne({ user_id: currentUserId }, 'Source account not found.'),
+          findById(dest_id, 'Destination account not found.'),
+        ]);
+
+        await debitSourceAndEmitEvent(pin);
+        async function debitSourceAndEmitEvent(pin) {
+          const { id, balance, comparePins, omitPin } = sourceAccount;
+
+          const isMatch = comparePins(pin);
+          if (!isMatch) throw new UnauthorizedError('Invalid pin');
+          else omitPin();
+
+          // Debit source account
+          logger.silly('Pin ok, debiting source account.');
+          await decrementBalance(sourceAccount, amount, trx);
+
+          // Emitting onAccountDebit event.
+          await pubsub.publish(
+            events.account.debit,
+            new NewTransaction(
+              id,
+              TxnType.DEBIT,
+              TxnPurpose.TRANSFER,
+              amount,
+              desc,
+              balance,
+            ),
+            trx,
+          );
         }
-    }
 
-    async debitAccount(currentUser, debitAccountDto) {
-        try {
-            const updatedAccount = await Model.transaction(async (trx) => {
-                const foundAccount = await AccountDAO.findOne({
-                    user_id: currentUser.id,
-                });
+        await creditDestinationAndEmitEvent();
+        async function creditDestinationAndEmitEvent() {
+          const { id, balance } = destinationAccount;
 
-                const { amount, desc, pin } = debitAccountDto;
-                const { id, balance, comparePins, omitPin } = foundAccount;
+          logger.silly('Crediting destination account.');
+          await incrementBalance(destinationAccount, amount, trx);
 
-                const isMatch = comparePins(pin);
-                if (!isMatch) throw new UnauthorizedException('Invalid pin');
-                else omitPin();
-
-                logger.silly('Pin ok, performing transaction.');
-                await decrementBalance(foundAccount, amount, trx);
-
-                // Emitting onAccountDebit event.
-                await pubsub.publish(
-                    events.account.debit,
-                    new NewTransaction(
-                        id,
-                        txnTypes.DEBIT,
-                        txnPurposes.WITHDRAW,
-                        amount,
-                        desc,
-                        balance
-                    ),
-                    trx
-                );
-
-                // Transaction is committed and result returned.
-                return foundAccount;
-            });
-
-            return updatedAccount;
-        } catch (exception) {
-            // Transaction is rolled back on exception.
-            throw exception;
+          // Emitting onAccountCredit event.
+          await pubsub.publish(
+            events.account.credit,
+            new NewTransaction(
+              id,
+              TxnType.CREDIT,
+              TxnPurpose.TRANSFER,
+              amount,
+              desc,
+              balance,
+            ),
+            trx,
+          );
         }
+
+        // Transaction is committed and result returned.
+        return sourceAccount;
+      });
+
+      return updatedAccount;
+    } catch (exception) {
+      // Transaction is rolled back on exception.
+      throw exception;
     }
-
-    async transferFunds(currentUserId, transferFundsDto) {
-        try {
-            const updatedAccount = await Model.transaction(async (trx) => {
-                const { findById, findOne } = AccountDAO;
-                const { amount, desc, dest_id, pin } = transferFundsDto;
-
-                const [sourceAccount, destinationAccount] = await Promise.all([
-                    findOne(
-                        { user_id: currentUserId },
-                        'Source account not found.'
-                    ),
-                    findById(dest_id, 'Destination account not found.'),
-                ]);
-
-                await debitSourceAndEmitEvent(pin);
-                async function debitSourceAndEmitEvent(pin) {
-                    const { id, balance, comparePins, omitPin } = sourceAccount;
-
-                    const isMatch = comparePins(pin);
-                    if (!isMatch)
-                        throw new UnauthorizedException('Invalid pin');
-                    else omitPin();
-
-                    // Debit source account
-                    logger.silly('Pin ok, debiting source account.');
-                    await decrementBalance(sourceAccount, amount, trx);
-
-                    // Emitting onAccountDebit event.
-                    await pubsub.publish(
-                        events.account.debit,
-                        new NewTransaction(
-                            id,
-                            txnTypes.DEBIT,
-                            txnPurposes.TRANSFER,
-                            amount,
-                            desc,
-                            balance
-                        ),
-                        trx
-                    );
-                }
-
-                await creditDestinationAndEmitEvent();
-                async function creditDestinationAndEmitEvent() {
-                    const { id, balance } = destinationAccount;
-
-                    logger.silly('Crediting destination account.');
-                    await incrementBalance(destinationAccount, amount, trx);
-
-                    // Emitting onAccountCredit event.
-                    await pubsub.publish(
-                        events.account.credit,
-                        new NewTransaction(
-                            id,
-                            txnTypes.CREDIT,
-                            txnPurposes.TRANSFER,
-                            amount,
-                            desc,
-                            balance
-                        ),
-                        trx
-                    );
-                }
-
-                // Transaction is committed and result returned.
-                return sourceAccount;
-            });
-
-            return updatedAccount;
-        } catch (exception) {
-            // Transaction is rolled back on exception.
-            throw exception;
-        }
-    }
+  }
 }
 
 async function decrementBalance(account, amount, trx) {
-    const balance = Number(account.balance);
-    if (balance < amount)
-        throw new InsufficientFundsException('Insufficient funds.');
+  const balance = Number(account.balance);
+  if (balance < amount) throw new InsufficientFundsError('Insufficient funds.');
 
-    const newBalance = Number((balance - amount).toFixed(2));
-    await account.$query(trx).patch({ balance: newBalance });
+  const newBalance = Number((balance - amount).toFixed(2));
+  await account.$query(trx).patch({ balance: newBalance });
 }
 
 async function incrementBalance(account, amount, trx) {
-    const balance = Number(account.balance);
+  const balance = Number(account.balance);
 
-    const newBalance = Number((balance + amount).toFixed(2));
-    await account.$query(trx).patch({ balance: newBalance });
+  const newBalance = Number((balance + amount).toFixed(2));
+  await account.$query(trx).patch({ balance: newBalance });
 }
 
 /**
@@ -241,16 +236,16 @@ async function incrementBalance(account, amount, trx) {
  * @param {number} balance
  */
 function NewTransaction(id, type, purpose, amount, desc, balance) {
-    this.account_id = id;
-    this.type = type;
-    this.purpose = purpose;
-    this.amount = amount;
-    this.description = desc;
-    this.bal_before = Number(balance);
-    this.bal_after =
-        type === txnTypes.DEBIT
-            ? Number(balance) - amount
-            : Number(balance) + amount;
+  this.account_id = id;
+  this.type = type;
+  this.purpose = purpose;
+  this.amount = amount;
+  this.description = desc;
+  this.bal_before = Number(balance);
+  this.bal_after =
+    type === TxnType.DEBIT
+      ? Number(balance) - amount
+      : Number(balance) + amount;
 }
 
 module.exports = new AccountService();

@@ -1,19 +1,18 @@
-const auth = require('../middleware/auth');
-const isAdmin = require('../middleware/isAdmin');
-const Router = require('express').Router;
-const TxnController = require('../controllers/transaction.controller');
-const validateId = require('../middleware/validateId');
+import Router from 'express';
+import TxnController from '../controllers/transaction.controller.js';
+import auth from '../middleware/auth.middleware.js';
+import validateId from '../middleware/validateId.middleware.js';
 
 const router = Router();
 
-router.post('/new', [auth, isAdmin], TxnController.createTransaction);
+router.post('/new', auth, TxnController.createTransaction);
 
-router.get('/', [auth], TxnController.getAllTransactions);
+router.get('/', auth, TxnController.getAllTransactions);
 
-router.get('/:id', [auth, validateId], TxnController.getTransaction);
+router.get('/:id', auth, validateId, TxnController.getTransaction);
 
-router.patch('/:id', [auth, isAdmin, validateId], TxnController.updateTransaction);
+router.patch('/:id', auth, validateId, TxnController.updateTransaction);
 
-router.delete('/:id', [auth, isAdmin, validateId], TxnController.deleteTransaction);
+router.delete('/:id', auth, validateId, TxnController.deleteTransaction);
 
-module.exports = router;
+export default router;

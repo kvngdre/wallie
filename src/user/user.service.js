@@ -1,8 +1,7 @@
-import ConflictException from '../errors/ConflictError';
-import pubsub from '../pubsub/PubSub';
-import events from '../pubsub/events';
-import { admin, user } from '../utils/userRoles';
-import User from './user.model';
+import DuplicateError from '../errors/duplicate.error.js';
+import pubsub from '../pubsub/PubSub.js';
+import events from '../pubsub/events.js';
+import User from './user.model.js';
 import UserRepository from './user.repository.js';
 
 const userRepository = new UserRepository();
@@ -46,9 +45,7 @@ class UserService {
         .count({ count: 'id' });
 
       if (count > 0)
-        throw new ConflictException(
-          'Conflict! Admin user must be the only user.',
-        );
+        throw new DuplicateError('Conflict! Admin user must be the only user.');
     }
     // @TODO: invalidate access token...
     // possible solution is to implement refresh tokens with short lived access tokens.
@@ -56,4 +53,4 @@ class UserService {
   }
 }
 
-module.exports = new UserService();
+export default UserService;

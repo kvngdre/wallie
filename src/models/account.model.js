@@ -1,8 +1,8 @@
-const { Model } = require('objection');
-const bcrypt = require('bcryptjs');
-const NotFoundException = require('../errors/notFound.error');
+import bcrypt from 'bcryptjs';
+import { Model } from 'objection';
+import NotFoundError from '../errors/notFound.error.js';
 
-class Account extends Model {
+export default class Account extends Model {
   static get tableName() {
     return 'accounts';
   }
@@ -18,7 +18,7 @@ class Account extends Model {
   }
 
   static createNotFoundError(queryContext, message) {
-    return new NotFoundException(message);
+    return new NotFoundError(message);
   }
 
   omitPin = () => delete this.pin;
@@ -40,5 +40,3 @@ class Account extends Model {
     };
   }
 }
-
-module.exports = Account;

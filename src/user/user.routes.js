@@ -1,21 +1,21 @@
-const auth = require('../middleware/auth');
-const isAdmin = require('../middleware/isAdmin');
-const Router = require('express').Router;
-const UserController = require('../controllers/user.controller');
-const validateId = require('../middleware/validateId');
+import Router from 'express';
+import auth from '../middleware/auth.middleware.js';
+import validateId from '../middleware/validateId.middleware.js';
+import UserController from '../user/user.controller.js';
 
 const router = Router();
+const userController = new UserController();
 
 router.post('/signup', UserController.createUser);
 
-router.get('/', [auth, isAdmin], UserController.getAllUsers);
+router.get('/', auth, UserController.getAllUsers);
 
-router.get('/me', [auth], UserController.getCurrentUser);
+router.get('/me', auth, UserController.getCurrentUser);
 
-router.get('/:id', [auth, isAdmin, validateId], UserController.getUser);
+router.get('/:id', auth, validateId, UserController.getUser);
 
-router.patch('/', [auth], UserController.updateUser);
+router.patch('/', auth, UserController.updateUser);
 
-router.delete('/:id', [auth, isAdmin, validateId], UserController.deleteUser);
+router.delete('/:id', auth, validateId, UserController.deleteUser);
 
-module.exports = router;
+export default router;

@@ -20,5 +20,3 @@ export async function connectDatabase() {
     logger.fatal('Failed to connect to Database', err.stack);
   }
 }
-
-module.exports = connectDatabase;

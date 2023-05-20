@@ -1,9 +1,9 @@
-module.exports = {
-    account: {
-        credit: 'onAccountCredit',
-        debit: 'onAccountDebit'
-    },
-    user: {
-        signUp: 'onUserSignUp'
-    }
-}
+export default {
+  account: {
+    credit: 'onAccountCredit',
+    debit: 'onAccountDebit',
+  },
+  user: {
+    signUp: 'onUserSignUp',
+  },
+};

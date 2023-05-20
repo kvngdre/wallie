@@ -1,30 +1,25 @@
-const {
-  UniqueViolationError,
-  ValidationError,
-  ForeignKeyViolationError,
-} = require('objection');
-const getErrorField = require('../utils/getDuplicateKey');
-const ParamInUseException = require('../errors/ConflictError');
-const Transaction = require('../models/transaction.model');
-const ValidationException = require('../errors/ValidationError');
-const NotFoundException = require('../errors/notFound.error');
+import objection, { ValidationError } from 'objection';
+import DuplicateError from '../errors/duplicate.error.js';
+import ValidationException from '../errors/validation.error.js';
+import Transaction from '../models/transaction.model.js';
+import getErrorField from '../utils/getDuplicateField.utils.js';
 
 class TransactionDAO {
-  static async insert(newTxnDto, trx) {
+  async insert(newTxnDto, trx) {
     try {
       const newRecord = await Transaction.query(trx).insert(newTxnDto);
       return newRecord;
     } catch (exception) {
       // Catch account id not found error.
-      if (exception instanceof ForeignKeyViolationError) {
+      if (exception instanceof objection.ForeignKeyViolationError) {
         const key = getErrorField(exception);
-        throw new NotFoundException(`${key} not found.`);
+        throw new DuplicateError(`${key} not found.`);
       }
 
       // Catch duplicate field error
-      if (exception instanceof UniqueViolationError) {
+      if (exception instanceof objection.UniqueViolationError) {
         const key = getErrorField(exception);
-        throw new ParamInUseException(`${key} already in use.`);
+        throw new DuplicateError(`${key} already in use.`);
       }
 
       // Catch data validation error
@@ -35,7 +30,7 @@ class TransactionDAO {
     }
   }
 
-  static async findAll(queryObj, message = 'No transactions found') {
+  async findAll(queryObj, message = 'No transactions found') {
     const foundRecords = await Transaction.query()
       .joinRelated('account')
       .where(queryObj)
@@ -45,7 +40,7 @@ class TransactionDAO {
     return foundRecords;
   }
 
-  static async findById(txnId, message = 'Transaction not found') {
+  async findById(txnId, message = 'Transaction not found') {
     const foundRecord = await Transaction.query()
       .findById(txnId)
       .throwIfNotFound(message);
@@ -53,7 +48,7 @@ class TransactionDAO {
     return foundRecord;
   }
 
-  static async findOne(queryObj, message = 'Transaction not found') {
+  async findOne(queryObj, message = 'Transaction not found') {
     const foundRecord = await Transaction.query()
       .joinRelated('account')
       .where(queryObj)
@@ -63,7 +58,7 @@ class TransactionDAO {
     return foundRecord;
   }
 
-  static async update(id, updateTxnDto, message = 'Transaction not found') {
+  async update(id, updateTxnDto, message = 'Transaction not found') {
     try {
       const foundRecord = await Transaction.query()
         .patchAndFetchById(id, updateTxnDto)
@@ -72,9 +67,9 @@ class TransactionDAO {
       return foundRecord;
     } catch (exception) {
       // Catch duplicate field error
-      if (exception instanceof UniqueViolationError) {
+      if (exception instanceof objection.UniqueViolationError) {
         const key = getErrorField(exception);
-        throw new ParamInUseException(`${key} already in use.`);
+        throw new DuplicateError(`${key} already in use.`);
       }
 
       // Catch data validation error
@@ -85,7 +80,7 @@ class TransactionDAO {
     }
   }
 
-  static async delete(id, message = 'Transaction not found') {
+  async delete(id, message = 'Transaction not found') {
     const numberOfDeletedRows = await Transaction.query()
       .deleteById(id)
       .throwIfNotFound(message);
@@ -94,4 +89,4 @@ class TransactionDAO {
   }
 }
 
-module.exports = TransactionDAO;
+export default TransactionDAO;

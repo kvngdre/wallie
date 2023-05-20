@@ -1,6 +1,6 @@
-const { Model } = require('objection');
-const Account = require('./account.model');
-const NotFoundException = require('../errors/notFound.error');
+import { Model } from 'objection';
+import NotFoundError from '../errors/notFound.error.js';
+import Account from './account.model.js';
 
 class Transaction extends Model {
   static get tableName() {
@@ -8,7 +8,7 @@ class Transaction extends Model {
   }
 
   static createNotFoundError(queryContext, message) {
-    return new NotFoundException(message);
+    return new NotFoundError(message);
   }
 
   static get relationMappings() {
@@ -51,4 +51,4 @@ class Transaction extends Model {
   }
 }
 
-module.exports = Transaction;
+export default Transaction;

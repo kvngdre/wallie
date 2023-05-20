@@ -1,17 +1,23 @@
-const path = require('path');
-process.env['NODE_CONFIG_DIR'] = path.join(__dirname, '/src/config');
-// require('dotenv').config();
-const config = require('./src/config');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import config from './src/config/index.js';
 
-module.exports = {
+// Get the file URL of the current module
+const __filename = fileURLToPath(import.meta.url);
+
+// Get the directory name of the current module
+const __dirname = path.dirname(__filename);
+process.env['NODE_CONFIG_DIR'] = path.join(__dirname, '/src/config');
+
+export default {
   development: {
     client: 'mysql2',
     connection: {
-      host: config.db.dev.host,
-      port: config.db.dev.port,
-      user: config.db.dev.user,
-      password: config.db.dev.password,
-      database: config.db.dev.name,
+      host: config.db.host,
+      port: config.db.port,
+      user: config.db.user,
+      password: config.db.password,
+      database: config.db.name,
     },
     pool: { min: 0, max: 7 },
     migrations: {
@@ -26,11 +32,11 @@ module.exports = {
   test: {
     client: 'mysql2',
     connection: {
-      host: config.db.test.host,
-      port: config.db.test.port,
-      user: config.db.test.user,
-      password: config.db.test.password,
-      database: config.db.test.name,
+      host: config.db.host,
+      port: config.db.port,
+      user: config.db.user,
+      password: config.db.password,
+      database: config.db.name,
     },
     pool: { min: 0, max: 7 },
     migrations: {
@@ -45,11 +51,11 @@ module.exports = {
   production: {
     client: 'mysql2',
     connection: {
-      host: config.db.prod.host,
-      port: config.db.prod.port,
-      user: config.db.prod.user,
-      password: config.db.prod.password,
-      database: config.db.prod.name,
+      host: config.db.host,
+      port: config.db.port,
+      user: config.db.user,
+      password: config.db.password,
+      database: config.db.name,
     },
     pool: {
       min: 2,

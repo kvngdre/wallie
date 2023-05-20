@@ -1,6 +1,6 @@
-import { QueryBuilder, UniqueViolationError, ValidationError } from 'objection';
+import objection, { QueryBuilder, ValidationError } from 'objection';
 import DuplicateError from '../errors/duplicate.error.js';
-import ValidationError from '../errors/validation.error.js';
+import ValidationException from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
 import User from './user.model.js';
 
@@ -14,7 +14,7 @@ class UserRepository {
     try {
       return await User.query().insert(newUserDto);
     } catch (exception) {
-      if (exception instanceof UniqueViolationError) {
+      if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
         throw new DuplicateError(`${field} already in use`);
       }

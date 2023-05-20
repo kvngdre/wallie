@@ -1,14 +1,12 @@
-const config = require('../config');
-const jwt = require('jsonwebtoken');
-const UnauthorizedException = require('../errors/UnauthorizedError');
+import jwt from 'jsonwebtoken';
+import config from '../config/index.js';
+import UnauthorizedError from '../errors/unauthorized.error.js';
 
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   try {
     /**
      * We are assuming that the JWT will come in a header with the form
-     *
      * Authorization: Bearer ${JWT}
-     *
      */
     function getTokenFromHeader(req) {
       /**
@@ -32,13 +30,13 @@ module.exports = (req, res, next) => {
       decoded.iss !== config.jwt.issuer ||
       decoded.aud !== config.jwt.audience
     ) {
-      throw new UnauthorizedException('Invalid token provided.');
+      throw new UnauthorizedError('Invalid token provided.');
     }
 
     req.currentUser = decoded;
 
     next();
   } catch (exception) {
-    throw new UnauthorizedException(exception.message);
+    throw new UnauthorizedError(exception.message);
   }
 };
