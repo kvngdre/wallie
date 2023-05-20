@@ -3,9 +3,10 @@ import UserValidator from '../user/user.validator.js';
 import APIResponse from '../utils/APIResponse.js';
 import formatErrorMsg from '../utils/formatErrorMsg.js';
 import HttpCode from '../utils/httpCodes.utils.js';
-import userService from './user.service.js';
+import UserService from './user.service.js';
 
 const userValidator = new UserValidator();
+const userService = new UserService();
 
 class UserController {
   async createUser(req, res) {
@@ -15,7 +16,7 @@ class UserController {
       throw new ValidationError(errorMsg);
     }
 
-    const user = await userService.createUser(req.body);
+    const user = await userService.signUp(req.body);
     const response = new APIResponse('User Created.', user);
 
     return res.status(HttpCode.CREATED).json(response);
