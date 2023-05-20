@@ -1,4 +1,4 @@
-import ValidationException from '../errors/validation.error.js';
+import ValidationError from '../errors/validation.error.js';
 import txnService from '../services/transaction.service.js';
 import APIResponse from '../utils/APIResponse.js';
 import formatErrorMsg from '../utils/formatErrorMsg.js';
@@ -12,7 +12,7 @@ class TransactionController {
     const { error } = transactionValidator.validateNewTxnDto(req.body);
     if (error) {
       const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationException(errorMsg);
+      throw new ValidationError(errorMsg);
     }
 
     const transaction = await txnService.createTransaction(req.body);
@@ -52,7 +52,7 @@ class TransactionController {
     const { error } = transactionValidator.validateUpdateTxnDto(req.body);
     if (error) {
       const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationException(errorMsg);
+      throw new ValidationError(errorMsg);
     }
 
     const transaction = await txnService.updateTransaction(params.id, body);

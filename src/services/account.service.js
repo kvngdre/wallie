@@ -12,7 +12,7 @@ import { UserRole } from '../utils/userRoles.utils.js';
 
 const logger = new Logger();
 
-export default class AccountService {
+class AccountService {
   async createAccount(newAccountDto, currentUser) {
     newAccountDto.user_id = currentUser.id;
 
@@ -248,4 +248,4 @@ function NewTransaction(id, type, purpose, amount, desc, balance) {
       : Number(balance) + amount;
 }
 
-module.exports = new AccountService();
+export default AccountService;
