@@ -1,8 +1,8 @@
 import HttpCode from '../utils/httpCodes.utils.js';
 import BaseError from './base.error.js';
 
-export default class NotFoundError extends BaseError {
+export default class DuplicateError extends BaseError {
   constructor(message, data = undefined) {
-    super(HttpCode.NOT_FOUND, true, message, data);
+    super(HttpCode.CONFLICT, true, message, data);
   }
 }

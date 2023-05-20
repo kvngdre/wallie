@@ -1,29 +1,23 @@
 import { addColors, createLogger, format, transports } from 'winston';
+import isDevEnvironment from './isDevEnvironment.utils.js';
 
-const { align, colorize, combine, printf, timestamp } = format;
-
-function isDevEnvironment() {
-  const env = process.env.NODE_ENV;
-  if (env === 'development') return true;
-
-  return false;
-}
+const { align, cli, colorize, combine, printf, timestamp } = format;
 
 const customLevels = {
-  levels: { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, silly: 5 },
   colors: {
     fatal: 'red',
     error: 'red',
     warn: 'yellow',
     info: 'green',
-    debug: 'cyan',
-    silly: 'white',
+    debug: 'magenta',
+    silly: 'cyan',
   },
+  levels: { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, silly: 5 },
 };
 
 const devFormatter = combine(
+  cli(),
   colorize(),
-  format.cli(),
   timestamp({ format: 'HH:mm:ss' }),
   printf(({ timestamp, level, message, meta }) => {
     return `[${level}]${timestamp} ${message} ${
@@ -33,8 +27,8 @@ const devFormatter = combine(
 );
 
 const prodFormatter = combine(
-  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   align(),
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   printf(({ level, timestamp, message, meta }) => {
     return `[${level}]${timestamp} ${message} ${
       meta ? JSON.stringify(meta, null, 2) : ''
@@ -64,29 +58,59 @@ class Logger {
     addColors(customLevels.colors);
   }
 
+  /**
+   * Log with log level fatal
+   * @param {string} message
+   * @param {*} meta
+   */
   fatal(message, meta) {
     this.logger.log('fatal', { message, meta });
   }
 
+  /**
+   * Log with log level error
+   * @param {string} message
+   * @param {*} meta
+   */
   error(message, meta) {
     this.logger.error({ message, meta });
   }
 
+  /**
+   * Log with log level warn
+   * @param {string} message
+   * @param {*} meta
+   */
   warn(message, meta) {
     this.logger.warn({ message, meta });
   }
 
+  /**
+   * Log with log level info
+   * @param {string} message
+   * @param {*} meta
+   */
   info(message, meta) {
     this.logger.info({ message, meta });
   }
 
+  /**
+   * Log with log level debug
+   * @param {string} message
+   * @param {*} meta
+   */
   debug(message, meta) {
     this.logger.debug({ message, meta });
   }
 
+  /**
+   * Log with log level silly
+   * @param {string} message
+   * @param {*} meta
+   */
   silly(message, meta) {
     this.logger.silly({ message, meta });
   }
 }
 
-module.exports = Logger;
+export default Logger;

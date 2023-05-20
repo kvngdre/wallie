@@ -9,13 +9,19 @@ import errorMiddleware from '../middleware/error.middleware.js';
 const { api } = config;
 
 /**
- * Loads the express app
- * @param {import('express').Application} app
- * @param {*} routes
+ * @function initializeApp
+ * @description A function that loads the express app and applies the app routes.
+ * @summary Loads and configures an express app.
+ * @param {import('express').Application} app The express app to load.
+ * @param {import('./jsdoc/getAppRoutes.js').getAppRoutes} getAppRoutes A function that returns an express router with the app routes.
+ * @throws {Error} If app or getAppRoutes are not provided.
+ * @exports initializeApp
  */
-module.exports = (app, routes) => {
-  if (!app || !routes) {
-    throw new Error('Application failed to initialize with errors in argument');
+export function initializeApp(app, getAppRoutes) {
+  if (!app || !getAppRoutes) {
+    throw new Error(
+      'Application failed to initialize with errors in argument.',
+    );
   }
 
   /**
@@ -36,7 +42,7 @@ module.exports = (app, routes) => {
     res.status(200).send('OK ✔');
   });
 
-  app.use(`/${api.prefix}/${api.version}`, routes());
+  app.use(`/${api.prefix}/${api.version}`, getAppRoutes());
 
   // Catch and handle 404
   app.use((req, res, next) => {
@@ -46,4 +52,6 @@ module.exports = (app, routes) => {
 
   // Error handling middleware
   app.use(errorMiddleware);
-};
+
+  // @todo Add more middleware or configuration as needed
+}

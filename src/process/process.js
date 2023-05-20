@@ -1,4 +1,4 @@
-import errorHandler from '../utils/ErrorHandler.js';
+import errorHandler from '../utils/errorHandler.utils.js';
 
 process.on('uncaughtException', (error) => {
   console.error(`! Uncaught Exception ${error}`);

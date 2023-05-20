@@ -1,13 +1,10 @@
 import Knex from 'knex';
 import { Model } from 'objection';
 import knexfile from '../../knexfile';
-import Logger from '../utils/logger.utils';
+import Logger from '../utils/logger.utils.js';
 
 const logger = new Logger();
 
-/**
- * Connects app to MySql database.
- */
 export async function connectDatabase() {
   try {
     const config = knexfile[process.env.NODE_ENV];

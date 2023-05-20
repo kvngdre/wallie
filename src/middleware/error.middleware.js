@@ -1,5 +1,5 @@
 const { httpStatusCodes } = require('../utils/constants');
-const ErrorHandler = require('../utils/ErrorHandler');
+const ErrorHandler = require('../utils/errorHandler.utils');
 
 const errorHandler = new ErrorHandler();
 

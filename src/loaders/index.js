@@ -1,12 +1,14 @@
-const dbLoader = require('./db.loader');
-const errorHandler = require('../utils/ErrorHandler');
-const expressLoader = require('./express.loader');
-const logger = require('../utils/logger.utils');
-import { connectDatabase } from './db.loader';
+import { initializeApp } from './app.loader.js';
+import { connectDatabase } from './db.loader.js';
 
-module.exports = async (app) => {
-  await connectDatabase();
-
-  expressLoader(app);
-  logger.info('Express loaded 🚀');
+export default {
+  /**
+   *
+   * @param {import('express').Application} expressApp
+   * @param {import('./jsdoc/getAppRoutes.js').getAppRoutes} expressRoutes
+   */
+  startApp: async (expressApp = null, expressRoutes = null) => {
+    await connectDatabase();
+    initializeApp(app);
+  },
 };
