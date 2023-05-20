@@ -1,16 +1,20 @@
-const accountRoutes = require('./account.routes');
-const authRoutes = require('./auth.routes');
-const transactionRoutes = require('./transaction.routes');
-const userRoutes = require('./user.routes');
-const Router = require('express').Router;
+import { Router } from 'express';
+import userRoutes from '../user/user.routes';
+import accountRoutes from './account.routes';
+import authRoutes from './auth.routes';
+import transactionRoutes from './transaction.routes';
 
-const router = Router();
+/**
+ *
+ *@type {import('../loaders/jsdoc/getAppRoutes').getAppRoutes}
+ */
+export default function appRoutes() {
+  const router = Router();
 
-module.exports = () => {
-    router.use('/accounts', accountRoutes);
-    router.use('/auth', authRoutes);
-    router.use('/transactions', transactionRoutes);
-    router.use('/users', userRoutes);
+  router.use('/accounts', accountRoutes);
+  router.use('/auth', authRoutes);
+  router.use('/transactions', transactionRoutes);
+  router.use('/users', userRoutes);
 
-    return router;
-};
+  return router;
+}
