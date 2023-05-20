@@ -1,6 +1,7 @@
-import objection, { QueryBuilder, ValidationError } from 'objection';
+import objection from 'objection';
 import DuplicateError from '../errors/duplicate.error.js';
-import ValidationException from '../errors/validation.error.js';
+import NotFoundError from '../errors/notFound.error.js';
+import ValidationError from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
 import User from './user.model.js';
 
@@ -19,7 +20,7 @@ class UserRepository {
         throw new DuplicateError(`${field} already in use`);
       }
 
-      if (exception instanceof ValidationError) {
+      if (exception instanceof objection.ValidationError) {
         throw new ValidationError(exception.message);
       }
 
@@ -27,60 +28,72 @@ class UserRepository {
     }
   }
 
-  async findAll(queryObj = {}, message = 'No users found') {
-    const foundRecords = await User.query()
-      .where(queryObj)
-      .throwIfNotFound(message)
-      .orderBy('id', 'desc');
-
-    return foundRecords;
+  /**
+   * Returns all users that match filter if any.
+   * @param {Partial<UserProfile>} [filter] User profile fields filter object.
+   * @returns {Promise<Array.<User>>}
+   */
+  async find(filter = {}) {
+    return await User.query().where(filter).orderBy('id', 'desc');
   }
 
-  async findById(id, message = 'User not found') {
-    const foundRecord = await User.query()
-      .findById(id)
-      .throwIfNotFound(message);
-
-    return foundRecord;
+  /**
+   * Find and returns a user profile by id.
+   * @param {number} id User id
+   * @returns {Promise<UserProfile>}
+   */
+  async findById(id) {
+    return await User.query().findById(id);
   }
 
-  async findOne(queryObj, message = 'User not found') {
-    const foundRecord = await User.query()
-      .where(queryObj)
-      .first()
-      .throwIfNotFound(message);
-
-    return foundRecord;
+  /**
+   * Find and returns a user profile by filter object.
+   * @param {Partial<UserProfile>} filter User profile fields filter object.
+   * @returns {Promise<UserProfile>}
+   */
+  async findOne(filter) {
+    return await User.query().where(filter).first();
   }
 
-  async update(currentUser, updateUserDto, message = 'User not found') {
+  /**
+   * Finds and updates a user by id.
+   * @param {number} id The user id
+   * @param {Partial<User>} updateUserDto
+   * @returns {Promise<number>}
+   */
+  async update(id, updateUserDto) {
     try {
-      const foundRecord = await User.query()
-        .patchAndFetchById(currentUser.id, updateUserDto)
-        .throwIfNotFound(message);
-
-      return foundRecord;
-    } catch (exception) {
-      // Catch duplicate field error
-      if (exception instanceof UniqueViolationError) {
-        const key = getDuplicateKey(exception);
-        throw new ParamInUseException(`${key} already in use.`);
+      const foundRecord = await User.query().findById(id);
+      if (!foundRecord) {
+        throw new NotFoundError('Operation failed. User profile not found.');
       }
 
-      // Catch data validation error
-      if (exception instanceof ValidationError)
-        throw new ValidationException(exception.message);
+      return await foundRecord.$query().patch(updateUserDto);
+    } catch (exception) {
+      if (exception instanceof objection.UniqueViolationError) {
+        const field = getDuplicateField(exception);
+        throw new DuplicateError(`${field} already in use`);
+      }
+
+      if (exception instanceof objection.ValidationError)
+        throw new ValidationError(exception.message);
 
       throw exception;
     }
   }
 
-  async delete(id, message = 'User not found') {
-    const numberOfDeletedRows = await User.query()
-      .deleteById(id)
-      .throwIfNotFound(message);
+  /**
+   * Finds and deletes a user by id.
+   * @param {number} id The user id
+   * @returns {Promise<number>}
+   */
+  async delete(id) {
+    const foundRecord = await User.query().findById(id);
+    if (!foundRecord) {
+      throw new NotFoundError('Operation failed. User not found.');
+    }
 
-    return numberOfDeletedRows;
+    return await foundRecord.$query().delete();
   }
 }
 

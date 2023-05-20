@@ -4,25 +4,26 @@ import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
 
 const router = Router();
+const accountController = new AccountController();
 
-router.post('/new', auth, AccountController.createAccount);
+router.post('/new', auth, accountController.createAccount);
 
-router.get('/', auth, AccountController.getAllAccounts);
+router.get('/', auth, accountController.getAllAccounts);
 
-router.get('/balance', auth, AccountController.getBalance);
+router.get('/balance', auth, accountController.getBalance);
 
-router.get('/me', auth, AccountController.getCurrentUserAccount);
+router.get('/me', auth, accountController.getCurrentUserAccount);
 
-router.get('/:id', auth, validateId, AccountController.getAccount);
+router.get('/:id', auth, validateId, accountController.getAccount);
 
-router.patch('/', auth, AccountController.updateAccount);
+router.patch('/', auth, accountController.updateAccount);
 
-router.delete('/:id', auth, validateId, AccountController.deleteAccount);
+router.delete('/:id', auth, validateId, accountController.deleteAccount);
 
-router.post('/debit', auth, AccountController.debitAccount);
+router.post('/debit', auth, accountController.debitAccount);
 
-router.post('/fund', auth, AccountController.fundAccount);
+router.post('/fund', auth, accountController.fundAccount);
 
-router.post('/transfer-funds', auth, AccountController.transferFunds);
+router.post('/transfer-funds', auth, accountController.transferFunds);
 
 export default router;

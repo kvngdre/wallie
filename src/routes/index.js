@@ -11,10 +11,10 @@ import transactionRoutes from './transaction.routes.js';
 export default function appRoutes() {
   const router = Router();
 
-  router.use('/accounts', accountRoutes);
+  router.use('/account', accountRoutes);
   router.use('/auth', authRoutes);
-  router.use('/transactions', transactionRoutes);
-  router.use('/users', userRoutes);
+  router.use('/transaction', transactionRoutes);
+  router.use('/user', userRoutes);
 
   return router;
 }
