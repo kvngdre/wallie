@@ -1,31 +1,22 @@
-const { admin, user } = require('../utils/userRoles');
-const events = require('../pubsub/events');
-const pubsub = require('../pubsub/PubSub');
-const UserDAO = require('./user.dao');
-const ConflictException = require('../errors/ConflictError');
-const User = require('./user.model');
+import ConflictException from '../errors/ConflictError';
+import pubsub from '../pubsub/PubSub';
+import events from '../pubsub/events';
+import { admin, user } from '../utils/userRoles';
+import User from './user.model';
+import UserRepository from './user.repository.js';
+
+const userRepository = new UserRepository();
 
 class UserService {
-  async createUser(createUserDto) {
-    // Assigning user role
-    try {
-      await this.getUsers({ role: admin });
-      createUserDto.role = user;
-    } catch (e) {
-      createUserDto.role = admin;
-    }
-
-    const newUser = await UserDAO.insert(createUserDto);
-    newUser.omitPassword();
-
-    // Emitting user sign up event.
-    await pubsub.publish(events.user.signUp, newUser);
+  async signUp(createUserDto) {
+    const newUser = await userRepository.insert(createUserDto);
+    newUser.toObject;
 
     return newUser;
   }
 
   async getUsers(queryObj) {
-    const foundUsers = await UserDAO.findAll(queryObj);
+    const foundUsers = await UserRepository.findAll(queryObj);
     const count = Intl.NumberFormat('en-US').format(foundUsers.length);
 
     // Modify array inplace to delete user passwords.
@@ -35,14 +26,14 @@ class UserService {
   }
 
   async getUser(userId) {
-    const foundUser = await UserDAO.findById(userId);
+    const foundUser = await UserRepository.findById(userId);
     foundUser.omitPassword();
 
     return foundUser;
   }
 
   async updateUser(currentUser, updateUserDto) {
-    const updatedUser = await UserDAO.update(currentUser, updateUserDto);
+    const updatedUser = await UserRepository.update(currentUser, updateUserDto);
     updatedUser.omitPassword();
 
     return updatedUser;
@@ -61,7 +52,7 @@ class UserService {
     }
     // @TODO: invalidate access token...
     // possible solution is to implement refresh tokens with short lived access tokens.
-    return await UserDAO.delete(userId);
+    return await UserRepository.delete(userId);
   }
 }
 
