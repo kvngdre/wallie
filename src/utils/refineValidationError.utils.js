@@ -1,3 +1,5 @@
+import Joi from 'joi';
+
 function formatErrorMessage(errorMessage) {
   //  * Regex to locate the appropriate space for inserting commas in numbers.
   const regex = /(?<!.*ISO \d)\B(?=(\d{3})+(?!\d))/g;
@@ -7,9 +9,10 @@ function formatErrorMessage(errorMessage) {
 }
 
 /**
- *
- * @param {*} error
- * @returns
+ * This function takes a Joi validation error object and returns an object with refined error messages.
+ * The keys of the returned object are the dot-separated paths of the invalid data, and the values are the formatted error messages.
+ * @param {Joi.ValidationError} error The Joi validation error object to refine.
+ * @returns {Object.<string, string>} The refined error object with path-message pairs
  */
 export default function refineError(error) {
   /**
