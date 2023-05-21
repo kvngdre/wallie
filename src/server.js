@@ -11,7 +11,7 @@ const logger = new Logger();
 
 const app = express();
 const port = config.port || 4000;
-export const server = http.createServer(app);
+export let server = http.createServer(app);
 
 async function startServer() {
   try {

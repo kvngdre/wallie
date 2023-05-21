@@ -5,10 +5,10 @@ export default {
   /**
    *
    * @param {import('express').Application} expressApp
-   * @param {import('./jsdoc/getAppRoutes.js').getAppRoutes} expressRoutes
+   * @param {import('./jsdoc/getAppRoutes.js').getAppRoutes} appRoutes
    */
-  startApp: async (expressApp = null, expressRoutes = null) => {
+  startApp: async (expressApp = null, appRoutes = null) => {
     await connectDatabase();
-    initializeApp(app);
+    initializeApp(expressApp, appRoutes);
   },
 };

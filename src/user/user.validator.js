@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import { joiPasswordExtendCore } from 'joi-password';
+import refineValidationError from '../utils/refineValidationError.utils.js';
 
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
@@ -39,6 +40,32 @@ class UserValidator {
         'password.noWhiteSpaces': '{#label} cannot contain white spaces',
       });
   }
+
+  validateSignUp = (dto) => {
+    const schema = Joi.object({
+      first_name: this.#nameSchema.label('First name').required(),
+      last_name: this.#nameSchema.label('Last name').required(),
+      email: this.#emailSchema.required(),
+      password: this.#passwordSchema.required(),
+      account: Joi.object({
+        pin: Joi.string()
+          .label('Pin')
+          .trim()
+          .required()
+          .length(4)
+          .pattern(/^\d{4}$/)
+          .messages({
+            'string.pattern.base':
+              '{#label} is not valid. Must be a {#limit} digit number string.',
+          }),
+      }).required(),
+    });
+
+    let { value, error } = schema.validate(dto, { abortEarly: false });
+    if (error !== undefined) error = refineValidationError(error);
+
+    return { value, error };
+  };
 
   validateNewUserDto = (user) => {
     const schema = Joi.object({

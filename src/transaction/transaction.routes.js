@@ -1,7 +1,7 @@
 import Router from 'express';
-import TransactionController from '../controllers/transaction.controller.js';
 import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
+import TransactionController from './transaction.controller.js';
 
 const router = Router();
 const transactionController = new TransactionController();

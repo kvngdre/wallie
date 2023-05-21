@@ -37,6 +37,8 @@ const prodFormatter = combine(
 );
 
 class Logger {
+  #logger;
+
   constructor() {
     const devTransport = new transports.Console({
       format: devFormatter,
@@ -49,7 +51,7 @@ class Logger {
       json: true,
     });
 
-    this.logger = createLogger({
+    this.#logger = createLogger({
       level: isDevEnvironment() ? 'silly' : 'error',
       levels: customLevels.levels,
       transports: [isDevEnvironment() ? devTransport : prodTransport],
@@ -64,7 +66,7 @@ class Logger {
    * @param {*} meta
    */
   fatal(message, meta) {
-    this.logger.log('fatal', { message, meta });
+    this.#logger.log('fatal', { message, meta });
   }
 
   /**
@@ -73,7 +75,7 @@ class Logger {
    * @param {*} meta
    */
   error(message, meta) {
-    this.logger.error({ message, meta });
+    this.#logger.error({ message, meta });
   }
 
   /**
@@ -82,7 +84,7 @@ class Logger {
    * @param {*} meta
    */
   warn(message, meta) {
-    this.logger.warn({ message, meta });
+    this.#logger.warn({ message, meta });
   }
 
   /**
@@ -91,7 +93,7 @@ class Logger {
    * @param {*} meta
    */
   info(message, meta) {
-    this.logger.info({ message, meta });
+    this.#logger.info({ message, meta });
   }
 
   /**
@@ -100,7 +102,7 @@ class Logger {
    * @param {*} meta
    */
   debug(message, meta) {
-    this.logger.debug({ message, meta });
+    this.#logger.debug({ message, meta });
   }
 
   /**
@@ -109,7 +111,7 @@ class Logger {
    * @param {*} meta
    */
   silly(message, meta) {
-    this.logger.silly({ message, meta });
+    this.#logger.silly({ message, meta });
   }
 }
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import AccountController from '../controllers/account.controller.js';
 import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
+import AccountController from './account.controller.js';
 
 const router = Router();
 const accountController = new AccountController();

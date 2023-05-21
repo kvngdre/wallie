@@ -8,22 +8,23 @@ import { TxnPurpose } from '../utils/common.utils.js';
 import { TxnType } from '../utils/constants.utils.js';
 import Logger from '../utils/logger.utils.js';
 import { UserRole } from '../utils/userRoles.utils.js';
-import AccountDAO from './account.dao.js';
+import AccountRepository from './account.repository.js';
 
 const logger = new Logger();
+const accountRepository = new AccountRepository();
 
 class AccountService {
   async createAccount(newAccountDto, currentUser) {
     newAccountDto.user_id = currentUser.id;
 
-    const newAccount = await AccountDAO.insert(newAccountDto);
+    const newAccount = await accountRepository.insert(newAccountDto);
     newAccount.omitPin();
 
     return newAccount;
   }
 
   async getAccounts() {
-    const foundAccounts = await AccountDAO.findAll();
+    const foundAccounts = await accountRepository.findAll();
     const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
 
     // Modifying accounts array inplace to omit account pin.
@@ -33,25 +34,28 @@ class AccountService {
   }
 
   async getAccount(accountId) {
-    const foundAccount = await AccountDAO.findById(accountId);
+    const foundAccount = await accountRepository.findById(accountId);
     foundAccount.omitPin();
 
     return foundAccount;
   }
 
   async updateAccount(accountId, updateAccountDto) {
-    const updatedAccount = await AccountDAO.update(accountId, updateAccountDto);
+    const updatedAccount = await accountRepository.update(
+      accountId,
+      updateAccountDto,
+    );
     updatedAccount.omitPin();
 
     return updatedAccount;
   }
 
   async deleteAccount(accountId) {
-    return await AccountDAO.delete(accountId);
+    return await accountRepository.delete(accountId);
   }
 
   async getBalance(currentUser) {
-    const { balance } = await AccountDAO.findOne({
+    const { balance } = await accountRepository.findOne({
       user_id: currentUser.id,
     });
 
@@ -61,7 +65,7 @@ class AccountService {
   async creditAccount(currentUser, fundAccountDto) {
     try {
       const updatedAccount = await Model.transaction(async (trx) => {
-        const foundAccount = await AccountDAO.findOne({
+        const foundAccount = await accountRepository.findOne({
           user_id: currentUser.id,
         });
 
@@ -100,7 +104,7 @@ class AccountService {
   async debitAccount(currentUser, debitAccountDto) {
     try {
       const updatedAccount = await Model.transaction(async (trx) => {
-        const foundAccount = await AccountDAO.findOne({
+        const foundAccount = await accountRepository.findOne({
           user_id: currentUser.id,
         });
 
@@ -142,7 +146,7 @@ class AccountService {
   async transferFunds(currentUserId, transferFundsDto) {
     try {
       const updatedAccount = await Model.transaction(async (trx) => {
-        const { findById, findOne } = AccountDAO;
+        const { findById, findOne } = accountRepository;
         const { amount, desc, dest_id, pin } = transferFundsDto;
 
         const [sourceAccount, destinationAccount] = await Promise.all([

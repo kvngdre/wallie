@@ -1,6 +1,6 @@
 import { Model } from 'objection';
+import Account from '../account/account.model.js';
 import NotFoundError from '../errors/notFound.error.js';
-import Account from './account.model.js';
 
 class Transaction extends Model {
   static get tableName() {

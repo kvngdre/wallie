@@ -41,6 +41,10 @@ export default class User extends Model {
     };
   }
 
+  /**
+   *
+   * @returns {UserProfile}
+   */
   toObject() {
     delete this.password;
     return this;

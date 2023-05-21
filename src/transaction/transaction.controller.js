@@ -1,6 +1,6 @@
 import ValidationError from '../errors/validation.error.js';
 import APIResponse from '../utils/APIResponse.js';
-import formatErrorMsg from '../utils/formatErrorMsg.js';
+import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import TransactionValidator from '../validators/transaction.validator.js';
 import txnService from './transaction.service.js';

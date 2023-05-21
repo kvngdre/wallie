@@ -1,6 +1,8 @@
 import { Model } from 'objection';
+import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import DuplicateError from '../errors/duplicate.error.js';
+import { uuidToBin } from '../utils/uuidConverter.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
@@ -9,19 +11,23 @@ const accountRepository = new AccountRepository();
 
 class UserService {
   /**
-   *
+   * Create a new user and account.
    * @param {SignUpDto} signUpDto
-   * @returns
+   * @returns {Promise<UserProfile>}
    */
   async signUp(signUpDto) {
+    const newUserUuid = uuidv4();
+    const newAccountUuid = uuidv4();
+
     return await Model.transaction(async (trx) => {
       const [newUser] = await Promise.all([
         userRepository.insert(signUpDto, trx),
-        accountRepository.insert(),
+        accountRepository.insert(signUpDto.account),
       ]);
 
-      newUser.toObject;
+      newUser.toObject();
 
+      /**@type {UserProfile} */
       return newUser;
     });
   }
