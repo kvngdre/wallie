@@ -6,28 +6,41 @@ import { uuidToBin } from '../utils/uuidConverter.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
-const userRepository = new UserRepository();
-const accountRepository = new AccountRepository();
-
 class UserService {
+  #accountRepository;
+  #userRepository;
+
+  /**
+   *
+   * @param {AccountRepository} accountRepository The account repository instance.
+   * @param {UserRepository} userRepository The user repository instance.
+   */
+  constructor(accountRepository, userRepository) {
+    this.#accountRepository = accountRepository;
+    this.#userRepository = userRepository;
+  }
+
   /**
    * Create a new user and account.
    * @param {SignUpDto} signUpDto
    * @returns {Promise<UserProfile>}
    */
   async signUp(signUpDto) {
-    const newUserUuid = uuidv4();
-    const newAccountUuid = uuidv4();
+    const userUuid = uuidv4();
+    const accountUuid = uuidv4();
+
+    signUpDto.id = uuidToBin(userUuid);
+    signUpDto.account.id = uuidToBin(accountUuid);
+    signUpDto.account.user_id = uuidToBin(userUuid);
 
     return await Model.transaction(async (trx) => {
       const [newUser] = await Promise.all([
-        userRepository.insert(signUpDto, trx),
-        accountRepository.insert(signUpDto.account),
+        this.#userRepository.insert(signUpDto, trx),
+        this.#accountRepository.insert(signUpDto.account),
       ]);
 
       newUser.toObject();
 
-      /**@type {UserProfile} */
       return newUser;
     });
   }

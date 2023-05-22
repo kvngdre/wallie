@@ -41,13 +41,21 @@ class UserValidator {
       });
   }
 
+  /**
+   * Validates the sign up request payload and appends default key-values.
+   * @param {*} dto
+   * @returns {{ value: SignUpDto, error: (Object.<string, string>|undefined)}}
+   */
   validateSignUp = (dto) => {
     const schema = Joi.object({
+      id: Joi.string().default('').forbidden(),
       first_name: this.#nameSchema.label('First name').required(),
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),
       password: this.#passwordSchema.required(),
       account: Joi.object({
+        id: Joi.string().default('').forbidden(),
+        user_id: Joi.string().default('').forbidden(),
         pin: Joi.string()
           .label('Pin')
           .trim()

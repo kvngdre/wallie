@@ -1,13 +1,17 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import config from './src/config/index.js';
 
 // Get the file URL of the current module
 const __filename = fileURLToPath(import.meta.url);
-
 // Get the directory name of the current module
 const __dirname = path.dirname(__filename);
-process.env['NODE_CONFIG_DIR'] = path.join(__dirname, '/src/config');
+
+process.env['NODE_CONFIG_DIR'] = path.join(__dirname, '/src/config/index.js');
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+import config from './src/config/index.js';
+
+console.log(config.db);
 
 export default {
   development: {

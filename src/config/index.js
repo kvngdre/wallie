@@ -18,5 +18,5 @@ export default {
     audience: process.env.JWT_AUDIENCE,
   },
   port: process.env.PORT,
-  salt: process.env.SALT,
+  saltRounds: process.env.SALT_ROUNDS,
 };

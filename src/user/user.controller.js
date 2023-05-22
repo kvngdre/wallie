@@ -6,15 +6,34 @@ import HttpCode from '../utils/httpCodes.utils.js';
 import UserService from './user.service.js';
 
 const userValidator = new UserValidator();
-const userService = new UserService();
 
 class UserController {
+  #userService;
+  #userValidator;
+
+  /**
+   *
+   * @param {UserService} userService
+   * @param {UserValidator} userValidator
+   */
+  constructor(userService, userValidator) {
+    this.#userService = userService;
+    this.#userValidator = userValidator;
+  }
+
+  async signUp(req, res) {
+    const { error } = this.#userValidator.validateSignUp(req.body);
+    if (error) throw new ValidationError('Validation Error', error);
+
+    const user = await this.#userService.signUp(req.body);
+    const response = new APIResponse('User Created.', user);
+
+    return res.status(HttpCode.CREATED).json(response);
+  }
+
   async createUser(req, res) {
-    const { error } = userValidator.validateNewUserDto(req.body);
-    if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationError(errorMsg);
-    }
+    const { error } = this.#userValidator.validateSignUp(req.body);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const user = await userService.signUp(req.body);
     const response = new APIResponse('User Created.', user);

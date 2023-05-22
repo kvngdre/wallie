@@ -4,7 +4,7 @@ import { Model } from 'objection';
 import Account from '../account/account.model.js';
 import config from '../config/index.js';
 
-export default class User extends Model {
+export default class UserModel extends Model {
   static get tableName() {
     return 'users';
   }

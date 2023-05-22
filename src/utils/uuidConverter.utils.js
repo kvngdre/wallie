@@ -10,8 +10,6 @@ function getKnexInstance() {
 
 export function uuidToBin(uuid) {
   const knex = getKnexInstance();
-  const uuidWithoutDashes = uuid.replace(/-/g, '');
-
   return knex.fn.uuidToBin(uuid);
 }
 

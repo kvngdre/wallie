@@ -15,8 +15,6 @@ export async function connectDatabase() {
 
     logger.info('Database Connected!');
   } catch (error) {
-    // /**@type {Error} */
-    const err = error;
-    logger.fatal('Failed to connect to Database', err.stack);
+    logger.fatal('Failed to connect to Database', error.stack);
   }
 }
