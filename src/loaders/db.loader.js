@@ -1,17 +1,24 @@
-import Knex from 'knex';
-import { Model } from 'objection';
-import knexfile from '../../knexfile.js';
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import config from '../config/index.js';
 import Logger from '../utils/logger.utils.js';
 
 const logger = new Logger();
 
 export async function connectDatabase() {
   try {
-    const config = knexfile[process.env.NODE_ENV];
-    const knex = Knex(config);
+    const AppDataSource = new DataSource({
+      type: 'mysql',
+      host: config.db.host,
+      port: config.db.port,
+      username: config.db.user,
+      password: config.db.password,
+      entities: [],
+      synchronize: true,
+      logging: false,
+    });
 
-    await knex.raw('SELECT VERSION()');
-    Model.knex(knex);
+    await AppDataSource.initialize();
 
     logger.info('Database Connected!');
   } catch (error) {
