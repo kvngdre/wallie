@@ -12,11 +12,11 @@ export default {
   development: {
     client: 'mysql2',
     connection: {
-      host: config.db.host,
-      port: config.db.port,
-      user: config.db.user,
-      password: config.db.password,
-      database: config.db.name,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.name,
     },
     pool: { min: 0, max: 7 },
     migrations: {
@@ -31,11 +31,11 @@ export default {
   test: {
     client: 'mysql2',
     connection: {
-      host: config.db.host,
-      port: config.db.port,
-      user: config.db.user,
-      password: config.db.password,
-      database: config.db.name,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.name,
     },
     pool: { min: 0, max: 7 },
     migrations: {
@@ -50,11 +50,11 @@ export default {
   production: {
     client: 'mysql2',
     connection: {
-      host: config.db.host,
-      port: config.db.port,
-      user: config.db.user,
-      password: config.db.password,
-      database: config.db.name,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.name,
     },
     pool: {
       min: 2,

@@ -13,7 +13,7 @@ const { api } = config;
  * @description A function that loads the express app and applies the app routes.
  * @summary Loads and configures an express app.
  * @param {import('express').Application} app The express app to load.
- * @param {import('./jsdoc/getAppRoutes.js').getAppRoutes} getAppRoutes A function that returns an express router with the app routes.
+ * @param {import('./type/getAppRoutes.js').getAppRoutes} getAppRoutes A function that returns an express router with the app routes.
  * @throws {Error} If app or getAppRoutes are not provided.
  * @exports initializeApp
  */

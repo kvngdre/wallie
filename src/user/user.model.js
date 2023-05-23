@@ -1,48 +1,66 @@
-import { DataTypes, Model } from 'sequelize';
-import { db } from '../loaders/db.loader.js';
+import { Model } from 'sequelize';
 
-class User extends Model {}
+function userModelGenerator(sequelize, DataTypes) {
+  class UserModel extends Model {
+    /*
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     */
+    static associate(models) {
+      UserModel.hasOne(models.Account, {
+        foreignKey: {
+          type: DataTypes.UUID,
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+    }
+  }
 
-User.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
-      primaryKey: true,
+  UserModel.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+      },
+
+      first_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      last_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
-
-    first_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    {
+      sequelize,
+      modelName: 'User',
+      underscored: true,
     },
+  );
 
-    last_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+  return UserModel;
+}
 
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize: db.sequelize,
-    modelName: 'User',
-  },
-);
-
-export default User;
+export default userModelGenerator;

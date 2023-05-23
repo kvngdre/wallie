@@ -20,5 +20,6 @@ module.exports = {
         endOfLine: 'auto',
       },
     ],
+    'object-shorthand': ['warn', 'always'],
   },
 };
