@@ -1,64 +1,48 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { Model } from 'objection';
-import Account from '../account/account.model.js';
-import config from '../config/index.js';
+import { DataTypes, Model } from 'sequelize';
+import { db } from '../loaders/db.loader.js';
 
-export default class UserModel extends Model {
-  static get tableName() {
-    return 'users';
-  }
+class User extends Model {}
 
-  $beforeInsert() {
-    // ! Hash user password before insert.
-    this.password = bcrypt.hashSync(this.password, config.salt);
-  }
+User.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
+    },
 
-  static get relationMappings() {
-    return {
-      account: {
-        relation: Model.HasOneRelation,
-        modelClass: Account,
-        join: {
-          from: 'users.id',
-          to: 'accounts.user_id',
-        },
-      },
-    };
-  }
+    first_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-  static get jsonSchema() {
-    return {
-      type: 'object',
-      required: ['first_name', 'last_name', 'email', 'password'],
-      properties: {
-        id: { type: 'integer' },
-        first_name: { type: 'string', minLength: 2, maxLength: 30 },
-        last_name: { type: 'string', minLength: 2, maxLength: 30 },
-        email: { type: 'string', maxLength: 255 },
-        password: { type: 'string' },
-      },
-    };
-  }
+    last_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-  /**
-   *
-   * @returns {UserProfile}
-   */
-  toObject() {
-    delete this.password;
-    return this;
-  }
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
-  comparePasswords = (password) => {
-    return bcrypt.compareSync(password, this.password);
-  };
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
-  generateAccessToken() {
-    return jwt.sign({ id: this.id, role: this.role }, config.jwt.secret, {
-      audience: config.jwt.audience,
-      expiresIn: parseInt(config.jwt.exp_time),
-      issuer: config.jwt.issuer,
-    });
-  }
-}
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize: db.sequelize,
+    modelName: 'User',
+  },
+);
+
+export default User;

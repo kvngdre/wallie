@@ -43,8 +43,7 @@
     "knex": "^2.3.0",
     "mysql2": "^2.3.3",
     "objection": "^3.0.1",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.16",
+    "sequelize": "^6.31.1",
     "uuid": "^9.0.0",
     "winston": "^3.8.2"
   },
