@@ -1,0 +1,6 @@
+import path from 'path';
+
+export default {
+  config: path.resolve('', 'src/config/database.config.js'),
+  'migrations-path': path.resolve('', 'src/db/migrations'),
+};

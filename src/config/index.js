@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
 
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config();
+} else {
+  dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+}
 
-export default {
+export const dbConfig = {
   api: { prefix: 'api', version: 'v1' },
   database: {
     user: process.env.DB_USER,

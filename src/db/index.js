@@ -1,5 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import accountModelGenerator from '../account/account.model.js';
+import dbConfig from '../config/database.config.js';
 import config from '../config/index.js';
 import transactionModelGenerator from '../transaction/transaction.model.js';
 import userModelGenerator from '../user/user.model.js';

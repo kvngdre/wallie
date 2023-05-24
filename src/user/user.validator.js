@@ -42,11 +42,21 @@ class UserValidator {
       });
 
     this.#usernameSchema = Joi.string()
-      .allow('_')
-      .alphanum()
       .label('Username')
-      .min(4)
-      .max(255);
+      .lowercase()
+      .trim()
+      .min(3)
+      .max(10)
+      .pattern(/^[a-z_]+[a-z0-9_]*$/)
+      .pattern(/^\d/, { invert: true })
+      .messages({
+        'string.pattern.invert.base': '{#label} can not begin with a number',
+        'string.pattern.base':
+          '{#label} can only contain letters, numbers, and underscore characters',
+        'string.min': '{#label} must be at least {#limit} characters long',
+        'string.max':
+          '{#label} must be less than or equal to {#limit} characters long',
+      });
   }
 
   /**
@@ -70,10 +80,10 @@ class UserValidator {
           .trim()
           .required()
           .length(4)
-          .pattern(/^\d{4}$/)
+          .pattern(/^\d+$/)
           .messages({
-            'string.pattern.base':
-              '{#label} is not valid. Must be a 4 digit number string',
+            'string.pattern.base': '{#label} is not valid. Must be a number',
+            'string.length': '{#label} must be {#limit} digits long',
           }),
       }).required(),
     });
