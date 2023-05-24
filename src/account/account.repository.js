@@ -1,4 +1,4 @@
-import objection, { ValidationError } from 'objection';
+import objection from 'objection';
 import DuplicateError from '../errors/duplicate.error.js';
 import ValidationException from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
@@ -10,20 +10,14 @@ class AccountRepository {
    * @param {NewAccountDto} newAccountDto
    * @returns {Promise<>}
    */
-  async insert(newAccountDto) {
+  async insert(newAccountDto, trx) {
     try {
-      const newRecord = await Account.query().insertAndFetch(newAccountDto);
-      return newRecord;
+      return await Account.query(trx).insert(newAccountDto);
     } catch (exception) {
-      // Catch duplicate field error
-      if (exception instanceof UniqueViolationError) {
+      if (exception instanceof objection.UniqueViolationError) {
         const key = getDuplicateField(exception);
         throw new DuplicateError(`${key} already in use.`);
       }
-
-      // Catch data validation error
-      if (exception instanceof ValidationError)
-        throw new ValidationException(exception.message);
 
       throw exception;
     }

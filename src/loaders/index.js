@@ -1,5 +1,5 @@
-import db from '../db/index.js';
 import { initializeApp } from './app.loader.js';
+import { connectDatabase } from './db.loader.js';
 
 export default {
   /**
@@ -8,6 +8,7 @@ export default {
    * @param {import('./type/getAppRoutes.js').getAppRoutes} appRoutes
    */
   startApp: async (expressApp = null, appRoutes = null) => {
+    await connectDatabase();
     initializeApp(expressApp, appRoutes);
   },
 };

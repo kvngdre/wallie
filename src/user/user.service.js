@@ -1,10 +1,7 @@
 import { Model } from 'objection';
-import { BaseError } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
-import db from '../db/index.js';
 import DuplicateError from '../errors/duplicate.error.js';
-import ServerError from '../errors/server.error.js';
 import Logger from '../utils/logger.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
@@ -38,18 +35,16 @@ class UserService {
     signUpDto.account.id = accountUuid;
     signUpDto.account.user_id = userUuid;
 
-    const result = await db.sequelize.transaction(async (trx) => {
+    const result = await Model.transaction(async (trx) => {
       const [newUser] = await Promise.all([
         this.#userRepository.insert(signUpDto, trx),
-        // this.#accountRepository.insert(signUpDto.account),
+        this.#accountRepository.insert(signUpDto.account, trx),
       ]);
 
-      newUser.toObject();
-
-      return newUser;
+      return newUser.toObject();
     });
 
-    result;
+    return result;
   }
 
   async getUsers(queryObj) {

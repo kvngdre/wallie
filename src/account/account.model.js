@@ -1,50 +1,42 @@
-import { Model } from 'sequelize';
+import bcrypt from 'bcryptjs';
+import { Model } from 'objection';
+import NotFoundError from '../errors/notFound.error.js';
 
-/** @type {import('../db/jsdoc/db.types.js').ModelGenerator} */
-function accountModelGenerator(sequelize, DataTypes) {
-  class AccountModel extends Model {
-    /*
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     */
-    static associate(models) {
-      AccountModel.belongsTo(models.User);
-      AccountModel.hasMany(models.Transaction);
-    }
+export default class Account extends Model {
+  static get tableName() {
+    return 'accounts';
   }
 
-  AccountModel.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
-      },
+  $beforeInsert() {
+    // Hash account pin before insert.
+    this.pin = bcrypt.hashSync(this.pin, 10);
+  }
 
-      user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        unique: true,
-      },
+  $beforeUpdate() {
+    // Hash account pin before update.
+    if (this.hasOwnProperty('pin')) this.pin = bcrypt.hashSync(this.pin, 10);
+  }
 
-      pin: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+  static createNotFoundError(queryContext, message) {
+    return new NotFoundError(message);
+  }
 
-      balance: {
-        type: DataTypes.DECIMAL(20, 4).UNSIGNED,
-        allowNull: false,
-      },
-    },
-    {
-      sequelize,
-      modelName: 'Account',
-      underscored: true,
-    },
-  );
+  omitPin = () => delete this.pin;
 
-  return AccountModel;
+  comparePins = (pin) => {
+    return bcrypt.compareSync(pin, this.pin);
+  };
+
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['user_id', 'pin'],
+      properties: {
+        id: { type: 'integer' },
+        user_id: { type: 'integer' },
+        pin: { type: 'string' },
+        balance: { type: 'number' },
+      },
+    };
+  }
 }
-
-export default accountModelGenerator;

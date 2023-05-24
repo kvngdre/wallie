@@ -1,82 +1,54 @@
-import { Model } from 'sequelize';
-import {
-  TransactionPurpose,
-  TransactionType,
-} from './jsdoc/transaction.types.js';
+import { Model } from 'objection';
+import Account from '../account/account.model.js';
+import NotFoundError from '../errors/notFound.error.js';
 
-/**
- * @type {import('../db/jsdoc/db.types.js').ModelGenerator}
- */
-function transactionModelGenerator(sequelize, DataTypes) {
-  class TransactionModel extends Model {
-    /*
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     */
-    static associate(models) {
-      TransactionModel.belongsTo(models.Account);
-    }
+class Transaction extends Model {
+  static get tableName() {
+    return 'transactions';
   }
 
-  TransactionModel.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-        primaryKey: true,
-      },
+  static createNotFoundError(queryContext, message) {
+    return new NotFoundError(message);
+  }
 
-      account_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
+  static get relationMappings() {
+    return {
+      account: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Account,
+        join: {
+          from: 'transactions.account_id',
+          to: 'accounts.id',
+        },
       },
+    };
+  }
 
-      type: {
-        type: DataTypes.ENUM(Object.values(TransactionType)),
-        allowNull: false,
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: [
+        'account_id',
+        'type',
+        'purpose',
+        'amount',
+        'reference',
+        'bal_before',
+        'bal_after',
+      ],
+      properties: {
+        id: { type: 'integer' },
+        account_id: { type: 'integer' },
+        type: { type: 'string' },
+        purpose: { type: 'string' },
+        amount: { type: 'number' },
+        reference: { type: 'string' },
+        description: { type: 'string' },
+        bal_before: { type: 'number' },
+        bal_after: { type: 'number' },
       },
-
-      purpose: {
-        type: DataTypes.ENUM(Object.values(TransactionPurpose)),
-        allowNull: false,
-      },
-
-      amount: {
-        type: DataTypes.DECIMAL(20, 4).UNSIGNED,
-        allowNull: false,
-      },
-
-      reference: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        unique: true,
-      },
-
-      description: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
-      },
-
-      balance_before: {
-        type: DataTypes.DECIMAL(20, 4),
-        allowNull: false,
-      },
-
-      balance_after: {
-        type: DataTypes.DECIMAL(20, 4),
-        allowNull: false,
-      },
-    },
-    {
-      sequelize,
-      modelName: 'Transaction',
-      underscored: true,
-    },
-  );
-
-  return TransactionModel;
+    };
+  }
 }
 
-export default transactionModelGenerator;
+export default Transaction;

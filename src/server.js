@@ -1,4 +1,3 @@
-/* import-sort-ignore */
 import './process/process.js';
 import 'express-async-errors';
 import express from 'express';
@@ -22,10 +21,7 @@ async function startServer() {
       logger.info(`Server listening on port: ${port} 🚀`);
     });
   } catch (error) {
-    /**@type {Error} */
-    const err = error;
-
-    logger.fatal(err.message, err.stack);
+    logger.fatal(error.message, error.stack);
   }
 }
 

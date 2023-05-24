@@ -1,6 +1,4 @@
 import objection from 'objection';
-import { Transaction } from 'sequelize';
-import db from '../db/index.js';
 import DuplicateError from '../errors/duplicate.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import ValidationError from '../errors/validation.error.js';
@@ -15,7 +13,7 @@ class UserRepository {
    */
   async insert(newUserDto, trx) {
     try {
-      return await db.models.User.create(newUserDto, { Transaction: trx });
+      return await User.query(trx).insert(newUserDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);

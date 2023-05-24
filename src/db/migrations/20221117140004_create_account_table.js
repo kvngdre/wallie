@@ -7,13 +7,12 @@ export function up(knex) {
     table.binary('id', 16).primary();
     table
       .binary('user_id')
-      .unsigned()
       .unique()
       .notNullable()
       .references('id')
       .inTable('users')
-      .onUpdate('CASCADE') // If the user Pk is changed, update the fk as well.
-      .onDelete('CASCADE'); // If the user is deleted, delete account as well.
+      .onUpdate('CASCADE') // If the user primary key is changed, update the foreign key on the accounts table.
+      .onDelete('CASCADE'); // If the user is deleted, delete the corresponding account.
     table.text('pin').notNullable();
     table.decimal('balance').unsigned().defaultTo(0).notNullable();
     table

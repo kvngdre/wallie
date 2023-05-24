@@ -8,7 +8,8 @@ export function up(knex) {
     table.string('first_name', 30).notNullable();
     table.string('last_name', 30).notNullable();
     table.string('email', 100).unique().notNullable();
-    table.text('password').notNullable();
+    table.string('username', 10).unique().notNullable();
+    table.string('password').notNullable();
     table
       .dateTime('created_at')
       .notNullable()

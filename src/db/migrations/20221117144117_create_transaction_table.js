@@ -1,3 +1,8 @@
+import {
+  TransactionPurpose,
+  TransactionType,
+} from '../../transaction/jsdoc/transaction.types';
+
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -7,19 +12,18 @@ export function up(knex) {
     table.increments('id').primary();
     table
       .binary('account_id')
-      .unsigned()
       .notNullable()
       .references('id')
       .inTable('accounts')
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
-    table.enum('type', ['debit', 'credit']).notNullable();
-    table.string('purpose').notNullable();
-    table.decimal('amount').unsigned().notNullable();
+    table.enum('type', Object.values(TransactionType)).notNullable();
+    table.enum('purpose', Object.values(TransactionPurpose)).notNullable();
+    table.decimal('amount', 10, 2).unsigned().notNullable();
     table.string('reference').unique().notNullable();
-    table.string('description', 50);
-    table.decimal('bal_before').unsigned().notNullable();
-    table.decimal('bal_after').unsigned().notNullable();
+    table.string('description', 50).defaultTo(null);
+    table.decimal('balance_before').unsigned().notNullable();
+    table.decimal('balance_after').unsigned().notNullable();
     table
       .dateTime('created_at')
       .notNullable()
