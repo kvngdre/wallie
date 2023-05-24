@@ -1,6 +1,8 @@
 import Joi from 'joi';
 import { joiPasswordExtendCore } from 'joi-password';
+import { v4 as uuidv4 } from 'uuid';
 import refineValidationError from '../utils/refineValidationError.utils.js';
+import { uuidToBin } from '../utils/uuidConverter.utils.js';
 
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
@@ -18,7 +20,7 @@ class UserValidator {
       .max(100)
       .trim();
 
-    this.#nameSchema = Joi.string().min(2).max(30).trim().messages({
+    this.#nameSchema = Joi.string().lowercase().min(2).max(30).trim().messages({
       'string.min': 'Invalid {#label}',
       'string.max': '{#label} is too long',
       'any.required': '{#label} is required',
@@ -66,12 +68,14 @@ class UserValidator {
    */
   validateSignUp = (dto) => {
     const schema = Joi.object({
-      id: Joi.string().default('').forbidden(),
-      first_name: this.#nameSchema.label('First name').required(),
-      last_name: this.#nameSchema.label('Last name').required(),
-      email: this.#emailSchema.required(),
-      username: this.#usernameSchema.required(),
-      password: this.#passwordSchema.required(),
+      user: Joi.object({
+        id: Joi.string().default('').forbidden(),
+        first_name: this.#nameSchema.label('First name').required(),
+        last_name: this.#nameSchema.label('Last name').required(),
+        email: this.#emailSchema.required(),
+        username: this.#usernameSchema.required(),
+        password: this.#passwordSchema.required(),
+      }).required(),
       account: Joi.object({
         id: Joi.string().default('').forbidden(),
         user_id: Joi.string().default('').forbidden(),

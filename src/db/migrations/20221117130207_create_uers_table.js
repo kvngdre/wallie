@@ -4,7 +4,7 @@
  */
 export function up(knex) {
   return knex.schema.createTable('users', (table) => {
-    table.binary('id', 16).primary().defaultTo();
+    table.uuid('id').primary();
     table.string('first_name', 30).notNullable();
     table.string('last_name', 30).notNullable();
     table.string('email', 100).unique().notNullable();

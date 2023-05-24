@@ -9,8 +9,8 @@ import HttpCode from '../utils/httpCodes.utils.js';
  */
 function getErrorMessage(error) {
   if (
-    (error.statusCode === HttpCode.INTERNAL_SERVER && !error.isOperational) ||
-    !error.statusCode
+    !error.statusCode ||
+    (error.statusCode === HttpCode.INTERNAL_SERVER && !error.isOperational)
   )
     return 'Something went wrong';
 

@@ -7,9 +7,8 @@
  */
 
 /**
- * @typedef {Object} AccountProfile
- * @property {number} id - User first name
- * @property {number} user_id - User first name
- * @property {string} pin - User last name
+ * @typedef {Object} AccountDetails
+ * @property {string} id - User first name
+ * @property {string} user_id - User first name
  * @property {number} balance - User email address
  */

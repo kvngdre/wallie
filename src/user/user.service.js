@@ -3,21 +3,19 @@ import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import DuplicateError from '../errors/duplicate.error.js';
 import Logger from '../utils/logger.utils.js';
+import { uuidToBin } from '../utils/uuidConverter.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
 class UserService {
-  #logger;
   #accountRepository;
   #userRepository;
 
   /**
-   * @param {Logger} logger
    * @param {AccountRepository} accountRepository - The account repository instance.
    * @param {UserRepository} userRepository - The user repository instance.
    */
-  constructor(logger, accountRepository, userRepository) {
-    this.#logger = logger;
+  constructor(accountRepository, userRepository) {
     this.#accountRepository = accountRepository;
     this.#userRepository = userRepository;
   }
@@ -28,16 +26,13 @@ class UserService {
    * @returns {Promise<UserProfile>}
    */
   async signUp(signUpDto) {
-    const userUuid = uuidv4();
-    const accountUuid = uuidv4();
-
-    signUpDto.id = userUuid;
-    signUpDto.account.id = accountUuid;
-    signUpDto.account.user_id = userUuid;
+    signUpDto.user.id = uuidv4();
+    signUpDto.account.id = uuidv4();
+    signUpDto.account.user_id = signUpDto.user.id;
 
     const result = await Model.transaction(async (trx) => {
       const [newUser] = await Promise.all([
-        this.#userRepository.insert(signUpDto, trx),
+        this.#userRepository.insert(signUpDto.user, trx),
         this.#accountRepository.insert(signUpDto.account, trx),
       ]);
 

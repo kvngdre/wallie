@@ -1,7 +1,7 @@
 import {
   TransactionPurpose,
   TransactionType,
-} from '../../transaction/jsdoc/transaction.types';
+} from '../../transaction/jsdoc/transaction.types.js';
 
 /**
  * @param { import("knex").Knex } knex
@@ -11,14 +11,14 @@ export function up(knex) {
   return knex.schema.createTable('transactions', (table) => {
     table.increments('id').primary();
     table
-      .binary('account_id')
+      .uuid('account_id')
       .notNullable()
       .references('id')
       .inTable('accounts')
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
-    table.enum('type', Object.values(TransactionType)).notNullable();
-    table.enum('purpose', Object.values(TransactionPurpose)).notNullable();
+    table.enu('type', Object.values(TransactionType)).notNullable();
+    table.enu('purpose', Object.values(TransactionPurpose)).notNullable();
     table.decimal('amount', 10, 2).unsigned().notNullable();
     table.string('reference').unique().notNullable();
     table.string('description', 50).defaultTo(null);

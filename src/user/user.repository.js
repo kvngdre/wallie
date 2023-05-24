@@ -3,12 +3,13 @@ import DuplicateError from '../errors/duplicate.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import ValidationError from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
+import User from './user.model.js';
 
 class UserRepository {
   /**
    * Inserts a new user record into the database.
    * @param {NewUserDto} newUserDto
-   * @param {Transaction} trx Sequelize transaction object.
+   * @param {objection.Transaction} trx - Knex transaction object.
    * @returns {Promise<User>}
    */
   async insert(newUserDto, trx) {

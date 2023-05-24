@@ -1,21 +1,18 @@
 import Knex from 'knex';
-import _ from 'lodash';
 import { Model } from 'objection';
 import knexEnvConfig from '../../knexfile.js';
 import Logger from '../utils/logger.utils.js';
 
-/** @type {NodeEnv} */
-const env = process.env.NODE_ENV;
 const logger = new Logger();
 
 export async function connectDatabase() {
+  /** @type {NodeEnv} */
+  const env = process.env.NODE_ENV;
   const knexConfig = knexEnvConfig[env];
+
   await createDatabase(knexConfig);
 
   const knex = Knex(knexConfig);
-
-  await knex.raw('SELECT VERSION()');
-
   Model.knex(knex);
 
   logger.info('Database Connected!');

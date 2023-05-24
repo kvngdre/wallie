@@ -6,6 +6,10 @@ class Transaction extends Model {
     return 'transactions';
   }
 
+  static get idColumn() {
+    return 'id';
+  }
+
   static get relationMappings() {
     return {
       account: {
@@ -33,7 +37,7 @@ class Transaction extends Model {
       ],
       properties: {
         id: { type: 'integer' },
-        account_id: { type: 'integer' },
+        account_id: { type: 'string' },
         type: { type: 'string' },
         purpose: { type: 'string' },
         amount: { type: 'number' },

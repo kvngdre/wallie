@@ -9,8 +9,8 @@ const customLevels = {
     error: 'red',
     warn: 'yellow',
     info: 'green',
-    debug: 'magenta',
-    silly: 'cyan',
+    debug: 'blue',
+    silly: 'magenta',
   },
   levels: { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, silly: 5 },
 };

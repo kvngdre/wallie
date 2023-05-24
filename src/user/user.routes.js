@@ -15,7 +15,7 @@ const userRepository = new UserRepository();
 const accountRepository = new AccountRepository();
 
 // * Injecting dependencies
-const userService = new UserService(logger, accountRepository, userRepository);
+const userService = new UserService(accountRepository, userRepository);
 const userController = new UserController(userService, userValidator);
 
 const router = Router();

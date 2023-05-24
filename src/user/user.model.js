@@ -9,9 +9,22 @@ export default class User extends Model {
     return 'users';
   }
 
+  static get idColumn() {
+    return 'id';
+  }
+
   $beforeInsert() {
     // ! Hash user password before insert.
-    this.password = bcrypt.hashSync(this.password, config.saltRounds);
+    this.password = bcrypt.hashSync(this.password, parseInt(config.saltRounds));
+  }
+
+  $beforeUpdate() {
+    // ! Hash account pin before update.
+    if (this.hasOwnProperty('password'))
+      this.password = bcrypt.hashSync(
+        this.password,
+        parseInt(config.saltRounds),
+      );
   }
 
   static get relationMappings() {
@@ -32,7 +45,7 @@ export default class User extends Model {
       type: 'object',
       required: ['first_name', 'last_name', 'email', 'username', 'password'],
       properties: {
-        id: { type: 'integer' },
+        id: { type: 'string' },
         first_name: { type: 'string', minLength: 2, maxLength: 30 },
         last_name: { type: 'string', minLength: 2, maxLength: 30 },
         email: { type: 'string', maxLength: 255 },
@@ -51,7 +64,7 @@ export default class User extends Model {
     return this;
   }
 
-  comparePasswords = (password) => {
+  ValidatePassword = (password) => {
     return bcrypt.compareSync(password, this.password);
   };
 

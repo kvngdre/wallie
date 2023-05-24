@@ -4,9 +4,9 @@
  */
 export function up(knex) {
   return knex.schema.createTable('accounts', (table) => {
-    table.binary('id', 16).primary();
+    table.uuid('id').primary();
     table
-      .binary('user_id')
+      .uuid('user_id')
       .unique()
       .notNullable()
       .references('id')

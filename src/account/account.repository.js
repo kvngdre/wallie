@@ -6,9 +6,10 @@ import Account from './account.model.js';
 
 class AccountRepository {
   /**
-   *
+   * Inserts a new user account into the database.
    * @param {NewAccountDto} newAccountDto
-   * @returns {Promise<>}
+   * @param {objection.Transaction} trx - Knex transaction object.
+   * @returns {Promise<Account>}
    */
   async insert(newAccountDto, trx) {
     try {
