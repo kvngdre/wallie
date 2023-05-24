@@ -11,8 +11,8 @@ export default class APIResponse {
   constructor(message, data = undefined) {
     this.success = true;
     this.body = {
-      message: message,
-      data: data,
+      message,
+      data,
     };
   }
 }

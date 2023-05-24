@@ -1,14 +1,9 @@
 import { Model } from 'objection';
 import Account from '../account/account.model.js';
-import NotFoundError from '../errors/notFound.error.js';
 
 class Transaction extends Model {
   static get tableName() {
     return 'transactions';
-  }
-
-  static createNotFoundError(queryContext, message) {
-    return new NotFoundError(message);
   }
 
   static get relationMappings() {
@@ -33,8 +28,8 @@ class Transaction extends Model {
         'purpose',
         'amount',
         'reference',
-        'bal_before',
-        'bal_after',
+        'balance_before',
+        'balance_after',
       ],
       properties: {
         id: { type: 'integer' },
@@ -44,8 +39,8 @@ class Transaction extends Model {
         amount: { type: 'number' },
         reference: { type: 'string' },
         description: { type: 'string' },
-        bal_before: { type: 'number' },
-        bal_after: { type: 'number' },
+        balance_before: { type: 'number' },
+        balance_after: { type: 'number' },
       },
     };
   }

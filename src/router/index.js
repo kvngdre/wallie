@@ -5,10 +5,12 @@ import transactionRoutes from '../transaction/transaction.routes.js';
 import userRoutes from '../user/user.routes.js';
 
 /**
- *
- *@type {import('../loaders/jsdoc/getAppRoutes').getAppRoutes}
+ * @function createAppRouter
+ * @description A function that creates an express router with the app routes.
+ * @requires module:express.Router
+ * @returns {Router} The express router with the app routes.
  */
-export default function appRoutes() {
+export default function createAppRouter() {
   const router = Router();
 
   router.use('/accounts', accountRoutes);

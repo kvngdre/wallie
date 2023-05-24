@@ -4,7 +4,7 @@ import express from 'express';
 import http from 'http';
 import config from './config/index.js';
 import loader from './loaders/index.js';
-import appRoutes from './routes/index.js';
+import appRoutes from './router/index.js';
 import Logger from './utils/logger.utils.js';
 
 const logger = new Logger();

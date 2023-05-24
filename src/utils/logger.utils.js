@@ -1,7 +1,7 @@
 import { addColors, createLogger, format, transports } from 'winston';
 import isDevEnvironment from './isDevEnvironment.utils.js';
 
-const { align, cli, colorize, combine, printf, timestamp } = format;
+const { align, colorize, combine, printf, timestamp } = format;
 
 const customLevels = {
   colors: {
@@ -15,14 +15,17 @@ const customLevels = {
   levels: { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, silly: 5 },
 };
 
+function formatMetadata(metadata) {
+  if (!metadata) return '';
+
+  return `... ${JSON.stringify(metadata, null, 2)}`;
+}
+
 const devFormatter = combine(
-  cli(),
   colorize(),
   timestamp({ format: 'HH:mm:ss' }),
   printf(({ timestamp, level, message, meta }) => {
-    return `[${level}]${timestamp} ${message} ${
-      meta ? `${JSON.stringify(meta, null, 2)}` : ''
-    }`;
+    return `${timestamp} [${level}] ${message} ${formatMetadata(meta)}`;
   }),
 );
 
@@ -30,9 +33,7 @@ const prodFormatter = combine(
   align(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   printf(({ level, timestamp, message, meta }) => {
-    return `[${level}]${timestamp} ${message} ${
-      meta ? JSON.stringify(meta, null, 2) : ''
-    }`;
+    return `${timestamp} [${level}] ${message} ${formatMetadata(meta)}`;
   }),
 );
 
@@ -41,6 +42,7 @@ class Logger {
 
   constructor() {
     const devTransport = new transports.Console({
+      level: 'silly',
       format: devFormatter,
     });
 
@@ -66,7 +68,7 @@ class Logger {
    * @param {*} meta
    */
   fatal(message, meta) {
-    this.#logger.log('fatal', { message, meta });
+    this.#logger.fatal(message, { meta });
   }
 
   /**
@@ -75,7 +77,7 @@ class Logger {
    * @param {*} meta
    */
   error(message, meta) {
-    this.#logger.error({ message, meta });
+    this.#logger.error(message, { meta });
   }
 
   /**
@@ -84,7 +86,7 @@ class Logger {
    * @param {*} meta
    */
   warn(message, meta) {
-    this.#logger.warn({ message, meta });
+    this.#logger.warn(message, { meta });
   }
 
   /**
@@ -93,7 +95,7 @@ class Logger {
    * @param {*} meta
    */
   info(message, meta) {
-    this.#logger.info({ message, meta });
+    this.#logger.info(message, { meta });
   }
 
   /**
@@ -102,7 +104,7 @@ class Logger {
    * @param {*} meta
    */
   debug(message, meta) {
-    this.#logger.debug({ message, meta });
+    this.#logger.debug(message, { meta });
   }
 
   /**
@@ -111,7 +113,7 @@ class Logger {
    * @param {*} meta
    */
   silly(message, meta) {
-    this.#logger.silly({ message, meta });
+    this.#logger.silly(message, { meta });
   }
 }
 

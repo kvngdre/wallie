@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import { Model } from 'objection';
-import NotFoundError from '../errors/notFound.error.js';
 
 export default class Account extends Model {
   static get tableName() {
@@ -15,10 +14,6 @@ export default class Account extends Model {
   $beforeUpdate() {
     // Hash account pin before update.
     if (this.hasOwnProperty('pin')) this.pin = bcrypt.hashSync(this.pin, 10);
-  }
-
-  static createNotFoundError(queryContext, message) {
-    return new NotFoundError(message);
   }
 
   omitPin = () => delete this.pin;

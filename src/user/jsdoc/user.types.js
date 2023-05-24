@@ -1,6 +1,5 @@
 /**
- * @typedef User
- * @type {Object}
+ * @typedef {Object} User
  * @property {string} id - The user ID.
  * @property {string} first_name - The user's first name.
  * @property {string} last_name - The user's last name.
@@ -10,8 +9,7 @@
  */
 
 /**
- * @typedef UserProfile
- * @type {Object}
+ * @typedef {Object} UserProfile
  * @property {string} id - The user ID.
  * @property {string} first_name - The user's first name.
  * @property {string} last_name - The user's last name.
