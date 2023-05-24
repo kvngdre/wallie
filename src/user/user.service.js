@@ -1,21 +1,26 @@
 import { Model } from 'objection';
+import { BaseError } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
+import db from '../db/index.js';
 import DuplicateError from '../errors/duplicate.error.js';
-import { uuidToBin } from '../utils/uuidConverter.utils.js';
+import ServerError from '../errors/server.error.js';
+import Logger from '../utils/logger.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
 class UserService {
+  #logger;
   #accountRepository;
   #userRepository;
 
   /**
-   *
-   * @param {AccountRepository} accountRepository The account repository instance.
-   * @param {UserRepository} userRepository The user repository instance.
+   * @param {Logger} logger
+   * @param {AccountRepository} accountRepository - The account repository instance.
+   * @param {UserRepository} userRepository - The user repository instance.
    */
-  constructor(accountRepository, userRepository) {
+  constructor(logger, accountRepository, userRepository) {
+    this.#logger = logger;
     this.#accountRepository = accountRepository;
     this.#userRepository = userRepository;
   }
@@ -29,20 +34,22 @@ class UserService {
     const userUuid = uuidv4();
     const accountUuid = uuidv4();
 
-    signUpDto.id = uuidToBin(userUuid);
-    signUpDto.account.id = uuidToBin(accountUuid);
-    signUpDto.account.user_id = uuidToBin(userUuid);
+    signUpDto.id = userUuid;
+    signUpDto.account.id = accountUuid;
+    signUpDto.account.user_id = userUuid;
 
-    return await Model.transaction(async (trx) => {
+    const result = await db.sequelize.transaction(async (trx) => {
       const [newUser] = await Promise.all([
         this.#userRepository.insert(signUpDto, trx),
-        this.#accountRepository.insert(signUpDto.account),
+        // this.#accountRepository.insert(signUpDto.account),
       ]);
 
       newUser.toObject();
 
       return newUser;
     });
+
+    result;
   }
 
   async getUsers(queryObj) {
@@ -55,12 +62,7 @@ class UserService {
     return { count, foundUsers };
   }
 
-  async getUser(userId) {
-    const foundUser = await UserRepository.findById(userId);
-    foundUser.omitPassword();
-
-    return foundUser;
-  }
+  async getUser(userId) {}
 
   async updateUser(currentUser, updateUserDto) {
     const updatedUser = await UserRepository.update(currentUser, updateUserDto);

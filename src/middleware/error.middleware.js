@@ -8,7 +8,10 @@ import HttpCode from '../utils/httpCodes.utils.js';
  * @returns
  */
 function getErrorMessage(error) {
-  if (error.statusCode === HttpCode.INTERNAL_SERVER || !error.statusCode)
+  if (
+    (error.statusCode === HttpCode.INTERNAL_SERVER && !error.isOperational) ||
+    !error.statusCode
+  )
     return 'Something went wrong';
 
   return error.message;
@@ -22,7 +25,7 @@ export default (err, req, res, next) => {
   return res.status(err.statusCode || HttpCode.INTERNAL_SERVER).json({
     success: false,
     message: getErrorMessage(err),
-    errors: err?.errors ? { ...err.errors } : undefined,
+    // errors: err?.errors ? { ...err.errors } : undefined,
     data: err?.data,
   });
 };

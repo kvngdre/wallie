@@ -21,25 +21,25 @@ class UserController {
     this.#userValidator = userValidator;
   }
 
-  async signUp(req, res) {
-    const { error } = this.#userValidator.validateSignUp(req.body);
-    if (error) throw new ValidationError('Validation Error', error);
+  signUp = async (req, res) => {
+    const { value, error } = this.#userValidator.validateSignUp(req.body);
+    if (error) throw new ValidationError('Validation Error', true, error);
 
-    const user = await this.#userService.signUp(req.body);
+    const user = await this.#userService.signUp(value);
     const response = new APIResponse('User Created.', user);
 
     return res.status(HttpCode.CREATED).json(response);
-  }
+  };
 
-  async createUser(req, res) {
+  createUser = async (req, res) => {
     const { error } = this.#userValidator.validateSignUp(req.body);
-    if (error) throw new ValidationError('Validation Error', error);
+    if (error) throw new ValidationError('Validation Error', true, error);
 
     const user = await userService.signUp(req.body);
     const response = new APIResponse('User Created.', user);
 
     return res.status(HttpCode.CREATED).json(response);
-  }
+  };
 
   async getAllUsers(req, res) {
     const { count, foundUsers } = await userService.getUsers();

@@ -1,6 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import accountModelGenerator from '../account/account.model.js';
 import config from '../config/index.js';
+import transactionModelGenerator from '../transaction/transaction.model.js';
 import userModelGenerator from '../user/user.model.js';
 import Logger from '../utils/logger.utils.js';
 
@@ -9,15 +10,20 @@ const logger = new Logger();
 /**
  * @type {import('./jsdoc/db.types.js').DbObject}
  */
-export const db = {
-  // Register your model generators in the array.
-  modelGenerators: [userModelGenerator, accountModelGenerator],
-  models: {},
+const db = {
+  // * Register your model generators here.
+  modelGenerators: [
+    accountModelGenerator,
+    userModelGenerator,
+    transactionModelGenerator,
+  ],
   Sequelize,
 };
 
 connectDatabase();
 generateModels();
+
+export default db;
 
 async function connectDatabase() {
   try {
@@ -56,6 +62,10 @@ function generateModels() {
     // Generating models and appending to models object.
     for (const modelGenerator of db.modelGenerators) {
       const model = modelGenerator(db.sequelize, DataTypes);
+      if (!db.models) {
+        db.models = { [model.name]: model };
+      }
+
       db.models[model.name] = model;
     }
 

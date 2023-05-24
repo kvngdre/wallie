@@ -8,6 +8,7 @@ class UserValidator {
   #emailSchema;
   #nameSchema;
   #passwordSchema;
+  #usernameSchema;
 
   constructor() {
     this.#emailSchema = Joi.string()
@@ -39,6 +40,13 @@ class UserValidator {
           '{#label} should contain at least {#min} number',
         'password.noWhiteSpaces': '{#label} cannot contain white spaces',
       });
+
+    this.#usernameSchema = Joi.string()
+      .allow('_')
+      .alphanum()
+      .label('Username')
+      .min(4)
+      .max(255);
   }
 
   /**
@@ -52,6 +60,7 @@ class UserValidator {
       first_name: this.#nameSchema.label('First name').required(),
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),
+      username: this.#usernameSchema.required(),
       password: this.#passwordSchema.required(),
       account: Joi.object({
         id: Joi.string().default('').forbidden(),
@@ -64,7 +73,7 @@ class UserValidator {
           .pattern(/^\d{4}$/)
           .messages({
             'string.pattern.base':
-              '{#label} is not valid. Must be a {#limit} digit number string.',
+              '{#label} is not valid. Must be a 4 digit number string',
           }),
       }).required(),
     });

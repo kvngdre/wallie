@@ -1,6 +1,6 @@
 import { Model } from 'sequelize';
 
-/** @type {import('../db/jsdoc/db.types.js').ModelGenerator<Account>} */
+/** @type {import('../db/jsdoc/db.types.js').ModelGenerator} */
 function accountModelGenerator(sequelize, DataTypes) {
   class AccountModel extends Model {
     /*
@@ -9,6 +9,7 @@ function accountModelGenerator(sequelize, DataTypes) {
      */
     static associate(models) {
       AccountModel.belongsTo(models.User);
+      AccountModel.hasMany(models.Transaction);
     }
   }
 

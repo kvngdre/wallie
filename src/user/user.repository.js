@@ -1,28 +1,25 @@
 import objection from 'objection';
+import { Transaction } from 'sequelize';
+import db from '../db/index.js';
 import DuplicateError from '../errors/duplicate.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import ValidationError from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
-import User from './user.model.js';
 
 class UserRepository {
   /**
    * Inserts a new user record into the database.
    * @param {NewUserDto} newUserDto
-   * @param {objection.Transaction} trx Knex transaction
+   * @param {Transaction} trx Sequelize transaction object.
    * @returns {Promise<User>}
    */
   async insert(newUserDto, trx) {
     try {
-      return await User.query(trx).insert(newUserDto);
+      return await db.models.User.create(newUserDto, { Transaction: trx });
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
         throw new DuplicateError(`${field} already in use`);
-      }
-
-      if (exception instanceof objection.ValidationError) {
-        throw new ValidationError(exception.message);
       }
 
       throw exception;

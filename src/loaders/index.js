@@ -1,4 +1,4 @@
-import { db } from '../db/index.js';
+import db from '../db/index.js';
 import { initializeApp } from './app.loader.js';
 
 export default {
