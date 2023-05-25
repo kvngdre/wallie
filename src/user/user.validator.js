@@ -1,8 +1,6 @@
 import Joi from 'joi';
 import { joiPasswordExtendCore } from 'joi-password';
-import { v4 as uuidv4 } from 'uuid';
 import refineValidationError from '../utils/refineValidationError.utils.js';
-import { uuidToBin } from '../utils/uuidConverter.utils.js';
 
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
@@ -61,11 +59,7 @@ class UserValidator {
       });
   }
 
-  /**
-   * Validates the sign up request payload and appends default key-values.
-   * @param {*} dto
-   * @returns {{ value: SignUpDto, error: (Object.<string, string>|undefined)}}
-   */
+  /**@type {ValidationFunction<SignUpDto>} */
   validateSignUp = (dto) => {
     const schema = Joi.object({
       user: Joi.object({
@@ -93,20 +87,24 @@ class UserValidator {
     });
 
     let { value, error } = schema.validate(dto, { abortEarly: false });
-    if (error !== undefined) error = refineValidationError(error);
+    if (error) error = refineValidationError(error);
 
     return { value, error };
   };
 
-  validateNewUserDto = (user) => {
+  validateCreateUser = (dto) => {
     const schema = Joi.object({
       first_name: this.#nameSchema.label('First name').required(),
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),
+      username: this.#usernameSchema.required(),
       password: this.#passwordSchema.required(),
     });
 
-    return schema.validate(user);
+    let { value, error } = schema.validate(dto, { abortEarly: false });
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 
   validateUpdateUserDto = (user) => {

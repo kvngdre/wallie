@@ -2,8 +2,7 @@ import { Model } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import DuplicateError from '../errors/duplicate.error.js';
-import Logger from '../utils/logger.utils.js';
-import { uuidToBin } from '../utils/uuidConverter.utils.js';
+import { ApiResponse } from '../utils/apiResponse.utils.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
@@ -39,7 +38,16 @@ class UserService {
       return newUser.toObject();
     });
 
-    return result;
+    return new ApiResponse(
+      'You have successfully signed up for the service.',
+      result,
+      {
+        next_steps: [
+          'Check email for OTP to verify your account.',
+          'Log in  and explore the features.',
+        ],
+      },
+    );
   }
 
   async getUsers(queryObj) {

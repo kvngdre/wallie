@@ -1,6 +1,5 @@
 import ValidationError from '../errors/validation.error.js';
 import UserValidator from '../user/user.validator.js';
-import APIResponse from '../utils/APIResponse.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import UserService from './user.service.js';
@@ -25,8 +24,7 @@ class UserController {
     const { value, error } = this.#userValidator.validateSignUp(req.body);
     if (error) throw new ValidationError('Validation Error', true, error);
 
-    const user = await this.#userService.signUp(value);
-    const response = new APIResponse('User Created.', user);
+    const response = await this.#userService.signUp(value);
 
     return res.status(HttpCode.CREATED).json(response);
   };

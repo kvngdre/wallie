@@ -18,7 +18,7 @@ class UserRepository {
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
-        throw new DuplicateError(`${field} already in use`);
+        throw new DuplicateError(`${field} has already been taken.`);
       }
 
       throw exception;

@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} SignUpDto
+ * @typedef {Object} SignUpDto - A data transfer object for sign up information.
  * @property {Object} user
  * @property {string} user.id - The user id
  * @property {string} user.first_name - User first name

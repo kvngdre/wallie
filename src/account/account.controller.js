@@ -1,5 +1,5 @@
 import ValidationError from '../errors/validation.error.js';
-import APIResponse from '../utils/APIResponse.js';
+import { ApiResponse } from '../utils/apiResponse.utils.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import AccountService from './account.service.js';
@@ -19,7 +19,7 @@ class AccountController {
     }
 
     const account = await accountService.createAccount(body, currentUser);
-    const response = new APIResponse('Account created.', account);
+    const response = new ApiResponse('Account created.', account);
 
     res.status(HttpCode.CREATED).json(response);
   }
@@ -31,21 +31,21 @@ class AccountController {
       if (count == 1) return `${count} record found.`;
       return `${count} records found.`;
     }
-    const response = new APIResponse(getMessage(), foundAccounts);
+    const response = new ApiResponse(getMessage(), foundAccounts);
 
     res.status(HttpCode.OK).json(response);
   }
 
   async getCurrentUserAccount(req, res) {
     const account = await accountService.getAccount(req.currentUser.id);
-    const response = new APIResponse('Fetched account.', account);
+    const response = new ApiResponse('Fetched account.', account);
 
     res.status(HttpCode.OK).json(response);
   }
 
   async getAccount(req, res) {
     const account = await accountService.getAccount(req.params.id);
-    const response = new APIResponse('Fetched account.', account);
+    const response = new ApiResponse('Fetched account.', account);
 
     res.status(HttpCode.OK).json(response);
   }
@@ -62,21 +62,21 @@ class AccountController {
       req.currentUser.id,
       req.body,
     );
-    const response = new APIResponse('Account updated.', updatedAccount);
+    const response = new ApiResponse('Account updated.', updatedAccount);
 
     res.status(HttpCode.OK).json(response);
   }
 
   async deleteAccount(req, res) {
     await accountService.deleteAccount(req.params.id);
-    const response = new APIResponse('Account deleted.');
+    const response = new ApiResponse('Account deleted.');
 
     res.status(HttpCode.OK).send(response);
   }
 
   async getBalance(req, res) {
     const accountBalance = await accountService.getBalance(req.currentUser);
-    const response = new APIResponse('Fetched balance.', accountBalance);
+    const response = new ApiResponse('Fetched balance.', accountBalance);
 
     res.status(HttpCode.OK).json(response);
   }
@@ -92,7 +92,7 @@ class AccountController {
     }
 
     const account = await accountService.creditAccount(currentUser, body);
-    const response = new APIResponse('Account credited.', account);
+    const response = new ApiResponse('Account credited.', account);
 
     res.status(HttpCode.OK).json(response);
   }
@@ -108,7 +108,7 @@ class AccountController {
     }
 
     const account = await accountService.debitAccount(currentUser, body);
-    const response = new APIResponse('Account debited.', account);
+    const response = new ApiResponse('Account debited.', account);
 
     res.status(HttpCode.OK).json(response);
   }
@@ -124,7 +124,7 @@ class AccountController {
     }
 
     const account = await accountService.transferFunds(currentUser.id, body);
-    const response = new APIResponse('Transfer successful.', account);
+    const response = new ApiResponse('Transfer successful.', account);
 
     res.status(HttpCode.OK).json(response);
   }

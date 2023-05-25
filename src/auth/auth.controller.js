@@ -1,6 +1,6 @@
 import ValidationError from '../errors/validation.error.js';
 import UserValidator from '../user/user.validator.js';
-import APIResponse from '../utils/APIResponse.js';
+import { ApiResponse } from '../utils/apiResponse.utils.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import AuthService from './auth.service.js';
