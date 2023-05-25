@@ -1,6 +1,5 @@
 /**
  * @typedef {Object} CreateUserDto - A data transfer object for new user information.
- * @property {string} id - The user id
  * @property {string} first_name - The user first name
  * @property {string} last_name - The user last name
  * @property {string} email - The user email address

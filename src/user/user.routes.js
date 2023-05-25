@@ -23,11 +23,11 @@ router.post('/sign-up', userController.signUp);
 
 router.post('/', userController.createUser);
 
-router.get('/', auth, userController.getAllUsers);
+router.get('/', userController.getUsers);
 
 router.get('/me', auth, userController.getCurrentUser);
 
-router.get('/:id', auth, validateId, userController.getUser);
+router.get('/:userId', validateId, userController.getUser);
 
 router.patch('/', auth, userController.updateUser);
 

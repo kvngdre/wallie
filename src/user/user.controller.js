@@ -4,8 +4,6 @@ import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import UserService from './user.service.js';
 
-const userValidator = new UserValidator();
-
 class UserController {
   #userService;
   #userValidator;
@@ -40,24 +38,24 @@ class UserController {
     res.status(HttpCode.CREATED).json(response);
   };
 
-  async getAllUsers(req, res) {
-    const { count, foundUsers } = await userService.getUsers();
+  /** @type {ControllerFunction} */
+  getUsers = async (req, res) => {
+    const { value, error } = this.#userValidator.validateUserFilter(req.query);
+    if (error) throw new ValidationError('Validation Error', true, error);
 
-    function getMessage() {
-      if (count == 1) return `${count} user found.`;
-      return `${count} users found.`;
-    }
-
-    const response = new APIResponse(getMessage(), foundUsers);
-    return res.status(HttpCode.OK).json(response);
-  }
-
-  async getUser(req, res) {
-    const user = await userService.getUser(req.params.id);
-    const response = new APIResponse('Fetched user.', user);
+    const response = await this.#userService.getUsers(value);
 
     return res.status(HttpCode.OK).json(response);
-  }
+  };
+
+  /**
+   * @type {ControllerFunction<{userId: string}>}
+   */
+  getUser = async (req, res) => {
+    const response = await this.#userService.getUser(req.params.userId);
+
+    return res.status(HttpCode.OK).json(response);
+  };
 
   async getCurrentUser(req, res) {
     const user = await userService.getUser(req.currentUser.id);

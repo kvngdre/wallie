@@ -10,7 +10,9 @@ class UserRepository {
    * Inserts a new user record into the database.
    * @param {CreateUserDto} createUserDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
-   * @returns {Promise<User>}
+   * @returns {Promise<User>} A promise that resolves with the inserted User object, or rejects with an error if the insertion fails.
+   * @throws {DuplicateError} If a unique constraint violation occurs on any of the user properties.
+   * @throws {Error} If any other error occurs during the insertion.
    */
   async insert(createUserDto, trx) {
     try {
@@ -26,35 +28,33 @@ class UserRepository {
   }
 
   /**
-   * Returns all users that match filter if any.
+   * Retrieves all users that match filter object if any.
    * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
-   * @returns {Promise<Array.<User>>} - A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
+   * @returns {Promise<Array.<User>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
    */
   async find(filter) {
-    console.log(filter);
     return await User.query()
       .modify('filterName', filter.name)
       .modify('filterUsername', filter.username)
       .modify('filterEmail', filter.email)
-      .modify('omitField', 'password')
+      .modify('omitFields', 'password')
       .orderBy('first_name', 'asc');
   }
 
   /**
-   * Find and returns a user profile by id.
-   * @param {number} id User id
-   * @returns {Promise<UserProfile>}
+   * Retrieves a user by id.
+   * @param {string} id - The user id
    */
   async findById(id) {
     return await User.query().findById(id);
   }
 
   /**
-   * Find and returns a user profile by filter object.
-   * @param {Partial<UserProfile>} filter User profile fields filter object.
-   * @returns {Promise<UserProfile>}
+   * Retrieves a user by filter object.
+   * @param {UserFilter} filter - An object with user profile fields to filter by (optional).
+   * @returns {Promise<User|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    */
-  async findOne(filter) {
+  async findByFilter(filter) {
     return await User.query().where(filter).first();
   }
 

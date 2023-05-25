@@ -2,7 +2,9 @@ import { Model } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import DuplicateError from '../errors/duplicate.error.js';
+import NotFoundError from '../errors/notFound.error.js';
 import { ApiResponse } from '../utils/apiResponse.utils.js';
+import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
@@ -22,6 +24,7 @@ class UserService {
 
   /**
    * Create a new user and account.
+   * This function is used to sign up the user to the service.
    * @param {SignUpDto} signUpDto
    * @returns {Promise<UserProfile>}
    */
@@ -47,29 +50,49 @@ class UserService {
         next_steps: [
           'Check email for OTP to verify your account.',
           'Log in  and explore the features.',
+          'Customize your profile, manage your settings, and access our support.',
         ],
       },
     );
   }
 
+  /**
+   * Creates a new user.
+   * @param {CreateUserDto} createUserDto - A data transfer object for new user information.
+   * @returns {Promise<UserProfile>}
+   */
   async createUser(createUserDto) {
     createUserDto.id = uuidv4();
     const newUser = await this.#userRepository.insert(createUserDto);
 
-    return new ApiResponse('User has been created.', newUser.toObject());
+    return new ApiResponse('User successfully created', newUser.toObject());
   }
 
-  async getUsers(queryObj) {
-    const foundUsers = await UserRepository.findAll(queryObj);
-    const count = Intl.NumberFormat('en-US').format(foundUsers.length);
+  /**
+   * This function is used to find users that match the filter if any.
+   * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
+   * @returns {Promise.<ApiResponse>}
+   */
+  async getUsers(filter) {
+    const foundUsers = await this.#userRepository.find(filter);
+    if (foundUsers.length === 0) throw new NotFoundError('No records found');
+    const message = formatItemCountMessage(foundUsers.length);
 
-    // Modify array inplace to delete user passwords.
-    foundUsers.forEach((user) => user.omitPassword());
-
-    return { count, foundUsers };
+    return new ApiResponse(message, foundUsers);
   }
 
-  async getUser(userId) {}
+  /**
+   * Retrieves the user by it's unique id field.
+   * @param {string} userId - The user id.
+   * @returns {Promise.<ApiResponse>}
+   */
+  async getUser(userId) {
+    const foundUser = await this.#userRepository.findById(userId);
+    if (!foundUser) throw new NotFoundError('User Not Found');
+    // console.log(foundUser.toObject());
+
+    return new ApiResponse('User Found', foundUser.toObject());
+  }
 
   async updateUser(currentUser, updateUserDto) {
     const updatedUser = await UserRepository.update(currentUser, updateUserDto);

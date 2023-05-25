@@ -5,7 +5,9 @@ const logger = new Logger();
 
 class ErrorHandler {
   isTrustedError(error) {
-    if (error instanceof BaseError) return true;
+    if (error instanceof BaseError) {
+      return error.isOperational;
+    }
     return false;
   }
 
@@ -23,6 +25,9 @@ class ErrorHandler {
   }
 
   #handleUntrustedError(error) {
+    // await sendMailToAdminIfCritical();
+    // await sendEventsToSentry();
+
     return logger.fatal(error.message, error.stack);
   }
 }

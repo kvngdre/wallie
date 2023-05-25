@@ -66,11 +66,22 @@ export default class User extends Model {
       }
     },
 
-    omitField(query, field) {
-      const schema = User.jsonSchema;
-      const keys = Object.keys(schema.properties);
-      const selectedFields = keys.filter((key) => key !== field);
-      query.select(selectedFields);
+    /**
+     * Omits fields from users.
+     * @param {objection.QueryBuilder} query - The query builder object.
+     * @param {(string|Array.<string>)} fieldsToOmit - Field or array of fields to omit.
+     */
+    omitFields(query, fieldsToOmit) {
+      if (typeof fieldsToOmit === 'string') {
+        fieldsToOmit = [fieldsToOmit];
+      }
+
+      const fields = Object.keys(User.jsonSchema.properties);
+      const fieldsToSelect = fields.filter(
+        (field) => !fieldsToOmit.includes(field),
+      );
+
+      query.select(fieldsToSelect);
     },
   };
 
@@ -82,39 +93,31 @@ export default class User extends Model {
         id: { type: 'string' },
         first_name: { type: 'string', minLength: 2, maxLength: 30 },
         last_name: { type: 'string', minLength: 2, maxLength: 30 },
-        email: { type: 'string', maxLength: 255 },
+        email: { type: 'string', maxLength: 50 },
         username: { type: 'string', maxLength: 10 },
         password: { type: 'string' },
+        created_at: { type: 'string' },
+        updated_at: { type: 'string' },
       },
     };
   }
 
   $beforeInsert() {
-    // ! Hash user password before insert.
+    /*
+     * Hashing the password property of the create user DTO.
+     * This is to ensure that passwords are stored securely in the database.
+     */
     this.password = bcrypt.hashSync(this.password, parseInt(config.saltRounds));
   }
 
   $beforeUpdate() {
-    // ! Hash account pin before update.
+    // * Hashes the password property of the user update DTO if it exists.
     if (this.hasOwnProperty('password'))
       this.password = bcrypt.hashSync(
         this.password,
         parseInt(config.saltRounds),
       );
   }
-
-  /**
-   *
-   * @returns {UserProfile}
-   */
-  toObject() {
-    delete this.password;
-    return this;
-  }
-
-  ValidatePassword = (password) => {
-    return bcrypt.compareSync(password, this.password);
-  };
 
   generateAccessToken() {
     return jwt.sign({ id: this.id }, config.jwt.secret, {
@@ -123,4 +126,19 @@ export default class User extends Model {
       issuer: config.jwt.issuer,
     });
   }
+
+  /**
+   * Returns a plain object representation of the user instance, omitting the password field.
+   * @returns {objection.Pojo}
+   */
+  toObject() {
+    // Delete sensitive data.
+    delete this.password;
+
+    return this.toJSON();
+  }
+
+  ValidatePassword = (password) => {
+    return bcrypt.compareSync(password, this.password);
+  };
 }

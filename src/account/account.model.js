@@ -44,6 +44,8 @@ export default class Account extends Model {
         user_id: { type: 'string' },
         pin: { type: 'string' },
         balance: { type: 'number' },
+        created_at: { type: 'string' },
+        updated_at: { type: 'string' },
       },
     };
   }

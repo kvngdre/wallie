@@ -6,23 +6,36 @@ const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
 class UserValidator {
   #emailSchema;
+  #emailFilterSchema;
   #nameSchema;
+  #nameFilterSchema;
   #passwordSchema;
   #usernameSchema;
+  #usernameFilterSchema;
 
   constructor() {
     this.#emailSchema = Joi.string()
       .email()
+      .trim()
       .lowercase()
       .label('Email')
-      .max(100)
-      .trim();
+      .max(50);
+
+    this.#emailFilterSchema = Joi.string().trim().lowercase().max(50).allow('');
 
     this.#nameSchema = Joi.string().lowercase().min(2).max(30).trim().messages({
       'string.min': 'Invalid {#label}',
       'string.max': '{#label} is too long',
       'any.required': '{#label} is required',
     });
+
+    this.#nameFilterSchema = Joi.string()
+      .label('Name')
+      .lowercase()
+      .trim()
+      .max(30)
+      .allow('');
+
     this.#passwordSchema = JoiPassword.string()
       .label('Password')
       .minOfUppercase(1)
@@ -30,7 +43,7 @@ class UserValidator {
       .minOfNumeric(1)
       .noWhiteSpaces()
       .min(6)
-      .max(1024)
+      .max(255)
       .messages({
         'password.minOfUppercase':
           '{#label} should contain at least {#min} uppercase character',
@@ -57,6 +70,12 @@ class UserValidator {
         'string.max':
           '{#label} must be less than or equal to {#limit} characters long',
       });
+
+    this.#usernameFilterSchema = Joi.string()
+      .lowercase()
+      .trim()
+      .max(10)
+      .allow('');
   }
 
   /**@type {ValidationFunction<SignUpDto>} */
@@ -95,12 +114,25 @@ class UserValidator {
   /** @type {ValidationFunction<CreateUserDto>} */
   validateCreateUser = (dto) => {
     const schema = Joi.object({
-      id: Joi.string().default('').forbidden(),
       first_name: this.#nameSchema.label('First name').required(),
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),
       username: this.#usernameSchema.required(),
       password: this.#passwordSchema.required(),
+    });
+
+    let { value, error } = schema.validate(dto, { abortEarly: false });
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
+  };
+
+  /** @type {ValidationFunction<UserFilter>} */
+  validateUserFilter = (dto) => {
+    const schema = Joi.object({
+      name: this.#nameFilterSchema,
+      email: this.#emailFilterSchema,
+      username: this.#usernameFilterSchema,
     });
 
     let { value, error } = schema.validate(dto, { abortEarly: false });

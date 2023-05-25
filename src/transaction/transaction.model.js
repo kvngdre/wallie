@@ -45,6 +45,8 @@ class Transaction extends Model {
         description: { type: 'string' },
         balance_before: { type: 'number' },
         balance_after: { type: 'number' },
+        created_at: { type: 'string' },
+        updated_at: { type: 'string' },
       },
     };
   }
