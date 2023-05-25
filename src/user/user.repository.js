@@ -27,11 +27,17 @@ class UserRepository {
 
   /**
    * Returns all users that match filter if any.
-   * @param {Partial<UserProfile>} [filter] User profile fields filter object.
-   * @returns {Promise<Array.<User>>}
+   * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
+   * @returns {Promise<Array.<User>>} - A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
    */
-  async find(filter = {}) {
-    return await User.query().where(filter).orderBy('id', 'desc');
+  async find(filter) {
+    console.log(filter);
+    return await User.query()
+      .modify('filterName', filter.name)
+      .modify('filterUsername', filter.username)
+      .modify('filterEmail', filter.email)
+      .modify('omitField', 'password')
+      .orderBy('first_name', 'asc');
   }
 
   /**

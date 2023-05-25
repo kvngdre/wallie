@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Model } from 'objection';
+import objection, { Model } from 'objection';
 import Account from '../account/account.model.js';
 import config from '../config/index.js';
 
@@ -11,20 +11,6 @@ export default class User extends Model {
 
   static get idColumn() {
     return 'id';
-  }
-
-  $beforeInsert() {
-    // ! Hash user password before insert.
-    this.password = bcrypt.hashSync(this.password, parseInt(config.saltRounds));
-  }
-
-  $beforeUpdate() {
-    // ! Hash account pin before update.
-    if (this.hasOwnProperty('password'))
-      this.password = bcrypt.hashSync(
-        this.password,
-        parseInt(config.saltRounds),
-      );
   }
 
   static get relationMappings() {
@@ -40,6 +26,54 @@ export default class User extends Model {
     };
   }
 
+  static modifiers = {
+    /**
+     * Filters users by email if email is truthy.
+     * @param {objection.QueryBuilder} query - The query builder object.
+     * @param {string} email - The email to filter by.
+     */
+    filterEmail(query, email) {
+      if (email) {
+        query.andWhere('email', 'like', `%${email}%`);
+      }
+    },
+
+    /**
+     * Filters users by first or last name if name is truthy.
+     * @param {objection.QueryBuilder} query - The query builder object.
+     * @param {string} name - The name to filter by.
+     */
+    filterName(query, name) {
+      if (name) {
+        query.where(function () {
+          this.where('first_name', 'like', `%${name}%`).orWhere(
+            'last_name',
+            'like',
+            `%${name}%`,
+          );
+        });
+      }
+    },
+
+    /**
+     * Filters users by username if username is truthy.
+     * @param {objection.QueryBuilder} query - The query builder object.
+     * @param {string} username - The username to filter by.
+     */
+    filterUsername(query, username) {
+      if (username) {
+        query.andWhere('username', 'like', `%${username}%`);
+      }
+    },
+
+    omitField(query, field) {
+      const schema = User.jsonSchema;
+      const keys = Object.keys(schema.properties);
+      const selectedFields = keys.filter((key) => key !== field);
+      query.select(selectedFields);
+    },
+  };
+
   static get jsonSchema() {
     return {
       type: 'object',
@@ -53,6 +87,20 @@ export default class User extends Model {
         password: { type: 'string' },
       },
     };
+  }
+
+  $beforeInsert() {
+    // ! Hash user password before insert.
+    this.password = bcrypt.hashSync(this.password, parseInt(config.saltRounds));
+  }
+
+  $beforeUpdate() {
+    // ! Hash account pin before update.
+    if (this.hasOwnProperty('password'))
+      this.password = bcrypt.hashSync(
+        this.password,
+        parseInt(config.saltRounds),
+      );
   }
 
   /**
