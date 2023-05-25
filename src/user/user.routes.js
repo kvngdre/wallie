@@ -9,7 +9,6 @@ import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
 
 // * Creating dependency instances
-const logger = new Logger();
 const userValidator = new UserValidator();
 const userRepository = new UserRepository();
 const accountRepository = new AccountRepository();

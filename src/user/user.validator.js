@@ -92,8 +92,10 @@ class UserValidator {
     return { value, error };
   };
 
+  /** @type {ValidationFunction<CreateUserDto>} */
   validateCreateUser = (dto) => {
     const schema = Joi.object({
+      id: Joi.string().default('').forbidden(),
       first_name: this.#nameSchema.label('First name').required(),
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),

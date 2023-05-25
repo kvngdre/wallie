@@ -12,31 +12,32 @@ class UserController {
 
   /**
    *
-   * @param {UserService} userService
-   * @param {UserValidator} userValidator
+   * @param {UserService} userService - User service instance.
+   * @param {UserValidator} userValidator - User validator instance
    */
   constructor(userService, userValidator) {
     this.#userService = userService;
     this.#userValidator = userValidator;
   }
 
+  /** @type {ControllerFunction} */
   signUp = async (req, res) => {
     const { value, error } = this.#userValidator.validateSignUp(req.body);
     if (error) throw new ValidationError('Validation Error', true, error);
 
     const response = await this.#userService.signUp(value);
 
-    return res.status(HttpCode.CREATED).json(response);
+    res.status(HttpCode.CREATED).json(response);
   };
 
+  /** @type {ControllerFunction} */
   createUser = async (req, res) => {
-    const { error } = this.#userValidator.validateSignUp(req.body);
+    const { value, error } = this.#userValidator.validateCreateUser(req.body);
     if (error) throw new ValidationError('Validation Error', true, error);
 
-    const user = await userService.signUp(req.body);
-    const response = new APIResponse('User Created.', user);
+    const response = await this.#userService.createUser(value);
 
-    return res.status(HttpCode.CREATED).json(response);
+    res.status(HttpCode.CREATED).json(response);
   };
 
   async getAllUsers(req, res) {

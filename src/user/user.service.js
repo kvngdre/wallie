@@ -11,6 +11,7 @@ class UserService {
   #userRepository;
 
   /**
+   * @class UserService
    * @param {AccountRepository} accountRepository - The account repository instance.
    * @param {UserRepository} userRepository - The user repository instance.
    */
@@ -42,12 +43,20 @@ class UserService {
       'You have successfully signed up for the service.',
       result,
       {
+        verification_url: '',
         next_steps: [
           'Check email for OTP to verify your account.',
           'Log in  and explore the features.',
         ],
       },
     );
+  }
+
+  async createUser(createUserDto) {
+    createUserDto.id = uuidv4();
+    const newUser = await this.#userRepository.insert(createUserDto);
+
+    return new ApiResponse('User has been created.', newUser.toObject());
   }
 
   async getUsers(queryObj) {

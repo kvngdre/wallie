@@ -8,13 +8,13 @@ import User from './user.model.js';
 class UserRepository {
   /**
    * Inserts a new user record into the database.
-   * @param {NewUserDto} newUserDto
-   * @param {objection.Transaction} trx - Knex transaction object.
+   * @param {CreateUserDto} createUserDto
+   * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<User>}
    */
-  async insert(newUserDto, trx) {
+  async insert(createUserDto, trx) {
     try {
-      return await User.query(trx).insert(newUserDto);
+      return await User.query(trx).insert(createUserDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
