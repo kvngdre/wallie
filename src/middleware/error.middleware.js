@@ -5,7 +5,7 @@ import HttpCode from '../utils/httpCodes.utils.js';
 const errorHandler = new ErrorHandler();
 
 /**
- * @type {import('../utils/shared.types.js').ErrorMiddlewareFunction}
+ * @type {ErrorMiddlewareFunction}
  * @description
  */
 export default (err, req, res, next) => {

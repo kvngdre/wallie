@@ -1,11 +1,9 @@
 import { Model } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
-import DuplicateError from '../errors/duplicate.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import { ApiResponse } from '../utils/apiResponse.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
-import UserModel from './user.model.js';
 import UserRepository from './user.repository.js';
 
 class UserService {
@@ -59,7 +57,7 @@ class UserService {
   /**
    * Creates a new user.
    * @param {CreateUserDto} createUserDto - A data transfer object for new user information.
-   * @returns {Promise<UserProfile>}
+   * @returns {Promise<ApiResponse>}
    */
   async createUser(createUserDto) {
     createUserDto.id = uuidv4();
@@ -89,30 +87,31 @@ class UserService {
   async getUser(userId) {
     const foundUser = await this.#userRepository.findById(userId);
     if (!foundUser) throw new NotFoundError('User Not Found');
-    // console.log(foundUser.toObject());
 
     return new ApiResponse('User Found', foundUser.toObject());
   }
 
-  async updateUser(currentUser, updateUserDto) {
-    const updatedUser = await UserRepository.update(currentUser, updateUserDto);
-    updatedUser.omitPassword();
+  /**
+   * Updates the user information by id
+   * @param {string} userId
+   * @param {UpdateUserDto} updateUserDto
+   * @returns {Promise.<ApiResponse>}
+   */
+  async updateUser(userId, updateUserDto) {
+    await this.#userRepository.update(userId, updateUserDto);
 
-    return updatedUser;
+    return new ApiResponse('User Updated');
   }
 
-  async deleteUser(currentUser, userId) {
-    if (currentUser.id == userId) {
-      const [{ count }] = await UserModel.query()
-        .where({ role: user })
-        .count({ count: 'id' });
+  /**
+   * Deletes a user by id
+   * @param {string} userId
+   * @returns {Promise.<ApiResponse>}
+   */
+  async deleteUser(userId) {
+    await this.#userRepository.delete(userId);
 
-      if (count > 0)
-        throw new DuplicateError('Conflict! Admin user must be the only user.');
-    }
-    // @TODO: invalidate access token...
-    // possible solution is to implement refresh tokens with short lived access tokens.
-    return await UserRepository.delete(userId);
+    return new ApiResponse('User Deleted');
   }
 }
 

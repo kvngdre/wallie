@@ -141,12 +141,19 @@ class UserValidator {
     return { value, error };
   };
 
-  validateUpdateUserDto = (user) => {
+  /** @type {ValidationFunction<UpdateUserDto>} */
+  validateUpdateUser = (dto) => {
     const schema = Joi.object({
       first_name: this.#nameSchema.label('First name'),
       last_name: this.#nameSchema.label('Last name'),
-    });
-    return schema.validate(user);
+      username: this.#usernameSchema,
+      password: this.#passwordSchema,
+    }).min(1);
+
+    let { value, error } = schema.validate(dto, { abortEarly: false });
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 
   validateUserSignInDto = (user) => {

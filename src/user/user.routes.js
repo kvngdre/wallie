@@ -3,7 +3,6 @@ import AccountRepository from '../account/account.repository.js';
 import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
 import UserController from '../user/user.controller.js';
-import Logger from '../utils/logger.utils.js';
 import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
@@ -29,8 +28,8 @@ router.get('/me', auth, userController.getCurrentUser);
 
 router.get('/:userId', validateId, userController.getUser);
 
-router.patch('/', auth, userController.updateUser);
+router.patch('/:userId', validateId, userController.updateUser);
 
-router.delete('/:id', auth, validateId, userController.deleteUser);
+router.delete('/:userId', validateId, userController.deleteUser);
 
 export default router;

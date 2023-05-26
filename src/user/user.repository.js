@@ -59,10 +59,11 @@ class UserRepository {
   }
 
   /**
-   * Finds and updates a user by id.
-   * @param {number} id The user id
-   * @param {Partial<User>} updateUserDto
-   * @returns {Promise<number>}
+   * Updates a user by id.
+   * @param {string} id The user id
+   * @param {UpdateUserDto} updateUserDto
+   * @returns {Promise<number>} A promise that resolves with the inserted User object, or rejects with an error if the user not found or update fails.
+   * @throws {NotFoundError} If user cannot be found.
    */
   async update(id, updateUserDto) {
     try {
@@ -77,9 +78,6 @@ class UserRepository {
         const field = getDuplicateField(exception);
         throw new DuplicateError(`${field} already in use`);
       }
-
-      if (exception instanceof objection.ValidationError)
-        throw new ValidationError(exception.message);
 
       throw exception;
     }
