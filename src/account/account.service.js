@@ -1,65 +1,115 @@
 import { Model } from 'objection';
 import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
-import DuplicateError from '../errors/duplicate.error.js';
+import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import pubsub from '../pubsub/PubSub.js';
 import events from '../pubsub/events.js';
+import UserRepository from '../user/user.repository.js';
+import { ApiResponse } from '../utils/apiresponse.utils.js';
 import { TxnPurpose } from '../utils/common.utils.js';
 import { TxnType } from '../utils/constants.utils.js';
-import Logger from '../utils/logger.utils.js';
-import { UserRole } from '../utils/userRoles.utils.js';
+import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import AccountRepository from './account.repository.js';
 
-const logger = new Logger();
 const accountRepository = new AccountRepository();
 
 class AccountService {
-  async createAccount(newAccountDto, currentUser) {
-    newAccountDto.user_id = currentUser.id;
+  #accountRepository;
+  #userRepository;
 
-    const newAccount = await accountRepository.insert(newAccountDto);
-    newAccount.omitPin();
-
-    return newAccount;
+  /**
+   * @class AccountService
+   * @param {AccountRepository} accountRepository
+   * @param {UserRepository} userRepository
+   */
+  constructor(accountRepository, userRepository) {
+    this.#accountRepository = accountRepository;
+    this.#userRepository = userRepository;
   }
 
-  async getAccounts() {
-    const foundAccounts = await accountRepository.findAll();
-    const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
-
-    // Modifying accounts array inplace to omit account pin.
-    foundAccounts.forEach((acc) => acc.omitPin());
-
-    return { count, foundAccounts };
-  }
-
-  async getAccount(accountId) {
-    const foundAccount = await accountRepository.findById(accountId);
-    foundAccount.omitPin();
-
-    return foundAccount;
-  }
-
-  async updateAccount(accountId, updateAccountDto) {
-    const updatedAccount = await accountRepository.update(
-      accountId,
-      updateAccountDto,
+  /**
+   * This creates an account
+   * @param {CreateAccountDto} createAccountDto - A data transfer object with  account information.
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
+  async createAccount(createAccountDto) {
+    const foundUser = await this.#userRepository.findById(
+      createAccountDto.user_id,
     );
-    updatedAccount.omitPin();
+    if (!foundUser) {
+      throw new NotFoundError('Operation failed, user not found.');
+    }
 
-    return updatedAccount;
+    const newAccount = await this.#accountRepository.insert(createAccountDto);
+
+    return new ApiResponse(
+      'Account Created Successfully',
+      newAccount.toObject(),
+    );
   }
 
+  /**
+   * This function is used to find accounts that match the filter if any.
+   * @param {*} filter
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
+  async getAccounts(filter) {
+    // { balance: { min: 50, max: 100 } }
+    const foundAccounts = await this.#accountRepository.find(filter);
+    if (foundAccounts.length === 0) {
+      throw new NotFoundError('No Accounts Found');
+    }
+    const message = formatItemCountMessage(foundAccounts.length);
+
+    return new ApiResponse(message, foundAccounts);
+  }
+
+  /**
+   * Retrieves the user by it's unique id field.
+   * @param {string} accountId
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
+  async getAccount(accountId) {
+    const foundAccount = await this.#accountRepository.findById(accountId);
+    if (!foundAccount) throw new NotFoundError('Account Not Found');
+
+    return new ApiResponse('Account Found', foundAccount.toObject());
+  }
+
+  /**
+   *
+   * @param {string} accountId
+   * @param {*} updateAccountDto
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
+  async updateAccount(accountId, updateAccountDto) {
+    await this.#accountRepository.update(accountId, updateAccountDto);
+
+    return new ApiResponse('Account Updated Successful');
+  }
+
+  /**
+   *
+   * @param {string} accountId
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
   async deleteAccount(accountId) {
-    return await accountRepository.delete(accountId);
+    await this.#accountRepository.delete(accountId);
+
+    return new ApiResponse('Account Deleted Successfully');
   }
 
+  /**
+   *
+   * @param {string} currentUser
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
   async getBalance(currentUser) {
-    const { balance } = await accountRepository.findOne({
+    const { id, balance } = await this.#accountRepository.findOne({
       user_id: currentUser.id,
     });
 
-    return { balance };
+    return new ApiResponse('Success', { id, balance });
   }
 
   async creditAccount(currentUser, fundAccountDto) {
@@ -73,7 +123,6 @@ class AccountService {
         const { id, balance, omitPin } = foundAccount;
         omitPin();
 
-        logger.silly('Performing transaction.');
         await incrementBalance(foundAccount, amount, trx);
 
         // Emitting onAccountCredit event.
@@ -115,7 +164,6 @@ class AccountService {
         if (!isMatch) throw new UnauthorizedError('Invalid pin');
         else omitPin();
 
-        logger.silly('Pin ok, performing transaction.');
         await decrementBalance(foundAccount, amount, trx);
 
         // Emitting onAccountDebit event.
@@ -163,7 +211,6 @@ class AccountService {
           else omitPin();
 
           // Debit source account
-          logger.silly('Pin ok, debiting source account.');
           await decrementBalance(sourceAccount, amount, trx);
 
           // Emitting onAccountDebit event.
@@ -185,7 +232,6 @@ class AccountService {
         async function creditDestinationAndEmitEvent() {
           const { id, balance } = destinationAccount;
 
-          logger.silly('Crediting destination account.');
           await incrementBalance(destinationAccount, amount, trx);
 
           // Emitting onAccountCredit event.

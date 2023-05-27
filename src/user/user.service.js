@@ -2,7 +2,7 @@ import { Model } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import NotFoundError from '../errors/notFound.error.js';
-import { ApiResponse } from '../utils/apiResponse.utils.js';
+import { ApiResponse } from '../utils/apiresponse.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import UserRepository from './user.repository.js';
 
@@ -23,8 +23,8 @@ class UserService {
   /**
    * Create a new user and account.
    * This function is used to sign up the user to the service.
-   * @param {SignUpDto} signUpDto
-   * @returns {Promise<UserProfile>}
+   * @param {SignUpDto} signUpDto - An object with user and account data
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async signUp(signUpDto) {
     signUpDto.user.id = uuidv4();
@@ -39,6 +39,22 @@ class UserService {
 
       return newUser.toObject();
     });
+
+    //   // Generate a verification token using jsonwebtoken
+    // const token = jwt.sign({ id: result.id }, process.env.JWT_SECRET, {
+    //   expiresIn: "24h",
+    // });
+
+    // // Generate a verification url using url-join
+    // const verification_url = urlJoin(
+    //   process.env.BASE_URL,
+    //   "verify",
+    //   result.id,
+    //   token
+    // );
+
+    // // Send a verification email to the user using nodemailer
+    // await this.#emailService.sendVerificationEmail(result.email, verification_url);
 
     return new ApiResponse(
       'You have successfully signed up for the service.',
@@ -73,7 +89,7 @@ class UserService {
    */
   async getUsers(filter) {
     const foundUsers = await this.#userRepository.find(filter);
-    if (foundUsers.length === 0) throw new NotFoundError('No records found');
+    if (foundUsers.length === 0) throw new NotFoundError('No Users Found');
     const message = formatItemCountMessage(foundUsers.length);
 
     return new ApiResponse(message, foundUsers);
@@ -81,8 +97,8 @@ class UserService {
 
   /**
    * Retrieves the user by it's unique id field.
-   * @param {string} userId - The user id.
-   * @returns {Promise.<ApiResponse>}
+   * @param {string} userId - The user id
+   * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async getUser(userId) {
     const foundUser = await this.#userRepository.findById(userId);
@@ -93,25 +109,25 @@ class UserService {
 
   /**
    * Updates the user information by id
-   * @param {string} userId
+   * @param {string} userId - The user id
    * @param {UpdateUserDto} updateUserDto
-   * @returns {Promise.<ApiResponse>}
+   * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async updateUser(userId, updateUserDto) {
     await this.#userRepository.update(userId, updateUserDto);
 
-    return new ApiResponse('User Updated');
+    return new ApiResponse('User Updated Successfully');
   }
 
   /**
    * Deletes a user by id
-   * @param {string} userId
-   * @returns {Promise.<ApiResponse>}
+   * @param {string} userId - The user id
+   * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async deleteUser(userId) {
     await this.#userRepository.delete(userId);
 
-    return new ApiResponse('User Deleted');
+    return new ApiResponse('User Deleted Successfully');
   }
 }
 

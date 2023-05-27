@@ -30,7 +30,7 @@ export default class User extends Model {
     /**
      * Filters users by email if email is truthy.
      * @param {objection.QueryBuilder} query - The query builder object.
-     * @param {string} email - The email to filter by.
+     * @param {(string|undefined)} email - The email to filter by.
      */
     filterEmail(query, email) {
       if (email) {
@@ -41,7 +41,7 @@ export default class User extends Model {
     /**
      * Filters users by first or last name if name is truthy.
      * @param {objection.QueryBuilder} query - The query builder object.
-     * @param {string} name - The name to filter by.
+     * @param {(string|undefined)} name - The name to filter by.
      */
     filterName(query, name) {
       if (name) {
@@ -58,7 +58,7 @@ export default class User extends Model {
     /**
      * Filters users by username if username is truthy.
      * @param {objection.QueryBuilder} query - The query builder object.
-     * @param {string} username - The username to filter by.
+     * @param {(string|undefined)} username - The username to filter by.
      */
     filterUsername(query, username) {
       if (username) {
@@ -67,21 +67,28 @@ export default class User extends Model {
     },
 
     /**
-     * Omits fields from users.
-     * @param {objection.QueryBuilder} query - The query builder object.
-     * @param {(string|Array.<string>)} fieldsToOmit - Field or array of fields to omit.
+     * Omits fields from user query.
+     * @param {objection.QueryBuilder} query - The query builder object for the user table.
+     * @param {(string|Array.<string>|undefined)} fieldsToOmit - The field name or array of field names to omit from the query result.
      */
     omitFields(query, fieldsToOmit) {
-      if (typeof fieldsToOmit === 'string') {
-        fieldsToOmit = [fieldsToOmit];
+      if (fieldsToOmit && fieldsToOmit.length > 0) {
+        // Convert the fieldsToOmit argument to an array if it is a string
+        if (typeof fieldsToOmit === 'string') {
+          fieldsToOmit = [fieldsToOmit];
+        }
+
+        // Get the list of all fields defined in the user schema
+        const fields = Object.keys(User.jsonSchema.properties);
+
+        // Filter out the fields that are not in the fieldsToOmit array
+        const fieldsToSelect = fields.filter(
+          (field) => !fieldsToOmit.includes(field),
+        );
+
+        // Select only the filtered fields in the query
+        query.select(fieldsToSelect);
       }
-
-      const fields = Object.keys(User.jsonSchema.properties);
-      const fieldsToSelect = fields.filter(
-        (field) => !fieldsToOmit.includes(field),
-      );
-
-      query.select(fieldsToSelect);
     },
   };
 
@@ -138,6 +145,11 @@ export default class User extends Model {
     return this.toJSON();
   }
 
+  /**
+   * Validates the given password against the stored password hash.
+   * @param {string} password - The password to validate.
+   * @returns {boolean} True if the password matches, false otherwise.
+   */
   ValidatePassword = (password) => {
     return bcrypt.compareSync(password, this.password);
   };

@@ -33,7 +33,7 @@ class UserRepository {
    * @returns {Promise<Array.<User>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
    */
   async find(filter) {
-    return await User.query()
+    return User.query()
       .modify('filterName', filter.name)
       .modify('filterUsername', filter.username)
       .modify('filterEmail', filter.email)
@@ -44,9 +44,10 @@ class UserRepository {
   /**
    * Retrieves a user by id.
    * @param {string} id - The user id
+   * @returns {Promise<User|undefined>} A promise that resolves to the user object or undefined if not found.
    */
   async findById(id) {
-    return await User.query().findById(id);
+    return User.query().findById(id);
   }
 
   /**

@@ -6,47 +6,56 @@ import Account from './account.model.js';
 
 class AccountRepository {
   /**
-   * Inserts a new user account into the database.
-   * @param {NewAccountDto} newAccountDto
+   * Inserts a new account into the database.
+   * @param {CreateAccountDto} createAccountDto
    * @param {objection.Transaction} trx - Knex transaction object.
-   * @returns {Promise<Account>}
+   * @returns {Promise<Account>} A promise that resolves with the inserted Account object, or rejects with an error if the insertion fails.
+   * @throws {DuplicateError} If a unique constraint violation occurs on any of the account properties.
+   * @throws {Error} If any other error occurs during the insertion.
    */
-  async insert(newAccountDto, trx) {
+  async insert(createAccountDto, trx) {
     try {
-      return await Account.query(trx).insert(newAccountDto);
+      return Account.query(trx).insert(createAccountDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
-        const key = getDuplicateField(exception);
-        throw new DuplicateError(`${key} already in use.`);
+        throw new DuplicateError(
+          `Account with user id ${createAccountDto.user_id} already exists.`,
+        );
       }
 
       throw exception;
     }
   }
 
-  async findAll(message = 'No accounts found') {
-    const foundRecords = await Account.query()
-      .throwIfNotFound(message)
-      .orderBy('id', 'desc');
-
-    return foundRecords;
+  /**
+   *
+   * @param {AccountFilter} filter
+   * @returns
+   */
+  async find(filter) {
+    console.log(typeof filter.value);
+    return await Account.query()
+      .modify('filterBalance', filter.operator, filter.value)
+      .modify('omitFields', 'pin')
+      .orderBy('created_at', 'desc');
   }
 
-  async findById(accountId, message = 'Account not found') {
-    const foundRecord = await Account.query()
-      .findById(accountId)
-      .throwIfNotFound(message);
-
-    return foundRecord;
+  /**
+   * Retrieve an account by id.
+   * @param {string} id - The account id
+   * @returns {Promise<Account|undefined>} A promise that resolves to the account object or undefined if not found.
+   */
+  async findById(id) {
+    return Account.query().findById(id);
   }
 
-  async findOne(queryObj, message = 'Account not found') {
-    const foundRecord = await Account.query()
-      .where(queryObj)
-      .first()
-      .throwIfNotFound(message);
-
-    return foundRecord;
+  /**
+   * Retrieves an account by filter object.
+   * @param {UserFilter} filter - An object with user profile fields to filter by (optional).
+   * @returns {Promise<Account|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
+   */
+  async findByFilter(filter) {
+    return Account.query().where(filter).first();
   }
 
   async update(accountId, updateAccountDto, trx) {

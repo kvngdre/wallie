@@ -17,7 +17,7 @@ class UserController {
     this.#userValidator = userValidator;
   }
 
-  /** @type {ControllerFunction} */
+  /** @type {ControllerFunction<{}, {}, SignUpDto>} */
   signUp = async (req, res) => {
     const { value, error } = this.#userValidator.validateSignUp(req.body);
     if (error) throw new ValidationError('Validation Error', true, error);
@@ -27,7 +27,7 @@ class UserController {
     res.status(HttpCode.CREATED).json(response);
   };
 
-  /** @type {ControllerFunction} */
+  /** @type {ControllerFunction<{}, {}, CreateUserDto>} */
   createUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateCreateUser(req.body);
     if (error) throw new ValidationError('Validation Error', true, error);

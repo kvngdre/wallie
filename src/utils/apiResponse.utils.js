@@ -10,10 +10,8 @@ export class ApiResponse {
    */
   constructor(message, data = undefined, meta = undefined) {
     this.success = true;
-    this.body = {
-      message,
-      data,
-      meta,
-    };
+    this.message = message;
+    this.data = data;
+    this.meta = meta;
   }
 }

@@ -1,10 +1,10 @@
 /**
- * @typedef {Object} UserProfile
- * @property {string} id - The user ID.
- * @property {string} first_name - The user's first name.
- * @property {string} last_name - The user's last name.
- * @property {string} email - The user's email.
- * @property {string} username - The user's username.
- * @property {string} created_at - The date and time the user was created.
- * @property {string} updated_at - The last date and time the user record was updated.
+ * @typedef {Object} UserProfile - Represents the profile of a user.
+ * @property {string} id - The unique identifier of the user.
+ * @property {string} first_name - The first name of the user.
+ * @property {string} last_name - The last name of the user.
+ * @property {string} email - The email address of the user.
+ * @property {string} username - The username of the user.
+ * @property {string} created_at - The ISO 8601 formatted date and time when the user was created.
+ * @property {string} updated_at - The ISO 8601 formatted date and time when the account record was last updated.
  */

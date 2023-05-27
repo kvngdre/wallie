@@ -1,4 +1,4 @@
-import Router from 'express';
+import { Router } from 'express';
 import AccountRepository from '../account/account.repository.js';
 import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
