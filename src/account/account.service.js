@@ -90,11 +90,11 @@ class AccountService {
 
   /**
    *
-   * @param {string} accountId
+   * @param {string} accountId - The account id.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async deleteAccount(accountId) {
-    await this.#accountRepository.delete(accountId);
+    // await this.#accountRepository.delete(accountId);
 
     return new ApiResponse('Account Deleted Successfully');
   }

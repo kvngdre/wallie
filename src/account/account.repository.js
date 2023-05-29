@@ -59,16 +59,16 @@ class AccountRepository {
 
   /**
    *
-   * @param {string} accountId - The account id
+   * @param {string} id - The account id
    * @param {UpdateAccountDto} updateAccountDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<Account>}
    * @throws {NotFoundError} If account cannot be found.
    */
-  async update(accountId, updateAccountDto, trx) {
+  async update(id, updateAccountDto, trx) {
     try {
-      const foundAccount = await Account.query().findById(accountId);
-      if (!foundAccount) {
+      const foundRecord = await Account.query().findById(id);
+      if (!foundRecord) {
         throw new NotFoundError('Operation failed. Account not found.');
       }
 
@@ -83,12 +83,18 @@ class AccountRepository {
     }
   }
 
-  async delete(accountId, message = 'Account not found') {
-    const numberOfDeletedRows = await Account.query()
-      .deleteById(accountId)
-      .throwIfNotFound(message);
+  /**
+   * FInds and deletes an account by id.
+   * @param {string} id - The account id.
+   * @returns {Promise<number>} The number of rows (accounts) deleted.
+   */
+  async delete(id) {
+    const foundRecord = await Account.query().findById(accountId);
+    if (!foundRecord) {
+      throw new NotFoundError('Operation failed. Account not found.');
+    }
 
-    return numberOfDeletedRows;
+    return await foundRecord.$query().delete(id);
   }
 }
 

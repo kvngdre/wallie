@@ -38,6 +38,6 @@ router.get('/:accountId', validateId, accountController.getAccount);
 
 router.patch('/change-pin', accountController.changeAccountPin);
 
-router.delete('/:id', auth, validateId, accountController.deleteAccount);
+router.delete('/:accountId', validateId, accountController.deleteAccount);
 
 export default router;

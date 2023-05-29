@@ -72,9 +72,9 @@ class AccountController {
     res.status(HttpCode.OK).json(response);
   };
 
+  /** @type {ControllerFunction<{ accountId: string }>} */
   deleteAccount = async (req, res) => {
-    await accountService.deleteAccount(req.params.id);
-    const response = new ApiResponse('Account deleted.');
+    const response = await accountService.deleteAccount(req.params.id);
 
     res.status(HttpCode.OK).send(response);
   };
