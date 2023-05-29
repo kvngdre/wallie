@@ -76,7 +76,7 @@ class UserController {
 
   /** @type {ControllerFunction<{ userId: string }>} */
   deleteUser = async (req, res) => {
-    await this.#userService.deleteUser(req.params.userId);
+    const response = await this.#userService.deleteUser(req.params.userId);
 
     res.status(HttpCode.OK).json(response);
   };

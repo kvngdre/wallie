@@ -3,11 +3,12 @@ import UserService from '../user/user.service.js';
 import UserValidator from '../user/user.validator.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
-import AuthService from './auth.service.js';
+import AuthService from './session.service.js';
 
 const userService = new UserService();
 const userValidator = new UserValidator();
-class AuthController {
+
+class SessionController {
   /** @type {ControllerFunction} */
   async login(req, res) {
     // Validating user login dto
@@ -22,4 +23,4 @@ class AuthController {
   }
 }
 
-export default AuthController;
+export default SessionController;

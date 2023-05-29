@@ -3,9 +3,9 @@
  * @returns { Promise<void> }
  */
 export function up(knex) {
-  return knex.schema.createTable('auth', (table) => {
+  return knex.schema.createTable('sessions', (table) => {
     table.increments('id').primary();
-    table.uuid('user_id').unique().index();
+    table.uuid('user_id').unique().notNullable().index();
     table
       .foreign('user_id')
       .references('id')
@@ -21,5 +21,5 @@ export function up(knex) {
  * @returns { Promise<void> }
  */
 export function down(knex) {
-  return knex.schema.dropTableIfExists('auth');
+  return knex.schema.dropTableIfExists('sessions');
 }
