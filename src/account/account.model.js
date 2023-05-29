@@ -16,11 +16,10 @@ class Account extends Model {
     /**
      * Filters accounts by balance if operator and balance is truthy.
      * @param {objection.QueryBuilder} query - The query builder object.
-     * @param {(string|undefined)} operator - The logical operator to apply.
-     * @param {(number|undefined)} value
+     * @param {AccountFilter} filter - The account filter object.
      */
-    filterBalance(query, operator, value) {
-      if (operator && value) {
+    filterBalance(query, { operator, value }) {
+      if (operator !== undefined && value !== undefined) {
         query.where('balance', operatorMap[operator], value);
       }
     },

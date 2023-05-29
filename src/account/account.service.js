@@ -79,10 +79,10 @@ class AccountService {
   /**
    *
    * @param {string} accountId
-   * @param {*} updateAccountDto
+   * @param {UpdateAccountDto} updateAccountDto
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async updateAccount(accountId, updateAccountDto) {
+  async changeAccountPin(accountId, updateAccountDto) {
     await this.#accountRepository.update(accountId, updateAccountDto);
 
     return new ApiResponse('Account Updated Successful');

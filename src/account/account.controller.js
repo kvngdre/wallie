@@ -57,26 +57,17 @@ class AccountController {
     res.status(HttpCode.OK).json(response);
   };
 
-  async getCurrentUserAccount(req, res) {
-    const account = await accountService.getAccount(req.currentUser.id);
-    const response = new ApiResponse('Fetched account.', account);
-
-    res.status(HttpCode.OK).json(response);
-  }
-
-  updateAccount = async (req, res) => {
-    // Validating new account dto
-    const { error } = accountValidator.validateUpdateAccountDto(req.body);
+  /** @type {ControllerFunction<{ accountId: string }, {}, UpdateAccountDto>} */
+  changeAccountPin = async (req, res) => {
+    const { value, error } = this.#accountValidator.validateChangePin(req.body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationError(errorMsg);
+      throw new ValidationError({ message: 'Validation Error', data: error });
     }
 
-    const updatedAccount = await accountService.updateAccount(
-      req.currentUser.id,
-      req.body,
+    const response = await this.#accountService.changeAccountPin(
+      req.params.accountId,
+      value,
     );
-    const response = new ApiResponse('Account updated.', updatedAccount);
 
     res.status(HttpCode.OK).json(response);
   };

@@ -56,7 +56,8 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  validateUpdateAccount = (dto) => {
+  /** @type {ValidationFunction<ChangeAccountPinDto>} */
+  validateChangePin = (dto) => {
     const schema = Joi.object({
       pin: this.#pinSchema,
     });

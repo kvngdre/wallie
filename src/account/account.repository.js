@@ -8,7 +8,7 @@ class AccountRepository {
   /**
    * Inserts a new account into the database.
    * @param {CreateAccountDto} createAccountDto
-   * @param {objection.Transaction} trx - Knex transaction object.
+   * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<Account>} A promise that resolves with the inserted Account object, or rejects with an error if the insertion fails.
    * @throws {DuplicateError} If a unique constraint violation occurs on any of the account properties.
    * @throws {Error} If any other error occurs during the insertion.
@@ -33,9 +33,8 @@ class AccountRepository {
    * @returns
    */
   async find(filter) {
-    console.log(typeof filter.value);
-    return await Account.query()
-      .modify('filterBalance', filter.operator, filter.value)
+    return Account.query()
+      .modify('filterBalance', filter)
       .modify('omitFields', 'pin')
       .orderBy('created_at', 'desc');
   }
@@ -58,26 +57,27 @@ class AccountRepository {
     return Account.query().where(filter).first();
   }
 
+  /**
+   *
+   * @param {string} accountId - The account id
+   * @param {UpdateAccountDto} updateAccountDto
+   * @param {objection.Transaction} [trx] - Knex transaction object.
+   * @returns {Promise<Account>}
+   * @throws {NotFoundError} If account cannot be found.
+   */
   async update(accountId, updateAccountDto, trx) {
     try {
-      const updateRecord = await Account.query(trx)
-        .patchAndFetchById(accountId, updateAccountDto)
-        .throwIfNotFound(message);
+      const foundAccount = await Account.query().findById(accountId);
+      if (!foundAccount) {
+        throw new NotFoundError('Operation failed. Account not found.');
+      }
 
-      return updateRecord;
+      return await Account.query(trx).patch(updateAccountDto);
     } catch (exception) {
-      // Rollback changes and abort transaction.
-      trx.rollback();
-
-      // Catch duplicate field error
       if (exception instanceof UniqueViolationError) {
         const key = getDuplicateField(exception);
         throw new DuplicateError(`${key} already in use.`);
       }
-
-      // Catch data validation error
-      if (exception instanceof ValidationError)
-        throw new ValidationException(exception.message);
 
       throw exception;
     }

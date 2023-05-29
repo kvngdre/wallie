@@ -34,11 +34,9 @@ router.get('/', accountController.getAccounts);
 
 router.get('/balance', auth, accountController.getBalance);
 
-router.get('/me', auth, accountController.getCurrentUserAccount);
-
 router.get('/:accountId', validateId, accountController.getAccount);
 
-router.patch('/', auth, accountController.updateAccount);
+router.patch('/change-pin', accountController.changeAccountPin);
 
 router.delete('/:id', auth, validateId, accountController.deleteAccount);
 
