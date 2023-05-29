@@ -2,9 +2,9 @@
  * Creates a new API Response.
  * @class
  */
-export class ApiResponse {
+export default class ApiResponse {
   /**
-   * @constructs APIResponse
+   * @class ApiResponse
    * @param {string} message - The response message.
    * @param {Object} [data] - Response data.
    */

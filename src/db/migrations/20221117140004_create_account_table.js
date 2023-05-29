@@ -5,10 +5,9 @@
 export function up(knex) {
   return knex.schema.createTable('accounts', (table) => {
     table.uuid('id').primary();
+    table.uuid('user_id').unique().notNullable().index();
     table
-      .uuid('user_id')
-      .unique()
-      .notNullable()
+      .foreign('user_id')
       .references('id')
       .inTable('users')
       .onUpdate('CASCADE') // If the user primary key is changed, update the foreign key on the accounts table.

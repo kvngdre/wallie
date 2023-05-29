@@ -1,12 +1,14 @@
 import ValidationError from '../errors/validation.error.js';
+import UserService from '../user/user.service.js';
 import UserValidator from '../user/user.validator.js';
-import { ApiResponse } from '../utils/apiResponse.utils.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import AuthService from './auth.service.js';
 
+const userService = new UserService();
 const userValidator = new UserValidator();
 class AuthController {
+  /** @type {ControllerFunction} */
   async login(req, res) {
     // Validating user login dto
     const { error } = userValidator.validateUserLoginDto(req.body);

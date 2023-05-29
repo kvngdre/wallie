@@ -6,6 +6,8 @@ const authController = new AuthController();
 
 router.post('/login', authController.login);
 
-router.post('/logout', authController.login);
+// router.get('/access-token');
+
+router.get('/logout', authController.login);
 
 export default router;

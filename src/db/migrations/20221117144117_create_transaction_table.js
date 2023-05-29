@@ -10,9 +10,9 @@ import {
 export function up(knex) {
   return knex.schema.createTable('transactions', (table) => {
     table.increments('id').primary();
+    table.uuid('account_id').notNullable().index();
     table
-      .uuid('account_id')
-      .notNullable()
+      .foreign('account_id')
       .references('id')
       .inTable('accounts')
       .onUpdate('CASCADE')
