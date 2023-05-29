@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import objection, { Model } from 'objection';
 import config from '../config/index.js';
+import User from '../user/user.model.js';
 import { operatorMap } from './utils/operator-map.utils.js';
 
 class Account extends Model {
