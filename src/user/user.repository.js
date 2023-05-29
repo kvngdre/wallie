@@ -86,8 +86,9 @@ class UserRepository {
 
   /**
    * Finds and deletes a user by id.
-   * @param {number} id The user id
-   * @returns {Promise<number>}
+   * @param {string} id The user id
+   * @returns {Promise<number>} The number of rows (users) deleted.
+   * @throws {NotFoundError} If user cannot be found.
    */
   async delete(id) {
     const foundRecord = await User.query().findById(id);
