@@ -52,11 +52,13 @@ class UserRepository {
 
   /**
    * Retrieves a user by filter object.
-   * @param {UserFilter} filter - An object with user profile fields to filter by (optional).
+   * @param {string} usernameOrEmail - An object with user profile fields to filter by (optional).
    * @returns {Promise<User|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    */
-  async findByFilter(filter) {
-    return await User.query().where(filter).first();
+  async findByUsernameOrEmail(usernameOrEmail) {
+    return await User.query()
+      .where({ username: usernameOrEmail })
+      .orWhere({ email: usernameOrEmail });
   }
 
   /**

@@ -1,5 +1,5 @@
-class BaseError extends Error {
-  constructor(httpCode, isOperational = false, message, data = undefined) {
+class ApiError extends Error {
+  constructor(httpCode, isOperational = true, message, data = undefined) {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
 
@@ -11,4 +11,4 @@ class BaseError extends Error {
   }
 }
 
-export default BaseError;
+export default ApiError;

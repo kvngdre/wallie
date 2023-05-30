@@ -1,4 +1,4 @@
-import BaseError from '../errors/base.error.js';
+import ApiError from '../errors/api.error.js';
 import ErrorHandler from '../utils/errorHandler.utils.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 
@@ -21,7 +21,7 @@ export default (err, req, res, next) => {
 
 /**
  *
- * @param {(Error|BaseError)} error
+ * @param {(Error|ApiError)} error
  * @returns
  */
 function getErrorMessage(error) {

@@ -7,19 +7,19 @@ import Session from './session.model.js';
 class SessionRepository {
   /**
    * Inserts a new account into the database.
-   * @param {CreateAccountDto} createAccountDto
+   * @param {NewSessionDto} newSessionDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
-   * @returns {Promise<Account>} A promise that resolves with the inserted Account object, or rejects with an error if the insertion fails.
-   * @throws {DuplicateError} If a unique constraint violation occurs on any of the account properties.
+   * @returns {Promise<Session>} A promise that resolves with the inserted Session object, or rejects with an error if the insertion fails.
+   * @throws {DuplicateError} If a unique constraint violation occurs on any of the session properties.
    * @throws {Error} If any other error occurs during the insertion.
    */
-  async insert(createAccountDto, trx) {
+  async insert(newSessionDto, trx) {
     try {
-      return Auth.query(trx).insert(createAccountDto);
+      return Auth.query(trx).insert(newSessionDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         throw new DuplicateError(
-          `Session with user id ${createAccountDto.user_id} already exists.`,
+          `Session with user id ${newSessionDto.user_id} already exists.`,
         );
       }
 

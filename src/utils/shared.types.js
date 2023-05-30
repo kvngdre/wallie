@@ -43,7 +43,7 @@
 /**
  * @description An error middleware function for express applications
  * @typedef {(
- *  err: (Error|import('../errors/base.error.js').default),
+ *  err: (Error|import('../errors/api.error.js').default),
  *  req: import('express').Request,
  *  res: import('express').Response,
  *  next: import('express').NextFunction) => any} ErrorMiddlewareFunction

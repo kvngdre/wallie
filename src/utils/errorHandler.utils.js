@@ -1,11 +1,11 @@
-import BaseError from '../errors/base.error.js';
+import ApiError from '../errors/api.error.js';
 import Logger from './logger.utils.js';
 
 const logger = new Logger();
 
 class ErrorHandler {
   isTrustedError(error) {
-    if (error instanceof BaseError) {
+    if (error instanceof ApiError) {
       return error.isOperational;
     }
     return false;

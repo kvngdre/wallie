@@ -15,7 +15,7 @@ class UserValidator {
 
   constructor() {
     this.#emailSchema = Joi.string()
-      .email()
+      .email({ tlds: { allow: false } })
       .trim()
       .lowercase()
       .label('Email')
@@ -59,7 +59,7 @@ class UserValidator {
       .lowercase()
       .trim()
       .min(3)
-      .max(10)
+      .max(20)
       .pattern(/^[a-z_]+[a-z0-9_]*$/)
       .pattern(/^\d/, { invert: true })
       .messages({
@@ -154,14 +154,6 @@ class UserValidator {
     if (error) error = refineValidationError(error);
 
     return { value, error };
-  };
-
-  validateUserSignInDto = (user) => {
-    const schema = Joi.object({
-      email: this.#emailSchema.required(),
-      password: Joi.string().label('Password').required(),
-    });
-    return schema.validate(user);
   };
 }
 

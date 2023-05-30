@@ -1,17 +1,33 @@
+import { NotFoundError } from 'objection';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
-import Logger from '../utils/logger.utils.js';
+import SessionRepository from './session.repository.js';
 
-const logger = new Logger();
+class SessionService {
+  #sessionRepository;
+  #userRepository;
 
-class AuthService {
-  async signIn(loginDto) {
-    const { email, password } = loginDto;
+  /**
+   * @class SessionService
+   * @param {SessionRepository} sessionRepository
+   * @param {UserRepository} userRepository
+   */
+  constructor(sessionRepository, userRepository) {
+    this.#sessionRepository = sessionRepository;
+    this.#userRepository = userRepository;
+  }
 
-    const foundUser = await UserRepository.findOne(
-      { email },
-      'User not registered',
+  async login(loginDto) {
+    const { usernameOrEmail, password } = loginDto;
+
+    const foundUser = await this.#userRepository.findByUsernameOrEmail(
+      usernameOrEmail,
     );
+    if (!foundUser) {
+      throw new NotFoundError(
+        'There is no account associated with that email or username. Please register to access our services.',
+      );
+    }
 
     const isMatch = foundUser.comparePasswords(password);
     if (!isMatch) throw new UnauthorizedError('Incorrect email or password');
@@ -26,4 +42,4 @@ class AuthService {
   }
 }
 
-export default AuthService;
+export default SessionService;

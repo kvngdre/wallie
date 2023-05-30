@@ -1,26 +1,37 @@
 import ValidationError from '../errors/validation.error.js';
-import UserService from '../user/user.service.js';
-import UserValidator from '../user/user.validator.js';
 import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
-import AuthService from './session.service.js';
+import SessionService from './session.service.js';
+import SessionValidator from './session.validator.js';
 
-const userService = new UserService();
-const userValidator = new UserValidator();
+const sessionService = new SessionService();
+const sessionValidator = new SessionValidator();
 
 class SessionController {
+  #sessionService;
+  #sessionValidator;
+
+  /**
+   * @class SessionController
+   * @param {SessionService} sessionService
+   * @param {SessionValidator} sessionValidator
+   */
+  constructor(sessionService, sessionValidator) {
+    this.#sessionService = sessionService;
+    this.#sessionValidator = sessionValidator;
+  }
+
   /** @type {ControllerFunction} */
-  async login(req, res) {
-    // Validating user login dto
-    const { error } = userValidator.validateUserLoginDto(req.body);
+  login = async (req, res) => {
+    const { value, error } = this.#sessionValidator.validateLogin(req.body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationError(errorMsg);
+      throw new ValidationError('Validation Error', error);
     }
 
-    const user = await AuthService.signIn(req.body);
-    const response = new APIResponse('Login Successful.', user);
-  }
+    const response = await this.#sessionService.login(value);
+
+    res.status(HttpCode.OK).json(response);
+  };
 }
 
 export default SessionController;

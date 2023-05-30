@@ -1,8 +1,8 @@
 import HttpCode from '../utils/httpCodes.utils.js';
-import BaseError from './base.error.js';
+import ApiError from './api.error.js';
 
-export default class NotFoundError extends BaseError {
-  constructor(message, isOperational = true, data = undefined) {
-    super(HttpCode.NOT_FOUND, isOperational, message, data);
+export default class NotFoundError extends ApiError {
+  constructor(message, data = undefined) {
+    super(HttpCode.NOT_FOUND, true, message, data);
   }
 }
