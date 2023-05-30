@@ -1,4 +1,4 @@
-import { NotFoundError } from 'objection';
+import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
@@ -32,10 +32,9 @@ class SessionService {
 
     if (!foundUser) {
       throw new NotFoundError(
-        'There is no account associated with that email or username. Please register to access our services.',
+        'There is no account associated with this email or username. Please register to access our services.',
       );
     }
-
     // Check if the password matches using a method on the user model
     const isValid = foundUser.validatePassword(password);
 

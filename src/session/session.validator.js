@@ -13,12 +13,7 @@ class SessionValidator {
       .label('Email')
       .max(50);
 
-    this.#usernameSchema = Joi.string()
-      .label('Username')
-      .lowercase()
-      .trim()
-      .min(3)
-      .max(20);
+    this.#usernameSchema = Joi.string().label('Username').trim().min(3).max(20);
   }
 
   /** @type {ValidationFunction<LoginDto>} */

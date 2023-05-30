@@ -56,7 +56,6 @@ class UserValidator {
 
     this.#usernameSchema = Joi.string()
       .label('Username')
-      .lowercase()
       .trim()
       .min(3)
       .max(20)
@@ -71,11 +70,7 @@ class UserValidator {
           '{#label} must be less than or equal to {#limit} characters long',
       });
 
-    this.#usernameFilterSchema = Joi.string()
-      .lowercase()
-      .trim()
-      .max(10)
-      .allow('');
+    this.#usernameFilterSchema = Joi.string().trim().max(10).allow('');
   }
 
   /**@type {ValidationFunction<SignUpDto>} */

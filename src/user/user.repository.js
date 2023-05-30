@@ -58,7 +58,8 @@ class UserRepository {
   async findByUsernameOrEmail(usernameOrEmail) {
     return await User.query()
       .where({ username: usernameOrEmail })
-      .orWhere({ email: usernameOrEmail });
+      .orWhere({ email: usernameOrEmail })
+      .first();
   }
 
   /**
