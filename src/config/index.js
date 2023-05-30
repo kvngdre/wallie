@@ -16,8 +16,14 @@ export default {
     name: process.env.DB_NAME,
   },
   jwt: {
-    secret: process.env.JWT_ACCESS_KEY,
-    exp_time: process.env.JWT_ACCESS_EXP_TIME,
+    secret: {
+      access: process.env.JWT_ACCESS_TOKEN_SECRET,
+      refresh: process.env.JWT_REFRESH_TOKEN_SECRET,
+    },
+    expireTime: {
+      access: process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME,
+      refresh: process.env.JWT_REFRESH_TOKEN_EXPIRE_TIME,
+    },
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
   },

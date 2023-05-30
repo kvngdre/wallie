@@ -126,14 +126,6 @@ export default class User extends Model {
       );
   }
 
-  generateAccessToken() {
-    return jwt.sign({ id: this.id }, config.jwt.secret, {
-      audience: config.jwt.audience,
-      expiresIn: parseInt(config.jwt.exp_time),
-      issuer: config.jwt.issuer,
-    });
-  }
-
   /**
    * Returns a plain object representation of the user instance, omitting the password field.
    * @returns {objection.Pojo}
@@ -150,7 +142,7 @@ export default class User extends Model {
    * @param {string} password - The password to validate.
    * @returns {boolean} True if the password matches, false otherwise.
    */
-  ValidatePassword = (password) => {
+  validatePassword = (password) => {
     return bcrypt.compareSync(password, this.password);
   };
 }

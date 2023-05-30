@@ -1,18 +1,24 @@
 import { NotFoundError } from 'objection';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
+import ApiResponse from '../utils/apiResponse.utils.js';
+import JwtService from '../utils/jwt-service.utils.js';
 import SessionRepository from './session.repository.js';
 
 class SessionService {
+  #jwtService;
   #sessionRepository;
   #userRepository;
 
   /**
    * @class SessionService
-   * @param {SessionRepository} sessionRepository
-   * @param {UserRepository} userRepository
+   * @description A service that provides session-related operations
+   * @param {JwtService} jwtService - A service that handles JSON Web Token generation and verification
+   * @param {SessionRepository} sessionRepository - A repository that handles session data access
+   * @param {UserRepository} userRepository - A repository that handles user data access
    */
-  constructor(sessionRepository, userRepository) {
+  constructor(jwtService, sessionRepository, userRepository) {
+    this.#jwtService = jwtService;
     this.#sessionRepository = sessionRepository;
     this.#userRepository = userRepository;
   }
@@ -23,22 +29,35 @@ class SessionService {
     const foundUser = await this.#userRepository.findByUsernameOrEmail(
       usernameOrEmail,
     );
+
     if (!foundUser) {
       throw new NotFoundError(
         'There is no account associated with that email or username. Please register to access our services.',
       );
     }
 
-    const isMatch = foundUser.comparePasswords(password);
-    if (!isMatch) throw new UnauthorizedError('Incorrect email or password');
+    // Check if the password matches using a method on the user model
+    const isValid = foundUser.validatePassword(password);
 
-    logger.silly('Password is valid');
-    foundUser.omitPassword();
+    if (!isValid) throw new UnauthorizedError('Invalid credentials');
 
-    logger.silly('Generating JWT');
-    const token = foundUser.generateAccessToken();
+    const accessToken = this.#jwtService.generateAccessToken({
+      id: foundUser.id,
+    });
+    const refreshToken = this.#jwtService.generateRefreshToken({
+      id: foundUser.id,
+    });
 
-    return { ...foundUser, token };
+    // Saving the new session in the database.
+    await this.#sessionRepository.insert({
+      user_id: foundUser.id,
+      refresh_token: refreshToken,
+    });
+
+    return new ApiResponse('Logged in', {
+      access_token: accessToken,
+      refreshToken: refresh_token,
+    });
   }
 }
 

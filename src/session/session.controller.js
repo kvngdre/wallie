@@ -13,8 +13,9 @@ class SessionController {
 
   /**
    * @class SessionController
-   * @param {SessionService} sessionService
-   * @param {SessionValidator} sessionValidator
+   * @description A class that handles session-related requests and responses
+   * @param {SessionService} sessionService - A service that provides session-related operations.
+   * @param {SessionValidator} sessionValidator - A validator that checks session-related inputs.
    */
   constructor(sessionService, sessionValidator) {
     this.#sessionService = sessionService;

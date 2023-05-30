@@ -12,8 +12,9 @@ class UserService {
 
   /**
    * @class UserService
-   * @param {AccountRepository} accountRepository - The account repository instance.
-   * @param {UserRepository} userRepository - The user repository instance.
+   * @description A service that provides user-related operations
+   * @param {AccountRepository} accountRepository - A repository that handles account data access
+   * @param {UserRepository} userRepository - A repository that handles user data access
    */
   constructor(accountRepository, userRepository) {
     this.#accountRepository = accountRepository;
