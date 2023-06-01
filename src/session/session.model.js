@@ -1,4 +1,5 @@
 import { Model } from 'objection';
+import User from '../user/user.model.js';
 
 class Session extends Model {
   static tableName() {

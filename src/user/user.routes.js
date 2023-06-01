@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import AccountRepository from '../account/account.repository.js';
-import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
+import verifyToken from '../middleware/verifyToken.middleware.js';
 import UserController from '../user/user.controller.js';
 import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
@@ -24,7 +24,7 @@ router.post('/', userController.createUser);
 
 router.get('/', userController.getUsers);
 
-router.get('/me', auth, userController.getCurrentUser);
+router.get('/me', verifyToken, userController.getCurrentUser);
 
 router.get('/:userId', validateId, userController.getUser);
 

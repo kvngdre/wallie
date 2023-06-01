@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import verifyToken from '../middleware/verifyToken.middleware.js';
 import UserRepository from '../user/user.repository.js';
 import JwtService from '../utils/jwt-service.utils.js';
 import SessionController from './session.controller.js';
@@ -29,6 +30,6 @@ router.post('/login', sessionController.login);
 
 // router.get('/access-token');
 
-router.get('/logout', sessionController.login);
+router.get('/logout', verifyToken, sessionController.logout);
 
 export default router;

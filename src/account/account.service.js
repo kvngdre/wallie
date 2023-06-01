@@ -50,7 +50,7 @@ class AccountService {
 
   /**
    * This function is used to find accounts that match the filter if any.
-   * @param {*} filter
+   * @param {AccountFilter} filter
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async getAccounts(filter) {

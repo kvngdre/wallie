@@ -1,7 +1,5 @@
 import objection from 'objection';
 import DuplicateError from '../errors/duplicate.error.js';
-import ValidationException from '../errors/validation.error.js';
-import getDuplicateField from '../utils/getDuplicateField.utils.js';
 import Session from './session.model.js';
 
 class SessionRepository {
@@ -15,7 +13,7 @@ class SessionRepository {
    */
   async insert(newSessionDto, trx) {
     try {
-      return Auth.query(trx).insert(newSessionDto);
+      return await Session.query(trx).insert(newSessionDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         throw new DuplicateError(
@@ -29,54 +27,51 @@ class SessionRepository {
 
   /**
    *
-   * @param {AccountFilter} filter
-   * @returns
+   * @returns {Promise<Array.<Session>>}
    */
-  async find(filter) {
-    return Account.query()
-      .modify('filterBalance', filter)
-      .modify('omitFields', 'pin')
-      .orderBy('created_at', 'desc');
+  async find() {
+    return await Session.query().orderBy('created_at', 'desc');
   }
 
   /**
-   * Retrieve an account by id.
+   * Retrieve a session by id.
    * @param {string} id - The account id
-   * @returns {Promise<Account|undefined>} A promise that resolves to the account object or undefined if not found.
+   * @returns {Promise<Session|undefined>} A promise that resolves to the account object or undefined if not found.
    */
   async findById(id) {
-    return Account.query().findById(id);
+    return await Session.query().findById(id);
   }
 
   /**
-   * Retrieves an account by filter object.
-   * @param {UserFilter} filter - An object with user profile fields to filter by (optional).
-   * @returns {Promise<Account|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
+   * Retrieves a session by user id.
+   * @param {string} userId - The user id.
+   * @returns {Promise<Session|undefined>} A promise that resolves with the Session object if found, or undefined if not found. Rejects if any error occurs.
    */
-  async findByFilter(filter) {
-    return Account.query().where(filter).first();
+  async findByUserId(userId) {
+    return await Session.query().where({ user_id: userId }).first();
   }
 
   /**
    *
-   * @param {string} id - The account id
-   * @param {UpdateAccountDto} updateAccountDto
+   * @param {string} id - The session id
+   * @param {UpdateSessionDto} updateSessionDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
-   * @returns {Promise<Account>}
-   * @throws {NotFoundError} If account cannot be found.
+   * @returns {Promise<Session>}
+   * @throws {NotFoundError} If session cannot be found.
    */
-  async update(id, updateAccountDto, trx) {
+  async update(id, updateSessionDto, trx) {
     try {
-      const foundRecord = await Account.query().findById(id);
+      const foundRecord = await Session.query().findById(id);
       if (!foundRecord) {
-        throw new NotFoundError('Operation failed. Account not found.');
+        throw new NotFoundError('Operation failed. Session not found.');
       }
 
-      return await Account.query(trx).patch(updateAccountDto);
+      return await Session.query(trx).patch(updateSessionDto);
     } catch (exception) {
       if (exception instanceof UniqueViolationError) {
-        const key = getDuplicateField(exception);
-        throw new DuplicateError(`${key} already in use.`);
+        throw new DuplicateError(
+          `Session with user id ${updateSessionDto.user_id} already exists.`,
+        );
       }
 
       throw exception;
@@ -84,14 +79,41 @@ class SessionRepository {
   }
 
   /**
-   * FInds and deletes an account by id.
-   * @param {string} id - The account id.
-   * @returns {Promise<number>} The number of rows (accounts) deleted.
+   *
+   * @param {string} userId - The user id
+   * @param {UpdateSessionDto} updateSessionDto
+   * @param {objection.Transaction} [trx] - Knex transaction object.
+   * @returns {Promise<Session>}
+   * @throws {NotFoundError} If session cannot be found.
+   */
+  async updateByUserId(userId, updateSessionDto, trx) {
+    try {
+      const foundRecord = await Session.query().findOne({ user_id: userId });
+      if (!foundRecord) {
+        throw new NotFoundError('Operation failed. Session not found.');
+      }
+
+      return await Session.query(trx).patch(updateSessionDto);
+    } catch (exception) {
+      if (exception instanceof UniqueViolationError) {
+        throw new DuplicateError(
+          `Session with user id ${updateSessionDto.user_id} already exists.`,
+        );
+      }
+
+      throw exception;
+    }
+  }
+
+  /**
+   * Finds and deletes a session by id.
+   * @param {string} id - The session id.
+   * @returns {Promise<number>} The number of rows (sessions) deleted.
    */
   async delete(id) {
-    const foundRecord = await Account.query().findById(accountId);
+    const foundRecord = await Session.query().findById(id);
     if (!foundRecord) {
-      throw new NotFoundError('Operation failed. Account not found.');
+      throw new NotFoundError('Operation failed. Session not found.');
     }
 
     return await foundRecord.$query().delete(id);

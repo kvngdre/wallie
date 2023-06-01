@@ -18,9 +18,18 @@
  * @template [ResBody]
  * @template [ReqBody]
  * @template [ReqQuery]
+ * @description Define a custom type that extends the express request type
+ * @typedef {import('express').Request<ParamsDirectory, ResBody, ReqBody, ReqQuery> & { currentUser?: UserProfile }} AuthRequest<ParamsDirectory, ResBody, ReqBody, ReqQuery>
+ */
+
+/**
+ * @template [ParamsDirectory]
+ * @template [ResBody]
+ * @template [ReqBody]
+ * @template [ReqQuery]
  * @description A controller function for express applications
  * @typedef {(
- *  req: import('express').Request<ParamsDirectory, ResBody, ReqBody, ReqQuery>,
+ *  req: AuthRequest<ParamsDirectory, ResBody, ReqBody, ReqQuery>,
  *  res:import('express').Response) => Promise<void>} ControllerFunction
  * @param {import('express').Request} req - The incoming request object.
  * @param {import('express').Response} res - The outgoing response object.

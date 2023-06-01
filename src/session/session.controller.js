@@ -1,11 +1,7 @@
 import ValidationError from '../errors/validation.error.js';
-import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import SessionService from './session.service.js';
 import SessionValidator from './session.validator.js';
-
-const sessionService = new SessionService();
-const sessionValidator = new SessionValidator();
 
 class SessionController {
   #sessionService;
@@ -32,6 +28,13 @@ class SessionController {
     const response = await this.#sessionService.login(value);
 
     res.status(HttpCode.OK).json(response);
+  };
+
+  /** @type {ControllerFunction} */
+  logout = async (req, res) => {
+    const response = await this.#sessionService.logout(req.currentUser.id);
+
+    res.status(HttpCode.NO_CONTENT).json(response);
   };
 }
 

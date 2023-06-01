@@ -15,7 +15,7 @@ class AccountRepository {
    */
   async insert(createAccountDto, trx) {
     try {
-      return Account.query(trx).insert(createAccountDto);
+      return await Account.query(trx).insert(createAccountDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         throw new DuplicateError(
@@ -33,7 +33,7 @@ class AccountRepository {
    * @returns
    */
   async find(filter) {
-    return Account.query()
+    return await Account.query()
       .modify('filterBalance', filter)
       .modify('omitFields', 'pin')
       .orderBy('created_at', 'desc');
@@ -45,7 +45,7 @@ class AccountRepository {
    * @returns {Promise<Account|undefined>} A promise that resolves to the account object or undefined if not found.
    */
   async findById(id) {
-    return Account.query().findById(id);
+    return await Account.query().findById(id);
   }
 
   /**

@@ -1,3 +1,5 @@
+import _ from 'lodash';
+import DuplicateError from '../errors/duplicate.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
@@ -23,6 +25,11 @@ class SessionService {
     this.#userRepository = userRepository;
   }
 
+  /**
+   *
+   * @param {LoginDto} loginDto
+   * @returns {Promise<ApiResponse>}
+   */
   async login(loginDto) {
     const { usernameOrEmail, password } = loginDto;
 
@@ -47,16 +54,40 @@ class SessionService {
       id: foundUser.id,
     });
 
-    // Saving the new session in the database.
-    await this.#sessionRepository.insert({
+    const newSession = {
       user_id: foundUser.id,
       refresh_token: refreshToken,
+    };
+
+    // Saving the new session in the database.
+    await this.#sessionRepository.insert(newSession).catch(async (error) => {
+      if (error instanceof DuplicateError) {
+        await this.#sessionRepository.updateByUserId(
+          newSession.user_id,
+          _.pick(newSession, 'refresh_token'),
+        );
+      }
     });
 
-    return new ApiResponse('Logged in', {
-      access_token: accessToken,
-      refreshToken: refresh_token,
-    });
+    return new ApiResponse(
+      'Welcome back! You have successfully logged in to your account.',
+      {
+        id: foundUser.id,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    );
+  }
+
+  async logout(userId) {
+    console.log(userId);
+    const foundSession = await this.#sessionRepository.findByUserId(userId);
+
+    if (foundSession) {
+      await foundSession.$query().delete();
+    }
+
+    return new ApiResponse('Logged out');
   }
 }
 

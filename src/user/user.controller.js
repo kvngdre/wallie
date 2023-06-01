@@ -20,7 +20,7 @@ class UserController {
   /** @type {ControllerFunction<{}, {}, SignUpDto>} */
   signUp = async (req, res) => {
     const { value, error } = this.#userValidator.validateSignUp(req.body);
-    if (error) throw new ValidationError('Validation Error', true, error);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#userService.signUp(value);
 
@@ -30,7 +30,7 @@ class UserController {
   /** @type {ControllerFunction<{}, {}, CreateUserDto>} */
   createUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateCreateUser(req.body);
-    if (error) throw new ValidationError('Validation Error', true, error);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#userService.createUser(value);
 
@@ -40,7 +40,7 @@ class UserController {
   /** @type {ControllerFunction<{}, {}, {}, Omit<UserFilter, 'id'>>} */
   getUsers = async (req, res) => {
     const { value, error } = this.#userValidator.validateUserFilter(req.query);
-    if (error) throw new ValidationError('Validation Error', true, error);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#userService.getUsers(value);
 
@@ -64,7 +64,7 @@ class UserController {
   /** @type {ControllerFunction<{ userId: string }>} */
   updateUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateUpdateUser(req.body);
-    if (error) throw new ValidationError('Validation Error', true, error);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#userService.updateUser(
       req.params.userId,

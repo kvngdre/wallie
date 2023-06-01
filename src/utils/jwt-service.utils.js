@@ -51,6 +51,16 @@ class JwtService {
     // Sign and return the token using the secret key from the config
     return jwt.sign(payload, config.jwt.secret.refresh, options);
   }
+
+  /**
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @returns {jwt.JwtPayload}
+   */
+  verifyToken(token, secret) {
+    return jwt.verify(token, secret);
+  }
 }
 
 export default JwtService;

@@ -1,22 +1,32 @@
 import Router from 'express';
-import auth from '../middleware/auth.middleware.js';
 import validateId from '../middleware/validateId.middleware.js';
+import verifyToken from '../middleware/verifyToken.middleware.js';
 import TransactionController from './transaction.controller.js';
 
 const router = Router();
 const transactionController = new TransactionController();
 
-router.post('/new', auth, transactionController.createTransaction);
+router.post('/new', verifyToken, transactionController.createTransaction);
 
-router.get('/', auth, transactionController.getAllTransactions);
+router.get('/', verifyToken, transactionController.getAllTransactions);
 
-router.get('/:id', auth, validateId, transactionController.getTransaction);
+router.get(
+  '/:id',
+  verifyToken,
+  validateId,
+  transactionController.getTransaction,
+);
 
-router.patch('/:id', auth, validateId, transactionController.updateTransaction);
+router.patch(
+  '/:id',
+  verifyToken,
+  validateId,
+  transactionController.updateTransaction,
+);
 
 router.delete(
   '/:id',
-  auth,
+  verifyToken,
   validateId,
   transactionController.deleteTransaction,
 );

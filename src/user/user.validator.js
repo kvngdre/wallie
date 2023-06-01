@@ -59,7 +59,7 @@ class UserValidator {
       .trim()
       .min(3)
       .max(20)
-      .pattern(/^[a-z_]+[a-z0-9_]*$/)
+      .pattern(/^[a-zA-Z_]+[a-zA-Z0-9_]*$/)
       .pattern(/^\d/, { invert: true })
       .messages({
         'string.pattern.invert.base': '{#label} can not begin with a number',
