@@ -8,7 +8,7 @@ You are required to have installed [NodeJS](https://nodejs.org/en/download) on y
 
 ### Database Setup
 
-Ensure you have [MySQL](https://dev.mysql.com/downloads/mysql/) installed and the mySQL database server is running.
+Ensure you have [MySQL](https://dev.mysql.com/downloads/mysql/) installed and the MongoDB database server is running.
 
 Open a terminal window and run the command below to spin up [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
 
