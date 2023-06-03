@@ -5,6 +5,12 @@ import getErrorField from '../utils/getDuplicateField.utils.js';
 import Transaction from './transaction.model.js';
 
 class TransactionRepository {
+  /**
+   *
+   * @param {import('./dto/create-transaction.dto.js').CreateTransactionDto} newTxnDto
+   * @param {objection.Transaction} trx
+   * @returns
+   */
   async insert(newTxnDto, trx) {
     try {
       const newRecord = await Transaction.query(trx).insert(newTxnDto);

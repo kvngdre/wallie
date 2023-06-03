@@ -10,6 +10,6 @@ import { TxnType } from '../../utils/constants.utils';
  * @property {number} amount - The transaction amount.
  * @property {string} reference - The unique identifier for the transaction.
  * @property {string} [description] - The transaction description.
- * @property {number} [balance_before] - The transaction description.
- * @property {number} [balance_after] - The transaction description.
+ * @property {number} balance_before - The transaction description.
+ * @property {number} balance_after - The transaction description.
  */

@@ -7,7 +7,6 @@ import UnauthorizedError from '../errors/unauthorized.error.js';
 import pubsub from '../pubsub/PubSub.js';
 import events from '../pubsub/events.js';
 import TransactionRepository from '../transaction/transaction.repository.js';
-import TransactionService from '../transaction/transaction.service.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
 import { TxnPurpose } from '../utils/common.utils.js';
@@ -140,6 +139,8 @@ class AccountService {
       // Emitting onAccountCredit event.
       await this.#transactionRepository.insert({
         account_id: foundAccount.id,
+        timestamp: new Date(),
+        reference: uuidv4(),
         type: TxnType.CREDIT,
         purpose: TxnPurpose.DEPOSIT,
         amount,
