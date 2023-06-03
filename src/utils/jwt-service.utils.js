@@ -3,6 +3,23 @@ import config from '../config/index.js';
 
 class JwtService {
   /**
+   * Generates a JWT with the given payload and options
+   * @param {Object} payload - The data to include in the token
+   * @param {string} secret - The secret key used to sign the token.
+   * @param {jwt.SignOptions} [options] The options for signing the token.
+   * @returns {string} The signed token
+   */
+  generateToken(payload, secret, options = {}) {
+    // Check if the options parameter is an object
+    if (typeof options !== 'object' || options instanceof Array) {
+      throw new Error('Invalid options: expected an object');
+    }
+
+    // Sign and return the token using the secret key from the config
+    return jwt.sign(payload, secret, options);
+  }
+
+  /**
    * Generates an access JWT with the given payload and options
    * @param {Object} payload - The data to include in the token
    * @param {jwt.SignOptions} [options] The options for signing the token.
@@ -55,7 +72,7 @@ class JwtService {
   /**
    *
    * @param {string} token
-   * @param {string} secret
+   * @param {jwt.Secret} secret
    * @returns {jwt.JwtPayload}
    */
   verifyToken(token, secret) {

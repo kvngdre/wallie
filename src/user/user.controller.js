@@ -8,9 +8,10 @@ class UserController {
   #userValidator;
 
   /**
-   * @class
-   * @param {UserService} userService - User service instance.
-   * @param {UserValidator} userValidator - User validator instance
+   * A class that handles user-related requests and responses.
+   * @class UserController
+   * @param {UserService} userService - An instance of the UserService class that provides user-related business logic.
+   * @param {UserValidator} userValidator - An instance of the UserValidator class that validates user input and data.
    */
   constructor(userService, userValidator) {
     this.#userService = userService;
@@ -27,12 +28,22 @@ class UserController {
     res.status(HttpCode.CREATED).json(response);
   };
 
+  /** @type {ControllerFunction<{ userId: string, token: string }>} */
+  verify = async (req, res) => {
+    const response = await this.#userService.verify(
+      req.params.userId,
+      req.params.token,
+    );
+
+    res.status(HttpCode.OK).json(response);
+  };
+
   /** @type {ControllerFunction<{}, {}, CreateUserDto>} */
   createUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateCreateUser(req.body);
     if (error) throw new ValidationError('Validation Error', error);
 
-    const response = await this.#userService.createUser(value);
+    const response = await this.#userService.create(value);
 
     res.status(HttpCode.CREATED).json(response);
   };
@@ -42,21 +53,21 @@ class UserController {
     const { value, error } = this.#userValidator.validateUserFilter(req.query);
     if (error) throw new ValidationError('Validation Error', error);
 
-    const response = await this.#userService.getUsers(value);
+    const response = await this.#userService.get(value);
 
     res.status(HttpCode.OK).json(response);
   };
 
   /** @type {ControllerFunction<{ userId: string }>} */
   getUser = async (req, res) => {
-    const response = await this.#userService.getUser(req.params.userId);
+    const response = await this.#userService.show(req.params.userId);
 
     res.status(HttpCode.OK).json(response);
   };
 
+  /** @type {ControllerFunction} */
   async getCurrentUser(req, res) {
-    const user = await userService.getUser(req.currentUser.id);
-    const response = new APIResponse('Fetched current user.', user);
+    const response = await this.#userService.show(req.currentUser.id);
 
     res.status(HttpCode.OK).json(response);
   }
@@ -66,17 +77,14 @@ class UserController {
     const { value, error } = this.#userValidator.validateUpdateUser(req.body);
     if (error) throw new ValidationError('Validation Error', error);
 
-    const response = await this.#userService.updateUser(
-      req.params.userId,
-      value,
-    );
+    const response = await this.#userService.update(req.params.userId, value);
 
     res.status(HttpCode.OK).json(response);
   };
 
   /** @type {ControllerFunction<{ userId: string }>} */
   deleteUser = async (req, res) => {
-    const response = await this.#userService.deleteUser(req.params.userId);
+    const response = await this.#userService.erase(req.params.userId);
 
     res.status(HttpCode.OK).json(response);
   };

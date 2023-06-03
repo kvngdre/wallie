@@ -1,24 +1,35 @@
+import jwt from 'jsonwebtoken';
 import { Model } from 'objection';
+import urlJoin from 'url-join';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
+import config from '../config/index.js';
+import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
+import UnauthorizedError from '../errors/unauthorized.error.js';
+import ValidationError from '../errors/validation.error.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
+import JwtService from '../utils/jwt-service.utils.js';
 import UserRepository from './user.repository.js';
 
 class UserService {
   #accountRepository;
   #userRepository;
+  #jwtService;
 
   /**
+   * A service that provides user-related business logic, such as creating, updating, deleting, and retrieving users and their accounts
    * @class UserService
    * @description A service that provides user-related operations
-   * @param {AccountRepository} accountRepository - A repository that handles account data access
-   * @param {UserRepository} userRepository - A repository that handles user data access
+   * @param {AccountRepository} accountRepository - An instance of the AccountRepository class that handles account data access and manipulation.
+   * @param {UserRepository} userRepository - An instance of the UserRepository class that handles user data access and manipulation.
+   * @param {JwtService} jwtService - An instance of the JwtService class
    */
-  constructor(accountRepository, userRepository) {
+  constructor(accountRepository, userRepository, jwtService) {
     this.#accountRepository = accountRepository;
     this.#userRepository = userRepository;
+    this.#jwtService = jwtService;
   }
 
   /**
@@ -41,18 +52,22 @@ class UserService {
       return newUser.toObject();
     });
 
-    //   // Generate a verification token using jsonwebtoken
-    // const token = jwt.sign({ id: result.id }, process.env.JWT_SECRET, {
-    //   expiresIn: "24h",
-    // });
+    // Generate a verification token using jsonwebtoken
+    const token = this.#jwtService.generateToken(
+      { id: result.id },
+      config.jwt.secret.signUP,
+      { expiresIn: config.jwt.expireTime.signUp },
+    );
+    console.log(token);
 
-    // // Generate a verification url using url-join
-    // const verification_url = urlJoin(
-    //   process.env.BASE_URL,
-    //   "verify",
-    //   result.id,
-    //   token
-    // );
+    // Generate a verification url using url-join
+    const verification_url = urlJoin(
+      config.api.baseUrl,
+      config.api.version,
+      '/users/verify',
+      result.id,
+      token,
+    );
 
     // // Send a verification email to the user using nodemailer
     // await this.#emailService.sendVerificationEmail(result.email, verification_url);
@@ -61,7 +76,7 @@ class UserService {
       'You have successfully signed up for the service.',
       result,
       {
-        verification_url: '',
+        verification_url,
         next_steps: [
           'Check email for OTP to verify your account.',
           'Log in  and explore the features.',
@@ -72,11 +87,50 @@ class UserService {
   }
 
   /**
+   *
+   * @param {string} userId
+   * @param {string} token
+   * @returns
+   */
+  async verify(userId, token) {
+    try {
+      const decoded = this.#jwtService.verifyToken(
+        token,
+        config.jwt.secret.signUP,
+      );
+
+      if (decoded.id === userId) {
+        // Find the user by ID using the user repository
+        const foundUser = await this.#userRepository.findById(userId);
+        if (!foundUser) {
+          throw new NotFoundError('User Not Found');
+        }
+
+        if (foundUser.isVerified) {
+          throw new ConflictError('User Already Verified');
+        }
+
+        await foundUser.$query().patch({ isVerified: true });
+
+        return new ApiResponse('User Verified Successfully');
+      } else {
+        throw new ValidationError('Invalid User ID or Token');
+      }
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new UnauthorizedError('Token Expired');
+      }
+
+      throw new UnauthorizedError('Invalid Token');
+    }
+  }
+
+  /**
    * Creates a new user.
    * @param {CreateUserDto} createUserDto - A data transfer object for new user information.
    * @returns {Promise<ApiResponse>}
    */
-  async createUser(createUserDto) {
+  async create(createUserDto) {
     createUserDto.id = uuidv4();
     const newUser = await this.#userRepository.insert(createUserDto);
 
@@ -88,7 +142,7 @@ class UserService {
    * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
    * @returns {Promise.<ApiResponse>}
    */
-  async getUsers(filter) {
+  async get(filter) {
     const foundUsers = await this.#userRepository.find(filter);
     if (foundUsers.length === 0) throw new NotFoundError('No Users Found');
     const message = formatItemCountMessage(foundUsers.length);
@@ -97,11 +151,11 @@ class UserService {
   }
 
   /**
-   * Retrieves the user by it's unique id field.
-   * @param {string} userId - The user id
+   * Retrieves the user by ID
+   * @param {string} userId - The ID to be retrieved
    * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async getUser(userId) {
+  async show(userId) {
     const foundUser = await this.#userRepository.findById(userId);
     if (!foundUser) throw new NotFoundError('User Not Found');
 
@@ -109,24 +163,24 @@ class UserService {
   }
 
   /**
-   * Updates the user information by id
-   * @param {string} userId - The user id
+   * Updates the user information by ID
+   * @param {string} userId - The ID of the user to be updated.
    * @param {UpdateUserDto} updateUserDto
    * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async updateUser(userId, updateUserDto) {
+  async update(userId, updateUserDto) {
     await this.#userRepository.update(userId, updateUserDto);
 
     return new ApiResponse('User Updated Successfully');
   }
 
   /**
-   * Deletes a user by id
-   * @param {string} userId - The user id
+   * Deletes a user by ID
+   * @param {string} userId - The ID of the user to be deleted
    * @returns {Promise.<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async deleteUser(userId) {
-    await this.#userRepository.delete(userId);
+  async erase(userId) {
+    await this.#userRepository.remove(userId);
 
     return new ApiResponse('User Deleted Successfully');
   }

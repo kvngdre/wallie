@@ -113,6 +113,7 @@ class UserValidator {
       last_name: this.#nameSchema.label('Last name').required(),
       email: this.#emailSchema.required(),
       username: this.#usernameSchema.required(),
+      isVerified: Joi.boolean(),
       password: this.#passwordSchema.required(),
     });
 
@@ -142,6 +143,7 @@ class UserValidator {
       first_name: this.#nameSchema.label('First name'),
       last_name: this.#nameSchema.label('Last name'),
       username: this.#usernameSchema,
+      isVerified: Joi.boolean(),
       password: this.#passwordSchema,
     }).min(1);
 

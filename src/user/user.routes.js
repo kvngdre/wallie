@@ -3,6 +3,7 @@ import AccountRepository from '../account/account.repository.js';
 import validateId from '../middleware/validateId.middleware.js';
 import verifyToken from '../middleware/verifyToken.middleware.js';
 import UserController from '../user/user.controller.js';
+import JwtService from '../utils/jwt-service.utils.js';
 import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
@@ -11,9 +12,14 @@ import UserValidator from './user.validator.js';
 const userValidator = new UserValidator();
 const userRepository = new UserRepository();
 const accountRepository = new AccountRepository();
+const jwtService = new JwtService();
 
 // * Injecting dependencies
-const userService = new UserService(accountRepository, userRepository);
+const userService = new UserService(
+  accountRepository,
+  userRepository,
+  jwtService,
+);
 const userController = new UserController(userService, userValidator);
 
 const router = Router();
@@ -25,6 +31,8 @@ router.post('/', userController.createUser);
 router.get('/', userController.getUsers);
 
 router.get('/me', verifyToken, userController.getCurrentUser);
+
+router.get('/verify/:userId/:token', userController.verify);
 
 router.get('/:userId', validateId, userController.getUser);
 

@@ -9,6 +9,7 @@ export function up(knex) {
     table.string('last_name', 30).notNullable();
     table.string('email', 100).unique().notNullable();
     table.string('username', 20).unique().notNullable();
+    table.boolean('isVerified').notNullable().defaultTo(false);
     table.string('password').notNullable();
     table
       .dateTime('created_at')

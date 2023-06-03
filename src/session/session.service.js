@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import DuplicateError from '../errors/duplicate.error.js';
+import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
@@ -61,7 +61,7 @@ class SessionService {
 
     // Saving the new session in the database.
     await this.#sessionRepository.insert(newSession).catch(async (error) => {
-      if (error instanceof DuplicateError) {
+      if (error instanceof ConflictError) {
         await this.#sessionRepository.updateByUserId(
           newSession.user_id,
           _.pick(newSession, 'refresh_token'),

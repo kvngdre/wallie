@@ -48,9 +48,9 @@ export function initializeApp(app, appRouter) {
 
   // Route Registration
   if (_.isFunction(appRouter)) {
-    app.use(`/${api.prefix}/${api.version}`, appRouter());
+    app.use(`/api/${api.version}`, appRouter());
   } else {
-    app.use(`/${api.prefix}/${api.version}`, appRouter);
+    app.use(`/api/${api.version}`, appRouter);
   }
 
   // Catch and handle 404

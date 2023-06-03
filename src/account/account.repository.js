@@ -1,5 +1,5 @@
 import objection from 'objection';
-import DuplicateError from '../errors/duplicate.error.js';
+import ConflictError from '../errors/conflict.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
 import Account from './account.model.js';
 
@@ -9,7 +9,7 @@ class AccountRepository {
    * @param {CreateAccountDto} createAccountDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<Account>} A promise that resolves with the inserted Account object, or rejects with an error if the insertion fails.
-   * @throws {DuplicateError} If a unique constraint violation occurs on any of the account properties.
+   * @throws {ConflictError} If a unique constraint violation occurs on any of the account properties.
    * @throws {Error} If any other error occurs during the insertion.
    */
   async insert(createAccountDto, trx) {
@@ -17,7 +17,7 @@ class AccountRepository {
       return await Account.query(trx).insert(createAccountDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
-        throw new DuplicateError(
+        throw new ConflictError(
           `Account with user id ${createAccountDto.user_id} already exists.`,
         );
       }
@@ -75,7 +75,7 @@ class AccountRepository {
     } catch (exception) {
       if (exception instanceof UniqueViolationError) {
         const key = getDuplicateField(exception);
-        throw new DuplicateError(`${key} already in use.`);
+        throw new ConflictError(`${key} already in use.`);
       }
 
       throw exception;

@@ -1,5 +1,5 @@
 import objection from 'objection';
-import DuplicateError from '../errors/duplicate.error.js';
+import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import ValidationError from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
@@ -11,7 +11,7 @@ class UserRepository {
    * @param {CreateUserDto} createUserDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<User>} A promise that resolves with the inserted User object, or rejects with an error if the insertion fails.
-   * @throws {DuplicateError} If a unique constraint violation occurs on any of the user properties.
+   * @throws {ConflictError} If a unique constraint violation occurs on any of the user properties.
    * @throws {Error} If any other error occurs during the insertion.
    */
   async insert(createUserDto, trx) {
@@ -20,7 +20,7 @@ class UserRepository {
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
-        throw new DuplicateError(`${field} has already been taken.`);
+        throw new ConflictError(`${field} has already been taken.`);
       }
 
       throw exception;
@@ -80,7 +80,7 @@ class UserRepository {
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
         const field = getDuplicateField(exception);
-        throw new DuplicateError(`${field} already in use`);
+        throw new ConflictError(`${field} already in use`);
       }
 
       throw exception;
@@ -93,7 +93,7 @@ class UserRepository {
    * @returns {Promise<number>} The number of rows (users) deleted.
    * @throws {NotFoundError} If user cannot be found.
    */
-  async delete(id) {
+  async remove(id) {
     const foundRecord = await User.query().findById(id);
     if (!foundRecord) {
       throw new NotFoundError('Operation failed. User profile not found.');

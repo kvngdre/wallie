@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export default {
-  api: { prefix: 'api', version: 'v1' },
+  api: { baseUrl: process.env.BASE_URL, version: process.env.VERSION },
   database: {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -17,10 +17,12 @@ export default {
   },
   jwt: {
     secret: {
+      signUP: process.env.JWT_SIGN_UP_TOKEN_SECRET,
       access: process.env.JWT_ACCESS_TOKEN_SECRET,
       refresh: process.env.JWT_REFRESH_TOKEN_SECRET,
     },
     expireTime: {
+      signUp: process.env.JWT_SIGN_UP_TOKEN_EXPIRE_TIME,
       access: process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME,
       refresh: process.env.JWT_REFRESH_TOKEN_EXPIRE_TIME,
     },

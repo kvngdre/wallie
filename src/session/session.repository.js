@@ -1,5 +1,5 @@
 import objection from 'objection';
-import DuplicateError from '../errors/duplicate.error.js';
+import ConflictError from '../errors/conflict.error.js';
 import Session from './session.model.js';
 
 class SessionRepository {
@@ -8,7 +8,7 @@ class SessionRepository {
    * @param {NewSessionDto} newSessionDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<Session>} A promise that resolves with the inserted Session object, or rejects with an error if the insertion fails.
-   * @throws {DuplicateError} If a unique constraint violation occurs on any of the session properties.
+   * @throws {ConflictError} If a unique constraint violation occurs on any of the session properties.
    * @throws {Error} If any other error occurs during the insertion.
    */
   async insert(newSessionDto, trx) {
@@ -16,7 +16,7 @@ class SessionRepository {
       return await Session.query(trx).insert(newSessionDto);
     } catch (exception) {
       if (exception instanceof objection.UniqueViolationError) {
-        throw new DuplicateError(
+        throw new ConflictError(
           `Session with user id ${newSessionDto.user_id} already exists.`,
         );
       }
@@ -69,7 +69,7 @@ class SessionRepository {
       return await Session.query(trx).patch(updateSessionDto);
     } catch (exception) {
       if (exception instanceof UniqueViolationError) {
-        throw new DuplicateError(
+        throw new ConflictError(
           `Session with user id ${updateSessionDto.user_id} already exists.`,
         );
       }
@@ -96,7 +96,7 @@ class SessionRepository {
       return await Session.query(trx).patch(updateSessionDto);
     } catch (exception) {
       if (exception instanceof UniqueViolationError) {
-        throw new DuplicateError(
+        throw new ConflictError(
           `Session with user id ${updateSessionDto.user_id} already exists.`,
         );
       }

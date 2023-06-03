@@ -5,6 +5,7 @@
  * @property {string} last_name - The last name of the user.
  * @property {string} email - The email address of the user.
  * @property {string} username - The username of the user.
+ * @property {boolean} isVerified - If the user has been verified
  * @property {string} created_at - The ISO 8601 formatted date and time when the user was created.
  * @property {string} updated_at - The ISO 8601 formatted date and time when the account record was last updated.
  */

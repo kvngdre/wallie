@@ -13,6 +13,7 @@ class AccountController {
   #accountValidator;
 
   /**
+   * A class that handles account-related requests and responses.
    * @class AccountController
    * @param {AccountService} accountService
    * @param {AccountValidator} accountValidator
