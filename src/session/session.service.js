@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import urlJoin from 'url-join';
+import config from '../config/index.js';
 import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
@@ -36,12 +38,26 @@ class SessionService {
     const foundUser = await this.#userRepository.findByUsernameOrEmail(
       usernameOrEmail,
     );
-
     if (!foundUser) {
       throw new NotFoundError(
         'There is no account associated with this email or username. Please register to access our services.',
       );
     }
+
+    if (!foundUser.isVerified) {
+      const resend_verification_url = urlJoin(
+        config.api.baseUrl,
+        config.api.version,
+        '/users/verification/resend',
+        `?email=${foundUser.email}`,
+      );
+
+      throw new UnauthorizedError(
+        'User has not been verified, please use the link to get a verification url.',
+        { meta: resend_verification_url },
+      );
+    }
+
     // Check if the password matches using a method on the user model
     const isValid = foundUser.validatePassword(password);
 

@@ -13,8 +13,7 @@ class TransactionRepository {
    */
   async insert(newTxnDto, trx) {
     try {
-      const newRecord = await Transaction.query(trx).insert(newTxnDto);
-      return newRecord;
+      return await Transaction.query(trx).insert(newTxnDto);
     } catch (exception) {
       // Catch account id not found error.
       if (exception instanceof objection.ForeignKeyViolationError) {

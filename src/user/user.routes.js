@@ -34,6 +34,8 @@ router.get('/me', verifyToken, userController.getCurrentUser);
 
 router.get('/verify/:userId/:token', userController.verify);
 
+router.get('/verification/resend', userController.resendVerificationUrl);
+
 router.get('/:userId', validateId, userController.getUser);
 
 router.patch('/:userId', validateId, userController.updateUser);

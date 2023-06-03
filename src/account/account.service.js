@@ -135,21 +135,24 @@ class AccountService {
 
       await foundAccount.$query(trx).increment('balance', amount);
 
-      // Emitting onAccountCredit event.
-      await this.#transactionRepository.insert({
-        account_id: foundAccount.id,
-        timestamp: new Date(),
-        reference: uuidv4(),
-        type: TxnType.CREDIT,
-        purpose: TxnPurpose.DEPOSIT,
-        amount,
-        description,
-        balance_before: Number(foundAccount.balance),
-        balance_after: Number(foundAccount.balance) + amount,
-      });
+      const newTransaction = await this.#transactionRepository.insert(
+        {
+          account_id: foundAccount.id,
+          reference: uuidv4(),
+          type: TxnType.CREDIT,
+          purpose: TxnPurpose.DEPOSIT,
+          amount,
+          description,
+          balance_before: Number(foundAccount.balance),
+          balance_after: Number(foundAccount.balance) + amount,
+        },
+        trx,
+      );
 
-      // Transaction is committed and result returned.
-      return _.pick(foundAccount, ['id', 'balance']);
+      return _.assignIn(
+        { reference: newTransaction.reference },
+        _.pick(foundAccount, ['id', 'balance']),
+      );
     });
 
     return new ApiResponse('Deposit Successful', result);

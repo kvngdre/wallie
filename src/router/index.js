@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import accountRoutes from '../account/account.routes.js';
-import authRoutes from '../session/session.routes.js';
+import sessionRoutes from '../session/session.routes.js';
 import transactionRoutes from '../transaction/transaction.routes.js';
 import userRoutes from '../user/user.routes.js';
 
@@ -14,7 +14,7 @@ export default function createAppRouter() {
   const router = Router();
 
   router.use('/accounts', accountRoutes);
-  router.use('/auth', authRoutes);
+  router.use('/sessions', sessionRoutes);
   router.use('/transactions', transactionRoutes);
   router.use('/users', userRoutes);
 

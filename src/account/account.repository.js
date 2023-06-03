@@ -27,11 +27,11 @@ class AccountRepository {
   }
 
   /**
-   *
+   * Retrieves a list of users and applies filter if any.
    * @param {AccountFilter} filter
    * @returns
    */
-  async find(filter) {
+  async find(filter = {}) {
     return await Account.query()
       .modify('filterBalance', filter)
       .modify('omitFields', 'pin')
@@ -39,8 +39,8 @@ class AccountRepository {
   }
 
   /**
-   * Retrieve an account by id.
-   * @param {string} id - The account id
+   * Retrieve an account by ID.
+   * @param {string} id - The account ID
    * @returns {Promise<Account|undefined>} A promise that resolves to the account object or undefined if not found.
    */
   async findById(id) {
@@ -58,7 +58,7 @@ class AccountRepository {
 
   /**
    * Updates a user account by the account ID.
-   * @param {string} id - The account id
+   * @param {string} id - The account ID
    * @param {UpdateAccountDto} updateAccountDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
    * @returns {Promise<Account>}
@@ -83,8 +83,8 @@ class AccountRepository {
   }
 
   /**
-   * FInds and deletes an account by id.
-   * @param {string} id - The account id.
+   * FInds and deletes an account by ID.
+   * @param {string} id - The account ID.
    * @returns {Promise<number>} The number of rows (accounts) deleted.
    */
   async delete(id) {

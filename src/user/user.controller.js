@@ -38,6 +38,13 @@ class UserController {
     res.status(HttpCode.OK).json(response);
   };
 
+  /** @type {ControllerFunction<{}, {}, {}, { email: string }>} */
+  resendVerificationUrl = async (req, res) => {
+    console.log('Verification sent');
+
+    res.status(HttpCode.OK).json({ message: 'Verification Sent' });
+  };
+
   /** @type {ControllerFunction<{}, {}, CreateUserDto>} */
   createUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateCreateUser(req.body);
