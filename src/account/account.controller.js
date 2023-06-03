@@ -91,12 +91,9 @@ class AccountController {
     const { value, error } = this.#accountValidator.validateCreditAccount(
       req.body,
     );
+    if (error) throw new ValidationError('Validation Error', error);
 
-    if (error) {
-      throw new ValidationError('Validation Error', error);
-    }
-
-    const response = await this.#accountService.creditAccount(
+    const response = await this.#accountService.credit(
       req.params.accountId,
       value,
     );
@@ -105,13 +102,8 @@ class AccountController {
   };
 
   async debitAccount(req, res) {
-    const { body, currentUser } = req;
-
-    // Validating debit account dto
-    const { error } = accountValidator.validateDebitAccountDto(body);
-    if (error) {
-      throw new ValidationError(errorMsg);
-    }
+    const { value, error } = accountValidator.validateDebitAccountDto(body);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const account = await accountService.debitAccount(currentUser, body);
     const response = new ApiResponse('Account debited.', account);

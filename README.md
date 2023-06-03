@@ -65,7 +65,7 @@ npm run seed
 You can go ahead and start the server:
 
 ```sh
-npm run dev
+npm run start:dev
 ```
 
 Great!🚀 You should be ready to start making API calls. Verify the health of the API by hitting this [endpoint](http://localhost:4000/status).

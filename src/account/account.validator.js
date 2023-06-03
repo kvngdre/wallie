@@ -85,13 +85,22 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  validateDebitAccountDto = (accountEntryDto) => {
+  /** @type {ValidationFunction<DebitAccountDto>} */
+  validateDebitAccount = (dto) => {
     const schema = Joi.object({
       amount: this.#amountSchema.required(),
       pin: this.#pinSchema.required(),
-      desc: this.#descriptionSchema,
+      description: this.#descriptionSchema,
     });
-    return schema.validate(accountEntryDto);
+
+    let { value, error } = schema.validate(dto, {
+      abortEarly: false,
+      convert: false,
+    });
+
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 
   validateTransferDto = (transferDto, currentUser) => {

@@ -124,7 +124,7 @@ class AccountService {
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {Error} If any other error occurs while crediting account.
    */
-  async creditAccount(accountId, creditAccountDto) {
+  async credit(accountId, creditAccountDto) {
     const result = await Model.transaction(async (trx) => {
       const { amount, description } = creditAccountDto;
 
@@ -144,21 +144,82 @@ class AccountService {
           amount,
           description,
           balance_before: Number(foundAccount.balance),
-          balance_after: Number(foundAccount.balance) + amount,
+          balance_after: _.round(Number(foundAccount.balance) + amount, 2),
         },
         trx,
       );
 
-      return _.assignIn(
-        { reference: newTransaction.reference },
-        _.pick(foundAccount, ['id', 'balance']),
-      );
+      return {
+        id: foundAccount.id,
+        balance: newTransaction.balance_after,
+        transaction_reference: newTransaction.reference,
+      };
     });
 
-    return new ApiResponse('Deposit Successful', result);
+    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+
+    const message = `Your account has been credited with \u20A6${formatter.format(
+      creditAccountDto.amount,
+    )}. Your new balance is \u20A6${formatter.format(result.balance)}.`;
+
+    return new ApiResponse(message, result);
   }
 
-  async debitAccount(currentUser, debitAccountDto) {}
+  /**
+   *
+   * @param {string} accountId - The ID of the account to credit.
+   * @param {DebitAccountDto} debitAccountDto
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the user account cannot be found.
+   * @throws {Error} If any other error occurs while crediting account.
+   */
+  async debit(accountId, debitAccountDto) {
+    const result = await Model.transaction(async (trx) => {
+      const { amount, pin, description } = debitAccountDto;
+
+      const foundAccount = await this.#accountRepository.findById(accountId);
+      if (!foundAccount) {
+        throw new NotFoundError('Operation failed. Account not found.');
+      }
+
+      if (Number(foundAccount.balance) < amount) {
+        throw new InsufficientFundsError(
+          'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
+        );
+      }
+
+      const isValid = foundAccount.validatePin(pin);
+      if (!isValid) {
+        throw new UnauthorizedError(
+          'Your account pin is incorrect. Please try again or reset your pin if you have forgotten it.',
+        );
+      }
+
+      await foundAccount.$query(trx).decrement('balance', amount);
+
+      const newTransaction = await this.#transactionRepository.insert(
+        {
+          account_id: foundAccount.id,
+          reference: uuidv4(),
+          type: TxnType.DEBIT,
+          purpose: TxnPurpose.WITHDRAW,
+          amount,
+          description,
+          balance_before: Number(foundAccount.balance),
+          balance_after: _.round(Number(foundAccount.balance) - amount, 2),
+        },
+        trx,
+      );
+
+      return {
+        id: foundAccount.id,
+        balance: newTransaction.balance_after,
+        transaction_reference: newTransaction.reference,
+      };
+    });
+
+    return new ApiResponse('Withdrawal Successful', result);
+  }
 
   async transferFunds(currentUserId, transferFundsDto) {
     try {
