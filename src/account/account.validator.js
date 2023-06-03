@@ -9,7 +9,7 @@ export default class AccountValidator {
   #pinSchema;
 
   constructor() {
-    this.#amountSchema = Joi.number().label('Amount').positive();
+    this.#amountSchema = Joi.number().label('Amount').positive().precision(2);
 
     this.#descriptionSchema = Joi.string().max(50).label('Description');
 
@@ -34,7 +34,7 @@ export default class AccountValidator {
       pin: this.#pinSchema.required(),
     });
 
-    let { value, error } = schema.validate(dto);
+    let { value, error } = schema.validate(dto, { abortEarly: false });
     if (error) error = refineValidationError(error);
 
     return { value, error };
@@ -56,7 +56,7 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  /** @type {ValidationFunction<ChangeAccountPinDto>} */
+  /** @type {ValidationFunction<ChangePinDto>} */
   validateChangePin = (dto) => {
     const schema = Joi.object({
       pin: this.#pinSchema,
@@ -68,13 +68,21 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  validateCreditAccountDto = (dto) => {
+  /** @type {ValidationFunction<CreditAccountDto>} */
+  validateCreditAccount = (dto) => {
     const schema = Joi.object({
       amount: this.#amountSchema.required(),
       description: this.#descriptionSchema,
     });
 
-    return schema.validate(dto);
+    let { value, error } = schema.validate(dto, {
+      abortEarly: false,
+      convert: false,
+    });
+
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 
   validateDebitAccountDto = (accountEntryDto) => {

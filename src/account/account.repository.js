@@ -1,6 +1,5 @@
 import objection from 'objection';
 import DuplicateError from '../errors/duplicate.error.js';
-import ValidationException from '../errors/validation.error.js';
 import getDuplicateField from '../utils/getDuplicateField.utils.js';
 import Account from './account.model.js';
 
@@ -50,15 +49,15 @@ class AccountRepository {
 
   /**
    * Retrieves an account by filter object.
-   * @param {UserFilter} filter - An object with user profile fields to filter by (optional).
+   * @param {string} userId - An object with user profile fields to filter by (optional).
    * @returns {Promise<Account|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    */
-  async findByFilter(filter) {
-    return Account.query().where(filter).first();
+  async findByUserId(userId) {
+    return Account.query().findOne({ user_id: userId });
   }
 
   /**
-   *
+   * Updates a user account by the account ID.
    * @param {string} id - The account id
    * @param {UpdateAccountDto} updateAccountDto
    * @param {objection.Transaction} [trx] - Knex transaction object.
@@ -89,7 +88,7 @@ class AccountRepository {
    * @returns {Promise<number>} The number of rows (accounts) deleted.
    */
   async delete(id) {
-    const foundRecord = await Account.query().findById(accountId);
+    const foundRecord = await Account.query().findById(id);
     if (!foundRecord) {
       throw new NotFoundError('Operation failed. Account not found.');
     }

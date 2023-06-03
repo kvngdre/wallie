@@ -64,7 +64,7 @@ class AccountController {
       throw new ValidationError({ message: 'Validation Error', data: error });
     }
 
-    const response = await this.#accountService.changeAccountPin(
+    const response = await this.#accountService.changePin(
       req.params.accountId,
       value,
     );
@@ -74,33 +74,35 @@ class AccountController {
 
   /** @type {ControllerFunction<{ accountId: string }>} */
   deleteAccount = async (req, res) => {
-    const response = await accountService.deleteAccount(req.params.id);
+    const response = await this.#accountService.deleteAccount(req.params.id);
 
     res.status(HttpCode.OK).send(response);
   };
 
-  async getBalance(req, res) {
-    const accountBalance = await accountService.getBalance(req.currentUser);
-    const response = new ApiResponse('Fetched balance.', accountBalance);
+  /** @type {ControllerFunction} */
+  getBalance = async (req, res) => {
+    const response = await this.#accountService.getBalance(req.currentUser.id);
 
     res.status(HttpCode.OK).json(response);
-  }
+  };
 
-  async fundAccount(req, res) {
-    const { body, currentUser } = req;
+  /** @type {ControllerFunction<{ accountId: string }>} */
+  creditAccount = async (req, res) => {
+    const { value, error } = this.#accountValidator.validateCreditAccount(
+      req.body,
+    );
 
-    // Validating fund account dto
-    const { error } = accountValidator.validateCreditAccountDto(req.body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
-      throw new ValidationError(errorMsg);
+      throw new ValidationError('Validation Error', error);
     }
 
-    const account = await accountService.creditAccount(currentUser, body);
-    const response = new ApiResponse('Account credited.', account);
+    const response = await this.#accountService.creditAccount(
+      req.params.accountId,
+      value,
+    );
 
     res.status(HttpCode.OK).json(response);
-  }
+  };
 
   async debitAccount(req, res) {
     const { body, currentUser } = req;

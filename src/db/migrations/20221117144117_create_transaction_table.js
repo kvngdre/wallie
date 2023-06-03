@@ -17,6 +17,10 @@ export function up(knex) {
       .inTable('accounts')
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
+    table
+      .datetime('timestamp')
+      .notNullable()
+      .defaultTo(knex.raw('CURRENT_TIMESTAMP'));
     table.enu('type', Object.values(TransactionType)).notNullable();
     table.enu('purpose', Object.values(TransactionPurpose)).notNullable();
     table.decimal('amount', 10, 2).unsigned().notNullable();

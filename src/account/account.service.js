@@ -1,9 +1,13 @@
+import _ from 'lodash';
 import { Model } from 'objection';
+import { v4 as uuidv4 } from 'uuid';
 import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import pubsub from '../pubsub/PubSub.js';
 import events from '../pubsub/events.js';
+import TransactionRepository from '../transaction/transaction.repository.js';
+import TransactionService from '../transaction/transaction.service.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
 import { TxnPurpose } from '../utils/common.utils.js';
@@ -16,15 +20,18 @@ const accountRepository = new AccountRepository();
 class AccountService {
   #accountRepository;
   #userRepository;
+  #transactionRepository;
 
   /**
    * @class AccountService
    * @param {AccountRepository} accountRepository
    * @param {UserRepository} userRepository
+   * @param {TransactionRepository} transactionRepository
    */
-  constructor(accountRepository, userRepository) {
+  constructor(accountRepository, userRepository, transactionRepository) {
     this.#accountRepository = accountRepository;
     this.#userRepository = userRepository;
+    this.#transactionRepository = transactionRepository;
   }
 
   /**
@@ -65,9 +72,10 @@ class AccountService {
   }
 
   /**
-   * Retrieves the user by it's unique id field.
-   * @param {string} accountId
+   * Retrieves a user account by account ID.
+   * @param {string} accountId - The ID of the account being requested.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the user account cannot be found.
    */
   async getAccount(accountId) {
     const foundAccount = await this.#accountRepository.findById(accountId);
@@ -78,19 +86,19 @@ class AccountService {
 
   /**
    *
-   * @param {string} accountId
+   * @param {string} accountId - The ID of the account whose pin is to be changed.
    * @param {UpdateAccountDto} updateAccountDto
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async changeAccountPin(accountId, updateAccountDto) {
+  async changePin(accountId, updateAccountDto) {
     await this.#accountRepository.update(accountId, updateAccountDto);
 
-    return new ApiResponse('Account Updated Successful');
+    return new ApiResponse('Account Updated Successfully');
   }
 
   /**
-   *
-   * @param {string} accountId - The account id.
+   * Deletes the user account by account ID.
+   * @param {string} accountId - The ID of the account which will be deleted.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async deleteAccount(accountId) {
@@ -100,96 +108,54 @@ class AccountService {
   }
 
   /**
-   *
-   * @param {string} currentUser
+   * Gets the balance of a user account by user ID.
+   * @param {string} userId - The ID of the user whose balance is requested.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async getBalance(currentUser) {
-    const { id, balance } = await this.#accountRepository.findOne({
-      user_id: currentUser.id,
-    });
+  async getBalance(userId) {
+    const { id, balance } = await this.#accountRepository.findByUserId(userId);
 
     return new ApiResponse('Success', { id, balance });
   }
 
-  async creditAccount(currentUser, fundAccountDto) {
-    try {
-      const updatedAccount = await Model.transaction(async (trx) => {
-        const foundAccount = await accountRepository.findOne({
-          user_id: currentUser.id,
-        });
+  /**
+   *
+   * @param {string} accountId - The ID of the account to credit.
+   * @param {CreditAccountDto} creditAccountDto
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the user account cannot be found.
+   * @throws {Error} If any other error occurs while crediting account.
+   */
+  async creditAccount(accountId, creditAccountDto) {
+    const result = await Model.transaction(async (trx) => {
+      const { amount, description } = creditAccountDto;
 
-        const { amount, desc } = fundAccountDto;
-        const { id, balance, omitPin } = foundAccount;
-        omitPin();
+      const foundAccount = await this.#accountRepository.findById(accountId);
+      if (!foundAccount) {
+        throw new NotFoundError('Operation failed. Account not found.');
+      }
 
-        await incrementBalance(foundAccount, amount, trx);
+      await foundAccount.$query(trx).increment('balance', amount);
 
-        // Emitting onAccountCredit event.
-        await pubsub.publish(
-          events.account.credit,
-          new NewTransaction(
-            id,
-            TxnType.CREDIT,
-            TxnPurpose.DEPOSIT,
-            amount,
-            desc,
-            balance,
-          ),
-          trx,
-        );
-
-        // Transaction is committed and result returned.
-        return foundAccount;
+      // Emitting onAccountCredit event.
+      await this.#transactionRepository.insert({
+        account_id: foundAccount.id,
+        type: TxnType.CREDIT,
+        purpose: TxnPurpose.DEPOSIT,
+        amount,
+        description,
+        balance_before: Number(foundAccount.balance),
+        balance_after: Number(foundAccount.balance) + amount,
       });
 
-      return updatedAccount;
-    } catch (exception) {
-      // Transaction is rolled back on exception.
-      throw exception;
-    }
+      // Transaction is committed and result returned.
+      return _.pick(foundAccount, ['id', 'balance']);
+    });
+
+    return new ApiResponse('Deposit Successful', result);
   }
 
-  async debitAccount(currentUser, debitAccountDto) {
-    try {
-      const updatedAccount = await Model.transaction(async (trx) => {
-        const foundAccount = await accountRepository.findOne({
-          user_id: currentUser.id,
-        });
-
-        const { amount, desc, pin } = debitAccountDto;
-        const { id, balance, comparePins, omitPin } = foundAccount;
-
-        const isMatch = comparePins(pin);
-        if (!isMatch) throw new UnauthorizedError('Invalid pin');
-        else omitPin();
-
-        await decrementBalance(foundAccount, amount, trx);
-
-        // Emitting onAccountDebit event.
-        await pubsub.publish(
-          events.account.debit,
-          new NewTransaction(
-            id,
-            TxnType.DEBIT,
-            TxnPurpose.WITHDRAW,
-            amount,
-            desc,
-            balance,
-          ),
-          trx,
-        );
-
-        // Transaction is committed and result returned.
-        return foundAccount;
-      });
-
-      return updatedAccount;
-    } catch (exception) {
-      // Transaction is rolled back on exception.
-      throw exception;
-    }
-  }
+  async debitAccount(currentUser, debitAccountDto) {}
 
   async transferFunds(currentUserId, transferFundsDto) {
     try {

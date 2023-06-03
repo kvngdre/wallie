@@ -4,7 +4,7 @@ import ValidationException from '../errors/validation.error.js';
 import getErrorField from '../utils/getDuplicateField.utils.js';
 import Transaction from './transaction.model.js';
 
-class TransactionDAO {
+class TransactionRepository {
   async insert(newTxnDto, trx) {
     try {
       const newRecord = await Transaction.query(trx).insert(newTxnDto);
@@ -89,4 +89,4 @@ class TransactionDAO {
   }
 }
 
-export default TransactionDAO;
+export default TransactionRepository;
