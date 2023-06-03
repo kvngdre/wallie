@@ -1,6 +1,5 @@
 import ValidationError from '../errors/validation.error.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import AccountService from './account.service.js';
 import AccountValidator from './account.validator.js';
@@ -111,7 +110,6 @@ class AccountController {
     // Validating debit account dto
     const { error } = accountValidator.validateDebitAccountDto(body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
       throw new ValidationError(errorMsg);
     }
 
@@ -127,7 +125,6 @@ class AccountController {
     // Validating transfer funds dto
     const { error } = accountValidator.validateTransferDto(body, currentUser);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
       throw new ValidationError(errorMsg);
     }
 

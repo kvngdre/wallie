@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { Model } from 'objection';
 import urlJoin from 'url-join';
 import { v4 as uuidv4 } from 'uuid';
@@ -58,7 +57,6 @@ class UserService {
       config.jwt.secret.signUP,
       { expiresIn: config.jwt.expireTime.signUp },
     );
-    console.log(token);
 
     // Generate a verification url using url-join
     const verification_url = urlJoin(
@@ -69,7 +67,7 @@ class UserService {
       token,
     );
 
-    // // Send a verification email to the user using nodemailer
+    // Send a verification email to the user using nodemailer
     // await this.#emailService.sendVerificationEmail(result.email, verification_url);
 
     return new ApiResponse(
@@ -117,11 +115,7 @@ class UserService {
         throw new ValidationError('Invalid User ID or Token');
       }
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        throw new UnauthorizedError('Token Expired');
-      }
-
-      throw new UnauthorizedError('Invalid Token');
+      throw new UnauthorizedError('Expired or Invalid Token');
     }
   }
 

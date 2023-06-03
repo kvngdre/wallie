@@ -1,7 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import objection, { Model } from 'objection';
-import Account from '../account/account.model.js';
 import config from '../config/index.js';
 
 export default class User extends Model {
@@ -11,19 +9,6 @@ export default class User extends Model {
 
   static get idColumn() {
     return 'id';
-  }
-
-  static get relationMappings() {
-    return {
-      account: {
-        relation: Model.HasOneRelation,
-        modelClass: Account,
-        join: {
-          from: 'users.id',
-          to: 'accounts.user_id',
-        },
-      },
-    };
   }
 
   static modifiers = {

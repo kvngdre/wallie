@@ -1,11 +1,11 @@
 import objection from 'objection';
 
 /**
- * Extracts and returns the duplicate field.
+ * A helper function that extracts the name of the duplicate field from a UniqueViolationError object
  * @param {objection.UniqueViolationError} error Unique violation error object
  * @returns {string}
  */
-export default function getDuplicateField(error) {
+export function getDuplicateField(error) {
   const regex = /(?<=_)\w+(?=_)/;
   // error;
 

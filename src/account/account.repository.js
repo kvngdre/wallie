@@ -1,6 +1,6 @@
 import objection from 'objection';
 import ConflictError from '../errors/conflict.error.js';
-import getDuplicateField from '../utils/getDuplicateField.utils.js';
+import { getDuplicateField } from '../helpers/repository.helpers.js';
 import Account from './account.model.js';
 
 class AccountRepository {

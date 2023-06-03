@@ -9,8 +9,7 @@ import events from '../pubsub/events.js';
 import TransactionRepository from '../transaction/transaction.repository.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import { TxnPurpose } from '../utils/common.utils.js';
-import { TxnType } from '../utils/constants.utils.js';
+import { TxnPurpose, TxnType } from '../utils/common.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import AccountRepository from './account.repository.js';
 

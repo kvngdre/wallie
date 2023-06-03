@@ -14,7 +14,7 @@ function formatErrorMessage(errorMessage) {
  * @param {Joi.ValidationError} error The Joi validation error object to refine.
  * @returns {Object.<string, string>} The refined error object with path-message pairs
  */
-export default function refineValidationError(error) {
+export function refineValidationError(error) {
   /**
    * This function joins the elements of the error path array.
    * Example: ['name', 'first'] becomes 'name.first'.

@@ -1,6 +1,5 @@
 import Joi from 'joi';
-import { TxnPurpose } from '../utils/common.utils.js';
-import { TxnType } from '../utils/constants.utils.js';
+import { TxnPurpose, TxnType } from '../utils/common.utils.js';
 
 class TransactionValidator {
   #amountSchema;

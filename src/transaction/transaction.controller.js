@@ -1,7 +1,5 @@
 import ValidationError from '../errors/validation.error.js';
 import TransactionValidator from '../transaction/transaction.validator.js';
-import ApiResponse from '../utils/apiResponse.utils.js';
-import formatErrorMsg from '../utils/formatErrorMessage.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import txnService from './transaction.service.js';
 
@@ -11,7 +9,6 @@ class TransactionController {
     // Validating new transaction dto
     const { error } = transactionValidator.validateNewTxnDto(req.body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
       throw new ValidationError(errorMsg);
     }
 
@@ -51,7 +48,6 @@ class TransactionController {
     // validating update transaction dto
     const { error } = transactionValidator.validateUpdateTxnDto(req.body);
     if (error) {
-      const errorMsg = formatErrorMsg(error.details[0].message);
       throw new ValidationError(errorMsg);
     }
 

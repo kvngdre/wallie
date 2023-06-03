@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import refineValidationError from '../utils/refineValidationError.utils.js';
+import { refineValidationError } from '../helpers/validation.helpers.js';
 import { operatorMap } from './utils/operator-map.utils.js';
 
 export default class AccountValidator {

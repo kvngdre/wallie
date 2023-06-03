@@ -1,6 +1,5 @@
 import Joi from 'joi';
-import refineValidationError from '../utils/refineValidationError.utils.js';
-
+import { refineValidationError } from '../helpers/validation.helpers.js';
 class SessionValidator {
   #emailSchema;
   #usernameSchema;

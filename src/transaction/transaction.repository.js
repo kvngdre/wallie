@@ -1,7 +1,7 @@
 import objection, { ValidationError } from 'objection';
 import ConflictError from '../errors/conflict.error.js';
 import ValidationException from '../errors/validation.error.js';
-import getErrorField from '../utils/getDuplicateField.utils.js';
+import { getDuplicateField } from '../helpers/repository.helpers.js';
 import Transaction from './transaction.model.js';
 
 class TransactionRepository {
@@ -18,13 +18,13 @@ class TransactionRepository {
     } catch (exception) {
       // Catch account id not found error.
       if (exception instanceof objection.ForeignKeyViolationError) {
-        const key = getErrorField(exception);
+        const key = getDuplicateField(exception);
         throw new ConflictError(`${key} not found.`);
       }
 
       // Catch duplicate field error
       if (exception instanceof objection.UniqueViolationError) {
-        const key = getErrorField(exception);
+        const key = getDuplicateField(exception);
         throw new ConflictError(`${key} already in use.`);
       }
 
@@ -74,7 +74,7 @@ class TransactionRepository {
     } catch (exception) {
       // Catch duplicate field error
       if (exception instanceof objection.UniqueViolationError) {
-        const key = getErrorField(exception);
+        const key = getDuplicateField(exception);
         throw new ConflictError(`${key} already in use.`);
       }
 

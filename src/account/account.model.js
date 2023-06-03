@@ -13,6 +13,19 @@ class Account extends Model {
     return 'id';
   }
 
+  static get relationMappings() {
+    return {
+      user: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: User,
+        join: {
+          from: 'accounts.user_id',
+          to: 'users.id',
+        },
+      },
+    };
+  }
+
   static modifiers = {
     /**
      * Filters accounts by balance if operator and balance is truthy.

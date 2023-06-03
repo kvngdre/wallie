@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { joiPasswordExtendCore } from 'joi-password';
-import refineValidationError from '../utils/refineValidationError.utils.js';
+import { refineValidationError } from '../helpers/validation.helpers.js';
 
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 

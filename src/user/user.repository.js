@@ -1,8 +1,7 @@
 import objection from 'objection';
 import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
-import ValidationError from '../errors/validation.error.js';
-import getDuplicateField from '../utils/getDuplicateField.utils.js';
+import { getDuplicateField } from '../helpers/repository.helpers.js';
 import User from './user.model.js';
 
 class UserRepository {
@@ -30,7 +29,7 @@ class UserRepository {
   /**
    * Retrieves all users that match filter object if any.
    * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
-   * @returns {Promise<Array.<User>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
+   * @returns {Promise<Array<User>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
    */
   async find(filter) {
     return User.query()
@@ -42,7 +41,7 @@ class UserRepository {
   }
 
   /**
-   * Retrieves a user by id.
+   * Retrieves a user by ID.
    * @param {string} id - The user id
    * @returns {Promise<User|undefined>} A promise that resolves to the user object or undefined if not found.
    */
@@ -51,7 +50,7 @@ class UserRepository {
   }
 
   /**
-   * Retrieves a user by filter object.
+   * Retrieves a user by the username or email address.
    * @param {string} usernameOrEmail - An object with user profile fields to filter by (optional).
    * @returns {Promise<User|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    */
@@ -63,7 +62,7 @@ class UserRepository {
   }
 
   /**
-   * Updates a user by id.
+   * Updates a user by ID.
    * @param {string} id The user id
    * @param {UpdateUserDto} updateUserDto
    * @returns {Promise<number>} A promise that resolves with the inserted User object, or rejects with an error if the user not found or update fails.
