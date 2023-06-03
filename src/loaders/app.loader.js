@@ -41,7 +41,7 @@ export function initializeApp(app, appRouter) {
   app.use(express.json());
 
   // Health check endpoint useful to get quick info the state of the api.
-  app.get('/status', (req, res) => {
+  app.get('/api/status', (req, res) => {
     res.status(HttpCode.OK).json({ status: 'OK ✔' });
   });
   // TODO: add info endpoint.
