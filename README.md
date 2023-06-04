@@ -10,7 +10,9 @@ You are required to have installed [NodeJS](https://nodejs.org/en/download) on y
 
 Ensure you have [MySQL](https://dev.mysql.com/downloads/mysql/) installed and the MongoDB database server is running.
 
-Open a terminal window and run the command below to spin up [MySQL shell](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-interactive-code-execution.html).
+Open the `.env.development` file and update the `DB_USER` and `DB_PASSWORD` environment variables to match your MySQL database username and password.
+
+> 💡 You can skip the steps below as when the application starts up, a database will be created for you.
 
 ```sh
 mysql -u root -p
@@ -33,22 +35,7 @@ Clone the repo and install project dependencies:
 npm install
 ```
 
-Create a `.env` file in the root directory or you can use the `.env.example` file, it should contain these properties:
-
-- DB_PORT=
-
-- DEV_DB_HOST=
-- DEV_DB_USER=
-- DEV_DB_PASSWORD=
-- DEV_DB_NAME=
-- TEST_DB_NAME=
-
-As well as the JSON web token details:
-
-- JWT_ACCESS_KEY=
-- JWT_ACCESS_EXP_TIME=
-- JWT_ISSUER=
-- JWT_AUDIENCE=
+A `.env.development` file in the root directory has been provided to ease the burden of starting up the app on your local machine.
 
 Next, run the migrations to create database tables:
 
@@ -62,15 +49,18 @@ Seed the database to create dummy data:
 npm run seed
 ```
 
+To see more scripts you can run, please check the `package.json` file in the root directory.
+
 You can go ahead and start the server:
 
 ```sh
-npm run dev
+npm run start:dev
 ```
 
-Great!🚀 You should be ready to start making API calls. Verify the health of the API by hitting this [endpoint](http://localhost:4000/status).
+Great!🚀 You should be ready to start making API calls. Verify the health of the API by hitting this [endpoint](http://localhost:5430/api/status).
 <br></br>
 
+> ⚠ This is unavaiable at this moment as the API is being updated and refactrored, after refactoring the docker-compose would be avaiable again.
 > 💡 &nbsp; If you do not want to go through all those steps, you can skip that by using Docker. Please note you must have Docker installed and set up on your machine.
 >
 > To spin up the docker containers, run in the root directory:
@@ -85,7 +75,7 @@ Great!🚀 You should be ready to start making API calls. Verify the health of t
 
 Every `transaction` belongs to an `account` and every `account` belongs to a `user`. See the ER diagram below for relationship mapping:
 
-<p align="center" style="margin: 0"><img src="./src/images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
+<p align="center" style="margin: 0"><img src="./src/asset/images/schema pic.png" /><p align="center"><i>Entity Relationship Diagram</i></p></p>
 
 <!-- ![database ER diagram](/images/schema%20pic.png)
 _Entity Relationship Diagram_    -->

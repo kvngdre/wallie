@@ -6,10 +6,13 @@ import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import pubsub from '../pubsub/PubSub.js';
 import events from '../pubsub/events.js';
+import {
+  TransactionPurpose,
+  TransactionType,
+} from '../transaction/jsdoc/transaction.types.js';
 import TransactionRepository from '../transaction/transaction.repository.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import { TxnPurpose, TxnType } from '../utils/common.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import AccountRepository from './account.repository.js';
 
@@ -107,11 +110,11 @@ class AccountService {
 
   /**
    * Gets the balance of a user account by user ID.
-   * @param {string} userId - The ID of the user whose balance is requested.
+   * @param {string} accountId - The ID of the account to fetch the balance.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async getBalance(userId) {
-    const { id, balance } = await this.#accountRepository.findByUserId(userId);
+  async getBalance(accountId) {
+    const { id, balance } = await this.#accountRepository.findById(accountId);
 
     return new ApiResponse('Success', { id, balance });
   }
@@ -119,15 +122,16 @@ class AccountService {
   /**
    *
    * @param {string} accountId - The ID of the account to credit.
-   * @param {CreditAccountDto} creditAccountDto
+   * @param {import('./dto/credit-account.dto.js').CreditAccountDto} creditAccountDto
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {Error} If any other error occurs while crediting account.
    */
-  async creditAccount(accountId, creditAccountDto) {
+  async credit(accountId, creditAccountDto) {
     const result = await Model.transaction(async (trx) => {
       const { amount, description } = creditAccountDto;
 
+      //* Find the account by ID
       const foundAccount = await this.#accountRepository.findById(accountId);
       if (!foundAccount) {
         throw new NotFoundError('Operation failed. Account not found.');
@@ -135,30 +139,113 @@ class AccountService {
 
       await foundAccount.$query(trx).increment('balance', amount);
 
+      //* Create a new transaction record with type "debit" and purpose "withdraw"
+      const reference = uuidv4();
       const newTransaction = await this.#transactionRepository.insert(
         {
           account_id: foundAccount.id,
           reference: uuidv4(),
-          type: TxnType.CREDIT,
-          purpose: TxnPurpose.DEPOSIT,
+          type: TransactionType.CREDIT,
+          purpose: TransactionPurpose.DEPOSIT,
           amount,
           description,
           balance_before: Number(foundAccount.balance),
-          balance_after: Number(foundAccount.balance) + amount,
+          balance_after: _.round(Number(foundAccount.balance) + amount, 2),
         },
         trx,
       );
 
-      return _.assignIn(
-        { reference: newTransaction.reference },
-        _.pick(foundAccount, ['id', 'balance']),
-      );
+      return {
+        id: foundAccount.id,
+        transaction_reference: reference,
+        balance: newTransaction.balance_after,
+      };
     });
 
-    return new ApiResponse('Deposit Successful', result);
+    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+
+    const message = `Your account has been credited with \u20A6${formatter.format(
+      creditAccountDto.amount,
+    )}. Your new balance is \u20A6${formatter.format(result.balance)}.`;
+
+    return new ApiResponse(message, result);
   }
 
-  async debitAccount(currentUser, debitAccountDto) {}
+  /**
+   * Debits an account with a given amount and creates a new transaction record.
+   * @param {string} accountId - The ID of the account to credit.
+   * @param {import('./dto/debit-account.dto.js').DebitAccountDto} debitAccountDto - The data transfer object for debiting an account.
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the user account cannot be found.
+   * @throws {InsufficientFundsError} if the user account does not have enough balance to complete the transaction.
+   * @throws {UnauthorizedError} if the user account pin is incorrect.
+   * @throws {Error} If any other error occurs while crediting account.
+   */
+  async debit(accountId, debitAccountDto) {
+    const result = await Model.transaction(async (trx) => {
+      const { amount, pin, description } = debitAccountDto;
+
+      // Find the account by ID
+      const foundAccount = await this.#accountRepository.findById(accountId);
+      if (!foundAccount) {
+        throw new NotFoundError('Operation failed. Account not found.');
+      }
+
+      // Check if the account has sufficient balance
+      if (Number(foundAccount.balance) < amount) {
+        throw new InsufficientFundsError(
+          'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
+        );
+      }
+
+      // Validate the account pin
+      const isValid = foundAccount.validatePin(pin);
+      if (!isValid) {
+        throw new UnauthorizedError(
+          'Your account pin is incorrect. Please try again or reset your pin if you have forgotten it.',
+        );
+      }
+
+      // Update the account balance by subtracting the amount
+      await foundAccount.$query(trx).decrement('balance', amount);
+
+      // Create a new transaction record with type "debit" and purpose "withdraw"
+      const reference = uuidv4();
+      const newTransaction = await this.#transactionRepository.insert(
+        {
+          account_id: foundAccount.id,
+          reference,
+          type: TxnType.DEBIT,
+          purpose: TxnPurpose.WITHDRAW,
+          amount,
+          description,
+          balance_before: Number(foundAccount.balance),
+          balance_after: _.round(Number(foundAccount.balance) - amount, 2),
+        },
+        trx,
+      );
+
+      return {
+        id: foundAccount.id,
+        transaction_reference: reference,
+        balance: newTransaction.balance_after,
+      };
+    });
+
+    // Format the amount and balance values with two decimal places and currency symbol
+    const nairaSymbol = '\u20A6';
+    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+    const formattedAmount = nairaSymbol.concat(
+      formatter.format(debitAccountDto.amount),
+    );
+    const formattedBalance = `${nairaSymbol}${formatter.format(
+      result.balance,
+    )}`;
+
+    const message = `Your account has been debited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
+
+    return new ApiResponse(message, result);
+  }
 
   async transferFunds(currentUserId, transferFundsDto) {
     try {

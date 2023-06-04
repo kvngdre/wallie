@@ -5,6 +5,7 @@
 export const TransactionType = {
   DEBIT: 'debit',
   CREDIT: 'credit',
+  TRANSFER: 'transfer',
 };
 
 /**

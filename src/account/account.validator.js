@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import { refineValidationError } from '../helpers/validation.helpers.js';
+import { TransactionType } from '../transaction/jsdoc/transaction.types.js';
 import { operatorMap } from './utils/operator-map.utils.js';
 
 export default class AccountValidator {
@@ -68,9 +69,10 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  /** @type {ValidationFunction<CreditAccountDto>} */
+  /** @type {ValidationFunction<import('./dto/credit-account.dto.js').CreditAccountDto>} */
   validateCreditAccount = (dto) => {
     const schema = Joi.object({
+      type: Joi.string().equal(TransactionType.CREDIT).required(),
       amount: this.#amountSchema.required(),
       description: this.#descriptionSchema,
     });
@@ -85,13 +87,22 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  validateDebitAccountDto = (accountEntryDto) => {
+  /** @type {ValidationFunction<DebitAccountDto>} */
+  validateDebitAccount = (dto) => {
     const schema = Joi.object({
       amount: this.#amountSchema.required(),
       pin: this.#pinSchema.required(),
-      desc: this.#descriptionSchema,
+      description: this.#descriptionSchema,
     });
-    return schema.validate(accountEntryDto);
+
+    let { value, error } = schema.validate(dto, {
+      abortEarly: false,
+      convert: false,
+    });
+
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 
   validateTransferDto = (transferDto, currentUser) => {

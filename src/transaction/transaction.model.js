@@ -28,7 +28,6 @@ class Transaction extends Model {
       type: 'object',
       required: [
         'account_id',
-        'timestamp',
         'type',
         'purpose',
         'amount',

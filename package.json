@@ -5,18 +5,18 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "format": "prettier --write .",
-    "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --fix --ext .js",
     "down": "npx knex migrate:down",
+    "format": "prettier --write .",
+    "lint": "eslint ./src --ext .js",
+    "lint:fix": "eslint . --fix --ext .js",
     "migrations": "npx knex migrate:latest",
     "rollback": "npx knex migrate:rollback",
     "rollback:all": "npx knex migrate:rollback --all",
-    "up": "npx knex migrate:up",
     "seed": "npx knex seed:run",
     "start": "node --trace-warnings src/server.js",
     "start:dev": "cross-env NODE_ENV=development nodemon --trace-warnings src/server.js",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "up": "npx knex migrate:up"
   },
   "engines": {
     "node": "18.13.0"
