@@ -29,9 +29,16 @@ const router = Router();
 
 router.post('/', verifyToken, accountController.createAccount);
 
+router.post(
+  '/:accountId/transactions',
+  verifyToken,
+  validateId,
+  accountController.createTransaction,
+);
+
 router.get('/', verifyToken, accountController.getAccounts);
 
-router.get('/balance/:accountId', verifyToken, accountController.getBalance);
+router.get('/:accountId/balance', verifyToken, accountController.getBalance);
 
 router.get(
   '/:accountId',
@@ -40,15 +47,12 @@ router.get(
   accountController.getAccount,
 );
 
-router.patch('/change-pin', verifyToken, accountController.changeAccountPin);
-
-router.patch(
-  '/credit/:accountId',
+router.put(
+  '/:accountId/pin',
   verifyToken,
-  accountController.creditAccount,
+  validateId,
+  accountController.changeAccountPin,
 );
-
-router.patch('/debit/:accountId', verifyToken, accountController.debitAccount);
 
 router.patch('/transfer-funds', verifyToken, accountController.transferFunds);
 
