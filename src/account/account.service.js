@@ -207,20 +207,14 @@ class AccountService {
         throw new NotFoundError('Operation failed. Account not found.');
       }
 
-<<<<<<< HEAD
       // Check if the account has sufficient balance
-=======
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       if (Number(foundAccount.balance) < amount) {
         throw new InsufficientFundsError(
           'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
         );
       }
 
-<<<<<<< HEAD
       // Validate the account pin
-=======
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       const isValid = foundAccount.validatePin(pin);
       if (!isValid) {
         throw new UnauthorizedError(
@@ -228,7 +222,6 @@ class AccountService {
         );
       }
 
-<<<<<<< HEAD
       // Update the account balance by subtracting the amount
       await foundAccount.$query(trx).decrement('balance', amount);
 
@@ -238,14 +231,6 @@ class AccountService {
         {
           account_id: foundAccount.id,
           reference,
-=======
-      await foundAccount.$query(trx).decrement('balance', amount);
-
-      const newTransaction = await this.#transactionRepository.insert(
-        {
-          account_id: foundAccount.id,
-          reference: uuidv4(),
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
           type: TxnType.DEBIT,
           purpose: TxnPurpose.WITHDRAW,
           amount,
