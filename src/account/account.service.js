@@ -157,8 +157,13 @@ class AccountService {
 
       return {
         id: foundAccount.id,
+<<<<<<< HEAD
         transaction_reference: reference,
         balance: newTransaction.balance_after,
+=======
+        balance: newTransaction.balance_after,
+        transaction_reference: newTransaction.reference,
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       };
     });
 
@@ -172,6 +177,7 @@ class AccountService {
   }
 
   /**
+<<<<<<< HEAD
    * Debits an account with a given amount and creates a new transaction record.
    * @param {string} accountId - The ID of the account to credit.
    * @param {import('./dto/debit-account.dto.js').DebitAccountDto} debitAccountDto - The data transfer object for debiting an account.
@@ -179,26 +185,42 @@ class AccountService {
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {InsufficientFundsError} if the user account does not have enough balance to complete the transaction.
    * @throws {UnauthorizedError} if the user account pin is incorrect.
+=======
+   *
+   * @param {string} accountId - The ID of the account to credit.
+   * @param {DebitAccountDto} debitAccountDto
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the user account cannot be found.
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
    * @throws {Error} If any other error occurs while crediting account.
    */
   async debit(accountId, debitAccountDto) {
     const result = await Model.transaction(async (trx) => {
       const { amount, pin, description } = debitAccountDto;
 
+<<<<<<< HEAD
       // Find the account by ID
+=======
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       const foundAccount = await this.#accountRepository.findById(accountId);
       if (!foundAccount) {
         throw new NotFoundError('Operation failed. Account not found.');
       }
 
+<<<<<<< HEAD
       // Check if the account has sufficient balance
+=======
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       if (Number(foundAccount.balance) < amount) {
         throw new InsufficientFundsError(
           'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
         );
       }
 
+<<<<<<< HEAD
       // Validate the account pin
+=======
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       const isValid = foundAccount.validatePin(pin);
       if (!isValid) {
         throw new UnauthorizedError(
@@ -206,6 +228,7 @@ class AccountService {
         );
       }
 
+<<<<<<< HEAD
       // Update the account balance by subtracting the amount
       await foundAccount.$query(trx).decrement('balance', amount);
 
@@ -215,6 +238,14 @@ class AccountService {
         {
           account_id: foundAccount.id,
           reference,
+=======
+      await foundAccount.$query(trx).decrement('balance', amount);
+
+      const newTransaction = await this.#transactionRepository.insert(
+        {
+          account_id: foundAccount.id,
+          reference: uuidv4(),
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
           type: TxnType.DEBIT,
           purpose: TxnPurpose.WITHDRAW,
           amount,
@@ -227,6 +258,7 @@ class AccountService {
 
       return {
         id: foundAccount.id,
+<<<<<<< HEAD
         transaction_reference: reference,
         balance: newTransaction.balance_after,
       };
@@ -245,6 +277,14 @@ class AccountService {
     const message = `Your account has been debited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
 
     return new ApiResponse(message, result);
+=======
+        balance: newTransaction.balance_after,
+        transaction_reference: newTransaction.reference,
+      };
+    });
+
+    return new ApiResponse('Withdrawal Successful', result);
+>>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
   }
 
   async transferFunds(currentUserId, transferFundsDto) {
