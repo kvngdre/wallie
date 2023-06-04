@@ -35,14 +35,19 @@ class TransactionRepository {
     }
   }
 
-  async findAll(queryObj, message = 'No transactions found') {
-    const foundRecords = await Transaction.query()
-      .joinRelated('account')
-      .where(queryObj)
-      .throwIfNotFound(message)
-      .orderBy('id', 'desc');
-
-    return foundRecords;
+  /**
+   * Retrieves all transactions that match filter object if any.
+   * @param {import('./dto/transaction-filter.dto.js').TransactionFilter} [filter] - An object with transaction filter fields to filter by (optional).
+   * @returns {Promise<Array<Transaction>>} A promise that resolves with an array of Transaction objects that match the filter, or an empty array if none found.
+   * @throws {Error} If any other error occurs, such as a database connection error.
+   */
+  async find(filter) {
+    return await Transaction.query()
+      .modify('filterByAmount', filter)
+      .modify('filterByType', filter.type)
+      .modify('filterByPurpose', filter.purpose)
+      .modify('filterByAccountId', filter.accountId)
+      .orderBy('timestamp', 'desc');
   }
 
   async findById(txnId, message = 'Transaction not found') {

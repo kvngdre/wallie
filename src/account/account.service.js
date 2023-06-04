@@ -16,8 +16,6 @@ import ApiResponse from '../utils/apiResponse.utils.js';
 import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import AccountRepository from './account.repository.js';
 
-const accountRepository = new AccountRepository();
-
 class AccountService {
   #accountRepository;
   #userRepository;
@@ -60,16 +58,16 @@ class AccountService {
    * This function is used to find accounts that match the filter if any.
    * @param {AccountFilter} filter
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the result array is of length zero.
    */
   async getAccounts(filter) {
-    // { balance: { min: 50, max: 100 } }
     const foundAccounts = await this.#accountRepository.find(filter);
     if (foundAccounts.length === 0) {
       throw new NotFoundError('No Accounts Found');
     }
-    const message = formatItemCountMessage(foundAccounts.length);
+    const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
 
-    return new ApiResponse(message, foundAccounts);
+    return new ApiResponse('', foundAccounts, { count });
   }
 
   /**
@@ -109,44 +107,56 @@ class AccountService {
   }
 
   /**
-   * Gets the balance of a user account by user ID.
+   * Gets the balance of the account by ID.
    * @param {string} accountId - The ID of the account to fetch the balance.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async getBalance(accountId) {
     const { id, balance } = await this.#accountRepository.findById(accountId);
 
-    return new ApiResponse('Success', { id, balance });
+    // Format the amount and balance values with two decimal places and currency symbol
+    const nairaSymbol = '\u20A6';
+    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+    const formattedBalance = nairaSymbol.concat(formatter.format(balance));
+
+    const message = `Your account balance is ${formattedBalance}`;
+
+    return new ApiResponse(message, { id, balance: Number(balance) });
   }
 
   /**
-   *
+   * Credits an account with a given amount and creates a new transaction record.
    * @param {string} accountId - The ID of the account to credit.
-   * @param {import('./dto/credit-account.dto.js').CreditAccountDto} creditAccountDto
+   * @param {import('./dto/credit-account.dto.js').CreditAccountDto} creditAccountDto - The data transfer object for crediting an account.
+   * @param {import('objection').Transaction} [t] - An optional Knex transaction object that can be used to perform the account debit as part of a larger transaction.
+   * If this parameter is not provided, a new transaction will be created and committed by this method. If this parameter is provided, the caller is responsible for committing or rolling back the transaction.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {Error} If any other error occurs while crediting account.
    */
-  async credit(accountId, creditAccountDto) {
-    const result = await Model.transaction(async (trx) => {
-      const { amount, description } = creditAccountDto;
+  async credit(accountId, creditAccountDto, t) {
+    // Use the provided transaction object or create a new one
+    const trx = t !== undefined ? t : await Model.startTransaction();
+    try {
+      const { amount, description, purpose } = creditAccountDto;
 
-      //* Find the account by ID
+      // Find the account by ID
       const foundAccount = await this.#accountRepository.findById(accountId);
       if (!foundAccount) {
         throw new NotFoundError('Operation failed. Account not found.');
       }
 
+      // Update the account balance by adding the amount
       await foundAccount.$query(trx).increment('balance', amount);
 
-      //* Create a new transaction record with type "debit" and purpose "withdraw"
+      // Create a new transaction record with type "credit" and purpose "deposit"
       const reference = uuidv4();
       const newTransaction = await this.#transactionRepository.insert(
         {
           account_id: foundAccount.id,
-          reference: uuidv4(),
+          reference,
           type: TransactionType.CREDIT,
-          purpose: TransactionPurpose.DEPOSIT,
+          purpose: purpose || TransactionPurpose.DEPOSIT,
           amount,
           description,
           balance_before: Number(foundAccount.balance),
@@ -155,35 +165,55 @@ class AccountService {
         trx,
       );
 
-      return {
+      // Format the amount and balance values with two decimal places and currency symbol
+      const nairaSymbol = '\u20A6';
+      const formatter = Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+      });
+      const formattedAmount = nairaSymbol.concat(formatter.format(amount));
+      const formattedBalance = nairaSymbol.concat(
+        formatter.format(newTransaction.balance_after),
+      );
+
+      const message = `Your account has been credited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
+
+      // Commit changes if no transaction object is provided.
+      if (t === undefined) {
+        await trx.commit();
+      }
+
+      return new ApiResponse(message, {
         id: foundAccount.id,
-        transaction_reference: reference,
         balance: newTransaction.balance_after,
-      };
-    });
+        transaction_reference: reference,
+      });
+    } catch (error) {
+      // Rollback changes if the transaction object is not provided.
+      if (t === undefined) {
+        await trx.rollback();
+      }
 
-    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
-
-    const message = `Your account has been credited with \u20A6${formatter.format(
-      creditAccountDto.amount,
-    )}. Your new balance is \u20A6${formatter.format(result.balance)}.`;
-
-    return new ApiResponse(message, result);
+      throw error;
+    }
   }
 
   /**
    * Debits an account with a given amount and creates a new transaction record.
    * @param {string} accountId - The ID of the account to credit.
    * @param {import('./dto/debit-account.dto.js').DebitAccountDto} debitAccountDto - The data transfer object for debiting an account.
+   * @param {import('objection').Transaction} [t] - An optional Knex transaction object that can be used to perform the account debit as part of a larger transaction.
+   * If this parameter is not provided, a new transaction will be created and committed by this method. If this parameter is provided, the caller is responsible for committing or rolling back the transaction.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {InsufficientFundsError} if the user account does not have enough balance to complete the transaction.
    * @throws {UnauthorizedError} if the user account pin is incorrect.
    * @throws {Error} If any other error occurs while crediting account.
    */
-  async debit(accountId, debitAccountDto) {
-    const result = await Model.transaction(async (trx) => {
-      const { amount, pin, description } = debitAccountDto;
+  async debit(accountId, debitAccountDto, t) {
+    // Use the provided transaction object or create a new one
+    const trx = t !== undefined ? t : await Model.startTransaction();
+    try {
+      const { amount, pin, description, purpose } = debitAccountDto;
 
       // Find the account by ID
       const foundAccount = await this.#accountRepository.findById(accountId);
@@ -191,18 +221,18 @@ class AccountService {
         throw new NotFoundError('Operation failed. Account not found.');
       }
 
-      // Check if the account has sufficient balance
-      if (Number(foundAccount.balance) < amount) {
-        throw new InsufficientFundsError(
-          'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
-        );
-      }
-
       // Validate the account pin
       const isValid = foundAccount.validatePin(pin);
       if (!isValid) {
         throw new UnauthorizedError(
           'Your account pin is incorrect. Please try again or reset your pin if you have forgotten it.',
+        );
+      }
+
+      // Check if the account has sufficient balance
+      if (Number(foundAccount.balance) < amount) {
+        throw new InsufficientFundsError(
+          'Your account balance is insufficient to complete this transaction. Please add funds to your account.',
         );
       }
 
@@ -215,8 +245,8 @@ class AccountService {
         {
           account_id: foundAccount.id,
           reference,
-          type: TxnType.DEBIT,
-          purpose: TxnPurpose.WITHDRAW,
+          type: TransactionType.DEBIT,
+          purpose: purpose || TransactionPurpose.WITHDRAWAL,
           amount,
           description,
           balance_before: Number(foundAccount.balance),
@@ -225,133 +255,97 @@ class AccountService {
         trx,
       );
 
-      return {
-        id: foundAccount.id,
-        transaction_reference: reference,
-        balance: newTransaction.balance_after,
-      };
-    });
-
-    // Format the amount and balance values with two decimal places and currency symbol
-    const nairaSymbol = '\u20A6';
-    const formatter = Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
-    const formattedAmount = nairaSymbol.concat(
-      formatter.format(debitAccountDto.amount),
-    );
-    const formattedBalance = `${nairaSymbol}${formatter.format(
-      result.balance,
-    )}`;
-
-    const message = `Your account has been debited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
-
-    return new ApiResponse(message, result);
-  }
-
-  async transferFunds(currentUserId, transferFundsDto) {
-    try {
-      const updatedAccount = await Model.transaction(async (trx) => {
-        const { findById, findOne } = accountRepository;
-        const { amount, desc, dest_id, pin } = transferFundsDto;
-
-        const [sourceAccount, destinationAccount] = await Promise.all([
-          findOne({ user_id: currentUserId }, 'Source account not found.'),
-          findById(dest_id, 'Destination account not found.'),
-        ]);
-
-        await debitSourceAndEmitEvent(pin);
-        async function debitSourceAndEmitEvent(pin) {
-          const { id, balance, comparePins, omitPin } = sourceAccount;
-
-          const isMatch = comparePins(pin);
-          if (!isMatch) throw new UnauthorizedError('Invalid pin');
-          else omitPin();
-
-          // Debit source account
-          await decrementBalance(sourceAccount, amount, trx);
-
-          // Emitting onAccountDebit event.
-          await pubsub.publish(
-            events.account.debit,
-            new NewTransaction(
-              id,
-              TxnType.DEBIT,
-              TxnPurpose.TRANSFER,
-              amount,
-              desc,
-              balance,
-            ),
-            trx,
-          );
-        }
-
-        await creditDestinationAndEmitEvent();
-        async function creditDestinationAndEmitEvent() {
-          const { id, balance } = destinationAccount;
-
-          await incrementBalance(destinationAccount, amount, trx);
-
-          // Emitting onAccountCredit event.
-          await pubsub.publish(
-            events.account.credit,
-            new NewTransaction(
-              id,
-              TxnType.CREDIT,
-              TxnPurpose.TRANSFER,
-              amount,
-              desc,
-              balance,
-            ),
-            trx,
-          );
-        }
-
-        // Transaction is committed and result returned.
-        return sourceAccount;
+      // Format the amount and balance values with two decimal places and currency symbol
+      const nairaSymbol = '\u20A6';
+      const formatter = Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
       });
+      const formattedAmount = nairaSymbol.concat(formatter.format(amount));
+      const formattedBalance = nairaSymbol.concat(
+        formatter.format(newTransaction.balance_after),
+      );
 
-      return updatedAccount;
-    } catch (exception) {
-      // Transaction is rolled back on exception.
-      throw exception;
+      const message = `Your account has been debited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
+
+      // Commit changes if no transaction object is provided.
+      if (t === undefined) {
+        await trx.commit();
+      }
+
+      return new ApiResponse(message, {
+        id: foundAccount.id,
+        balance: newTransaction.balance_after,
+        transaction_reference: reference,
+      });
+    } catch (error) {
+      // Rollback changes if the transaction object is not provided.
+      if (t === undefined) {
+        await trx.rollback();
+      }
+
+      throw error;
     }
   }
-}
 
-async function decrementBalance(account, amount, trx) {
-  const balance = Number(account.balance);
-  if (balance < amount) throw new InsufficientFundsError('Insufficient funds.');
+  /**
+   *
+   * @param {string} accountId
+   * @param {import('./dto/transfer-funds.dto.js').TransferFundsDto} transferFundsDto
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @returns
+   */
+  async transfer(accountId, transferFundsDto) {
+    const trx = await Model.startTransaction();
+    try {
+      const { amount, destination_account } = transferFundsDto;
+      transferFundsDto.purpose = TransactionPurpose.TRANSFER;
 
-  const newBalance = Number((balance - amount).toFixed(2));
-  await account.$query(trx).patch({ balance: newBalance });
-}
+      const [debitResult] = await Promise.all([
+        this.debit(accountId, transferFundsDto, trx),
+        this.credit(accountId, transferFundsDto, trx),
+      ]);
 
-async function incrementBalance(account, amount, trx) {
-  const balance = Number(account.balance);
+      // Format the amount and balance values with two decimal places and currency symbol
+      const nairaSymbol = '\u20A6';
+      const formatter = Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+      });
+      const formattedAmount = nairaSymbol.concat(formatter.format(amount));
+      const formattedBalance = nairaSymbol.concat(
+        formatter.format(debitResult.balance),
+      );
 
-  const newBalance = Number((balance + amount).toFixed(2));
-  await account.$query(trx).patch({ balance: newBalance });
-}
+      const message = `You have successfully transferred ${formattedAmount} to ${destination_account}. Your new balance is ${formattedBalance}`;
 
-/**
- * Constructs a new transaction object.
- * @param {number} id
- * @param {string} type
- * @param {string} purpose
- * @param {number} amount
- * @param {string} desc
- * @param {number} balance
- */
-function NewTransaction(id, type, purpose, amount, desc, balance) {
-  this.account_id = id;
-  this.type = type;
-  this.purpose = purpose;
-  this.amount = amount;
-  this.description = desc;
-  this.bal_before = Number(balance);
-  this.bal_after =
-    type === TxnType.DEBIT
-      ? Number(balance) - amount
-      : Number(balance) + amount;
+      await trx.commit();
+
+      return new ApiResponse(message, {
+        id: accountId,
+        destination_account: transferFundsDto.destination_account,
+        balance: debitResult.data.balance,
+        transaction_reference: debitResult.data.transaction_reference,
+      });
+    } catch (error) {
+      await trx.rollback();
+
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieves all transactions of the given account id.
+   * @param {string} accountId - The account ID to filter by
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   * @throws {NotFoundError} if the result array is of length zero.
+   */
+  async getTransactions(accountId) {
+    const foundTransactions = await this.#transactionRepository.find({
+      accountId,
+    });
+    if (foundTransactions.length) {
+      throw new NotFoundError('No Accounts Found');
+    }
+  }
 }
 
 export default AccountService;

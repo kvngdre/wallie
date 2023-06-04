@@ -54,8 +54,6 @@ router.put(
   accountController.changeAccountPin,
 );
 
-router.patch('/transfer-funds', verifyToken, accountController.transferFunds);
-
 router.delete(
   '/:accountId',
   verifyToken,

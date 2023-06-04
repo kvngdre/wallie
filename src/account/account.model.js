@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import objection, { Model } from 'objection';
 import config from '../config/index.js';
 import User from '../user/user.model.js';
-import { operatorMap } from './utils/operator-map.utils.js';
+import { operatorMap } from '../utils/common.utils.js';
 
 class Account extends Model {
   static get tableName() {

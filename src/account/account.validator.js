@@ -1,9 +1,12 @@
 import Joi from 'joi';
-import { refineValidationError } from '../helpers/validation.helpers.js';
+import {
+  coerceNumber,
+  refineValidationError,
+} from '../helpers/validation.helpers.js';
 import { TransactionType } from '../transaction/jsdoc/transaction.types.js';
-import { operatorMap } from './utils/operator-map.utils.js';
+import { operatorMap } from '../utils/common.utils.js';
 
-export default class AccountValidator {
+class AccountValidator {
   #amountSchema;
   #descriptionSchema;
   #idSchema;
@@ -51,7 +54,7 @@ export default class AccountValidator {
         .valid(...Object.keys(operatorMap)),
     }).and('value', 'operator');
 
-    let { value, error } = schema.validate(dto);
+    let { value, error } = schema.validate(dto, { abortEarly: false });
     if (error) error = refineValidationError(error);
 
     return { value, error };
@@ -63,7 +66,7 @@ export default class AccountValidator {
       pin: this.#pinSchema,
     });
 
-    let { value, error } = schema.validate(dto);
+    let { value, error } = schema.validate(dto, { abortEarly: false });
     if (error) error = refineValidationError(error);
 
     return { value, error };
@@ -72,7 +75,7 @@ export default class AccountValidator {
   /** @type {ValidationFunction<import('./dto/credit-account.dto.js').CreditAccountDto>} */
   validateCreditAccount = (dto) => {
     const schema = Joi.object({
-      type: Joi.string().equal(TransactionType.CREDIT).required(),
+      type: Joi.string().label('Type').equal(TransactionType.CREDIT).required(),
       amount: this.#amountSchema.required(),
       description: this.#descriptionSchema,
     });
@@ -90,9 +93,10 @@ export default class AccountValidator {
   /** @type {ValidationFunction<DebitAccountDto>} */
   validateDebitAccount = (dto) => {
     const schema = Joi.object({
+      type: Joi.string().label('Type').equal(TransactionType.DEBIT).required(),
       amount: this.#amountSchema.required(),
-      pin: this.#pinSchema.required(),
       description: this.#descriptionSchema,
+      pin: this.#pinSchema.required(),
     });
 
     let { value, error } = schema.validate(dto, {
@@ -105,28 +109,30 @@ export default class AccountValidator {
     return { value, error };
   };
 
-  validateTransferDto = (transferDto, currentUser) => {
+  /** @type {ValidationFunction<import('./dto/transfer-funds.dto.js').TransferFundsDto>} */
+  validateFundsTransfer = (dto) => {
     const schema = Joi.object({
-      amount: this.#amountSchema.required(),
-      dest_id: this.#idSchema
-        .label('Destination account id')
-        .invalid(currentUser.id)
+      type: Joi.string()
+        .label('Type')
+        .equal(TransactionType.TRANSFER)
         .required(),
+      destination_account: this.#idSchema
+        .label('Destination account')
+        .required(),
+      amount: this.#amountSchema.required(),
+      description: this.#descriptionSchema,
       pin: this.#pinSchema.required(),
-      desc: this.#descriptionSchema,
     });
-    return schema.validate(transferDto);
+
+    let { value, error } = schema.validate(dto, {
+      abortEarly: false,
+      convert: false,
+    });
+
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
   };
 }
 
-// Define a custom function to coerce a numeric string to a number
-const coerceNumber = (value, helpers) => {
-  // Check if the value is a string and contains only digits and optional decimal point
-  if (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value)) {
-    // Convert the value to a number using parseFloat or Number
-    return parseFloat(value);
-    // Alternatively, you can use Number(value)
-  }
-  // Return the original value otherwise
-  return value;
-};
+export default AccountValidator;

@@ -19,7 +19,7 @@ const accountService = new AccountService(
 /**
  * Validates and credits an account with a given amount.
  * @param {string} accountId - The ID of the account to credit.
- * @param {import('../account/dto/credit-account.dto.js').CreditAccountDto} body  - The request body containing the account information.
+ * @param {Record<string, any>} body  - The request body containing the account information.
  * @returns {Promise<ApiResponse>}  A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
  * @throws {ValidationError} If the request body is invalid.
  */
@@ -33,7 +33,7 @@ export async function validateAndCredit(accountId, body) {
 /**
  * Validates and debits an account with a given amount.
  * @param {string} accountId - The ID of the account to credit.
- * @param {Record<string, any>} body - The request body
+ * @param {Record<string, any>} body  - The request body containing the account information.
  * @returns {Promise<ApiResponse>}  A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
  * @throws {ValidationError} If the request body is invalid.
  */
@@ -42,4 +42,18 @@ export async function validateAndDebit(accountId, body) {
   if (error) throw new ValidationError('Validation Error', error);
 
   return await accountService.debit(accountId, value);
+}
+
+/**
+ * Validates and transfers a given amount to a given destination account.
+ * @param {string} accountId - The ID of the account to credit.
+ * @param {Record<string, any>} body  - The request body containing the account information.
+ * @returns {Promise<ApiResponse>}  A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+ * @throws {ValidationError} If the request body is invalid.
+ */
+export async function validateAndTransfer(accountId, body) {
+  const { value, error } = accountValidator.validateFundsTransfer(body);
+  if (error) throw new ValidationError('Validation Error', error);
+
+  return await accountService.transfer(accountId, value);
 }

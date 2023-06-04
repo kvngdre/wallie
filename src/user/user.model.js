@@ -17,7 +17,7 @@ export default class User extends Model {
      * @param {objection.QueryBuilder} query - The query builder object.
      * @param {(string|undefined)} email - The email to filter by.
      */
-    filterEmail(query, email) {
+    filterByEmail(query, email) {
       if (email) {
         query.andWhere('email', 'like', `%${email}%`);
       }
@@ -28,7 +28,7 @@ export default class User extends Model {
      * @param {objection.QueryBuilder} query - The query builder object.
      * @param {(string|undefined)} name - The name to filter by.
      */
-    filterName(query, name) {
+    filterByName(query, name) {
       if (name) {
         query.where(function () {
           this.where('first_name', 'like', `%${name}%`).orWhere(
@@ -45,7 +45,7 @@ export default class User extends Model {
      * @param {objection.QueryBuilder} query - The query builder object.
      * @param {(string|undefined)} username - The username to filter by.
      */
-    filterUsername(query, username) {
+    filterByUsername(query, username) {
       if (username) {
         query.andWhere('username', 'like', `%${username}%`);
       }

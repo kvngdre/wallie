@@ -30,13 +30,13 @@ class UserRepository {
    * Retrieves all users that match filter object if any.
    * @param {UserFilter} [filter] - An object with user profile fields to filter by (optional).
    * @returns {Promise<Array<User>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
-   * @throws {Error} If any other error occurs during the insertion, such as a database connection error.
+   * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async find(filter) {
     return await User.query()
-      .modify('filterName', filter.name)
-      .modify('filterUsername', filter.username)
-      .modify('filterEmail', filter.email)
+      .modify('filterByName', filter.name)
+      .modify('filterByUsername', filter.username)
+      .modify('filterByEmail', filter.email)
       .modify('omitFields', 'password')
       .orderBy('first_name', 'asc');
   }
@@ -45,7 +45,7 @@ class UserRepository {
    * Retrieves a user by ID.
    * @param {string} id - The ID of the user to be retrieved.
    * @returns {Promise<User | undefined>} A promise that resolves to the user object or undefined if not found.
-   * @throws {Error} If any other error occurs during the insertion, such as a database connection error.
+   * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async findById(id) {
     return User.query().findById(id);
@@ -55,6 +55,7 @@ class UserRepository {
    * Retrieves a user by the username or email address.
    * @param {string} usernameOrEmail - An object with user profile fields to filter by (optional).
    * @returns {Promise<User | undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
+   * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async findByUsernameOrEmail(usernameOrEmail) {
     return await User.query()
@@ -69,6 +70,7 @@ class UserRepository {
    * @param {UpdateUserDto} updateUserDto
    * @returns {Promise<number>} A promise that resolves with the inserted User object, or rejects with an error if the user not found or update fails.
    * @throws {NotFoundError} If user cannot be found.
+   * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async update(id, updateUserDto) {
     try {
@@ -93,6 +95,7 @@ class UserRepository {
    * @param {string} id The user id
    * @returns {Promise<number>} The number of rows (users) deleted.
    * @throws {NotFoundError} If user cannot be found.
+   * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async remove(id) {
     const foundRecord = await User.query().findById(id);

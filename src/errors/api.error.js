@@ -1,5 +1,14 @@
+import HttpCode from '../utils/httpCodes.utils.js';
+
 class ApiError extends Error {
-  constructor(httpCode, isOperational = true, message, data = undefined) {
+  /**
+   *
+   * @param {HttpCode} httpCode
+   * @param {string} message
+   * @param {*} [data]
+   * @param {boolean} [isOperational]
+   */
+  constructor(httpCode, message, data, isOperational = true) {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
 

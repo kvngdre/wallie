@@ -36,3 +36,15 @@ export function refineValidationError(error) {
 
   return refinedError;
 }
+
+// Define a custom function to coerce a numeric string to a number
+export const coerceNumber = (value, helpers) => {
+  // Check if the value is a string and contains only digits and optional decimal point
+  if (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value)) {
+    // Convert the value to a number using parseFloat or Number
+    return parseFloat(value);
+    // Alternatively, you can use Number(value)
+  }
+  // Return the original value otherwise
+  return value;
+};

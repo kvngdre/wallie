@@ -10,7 +10,7 @@
  * @description A function that validates an object and returns its value or an error
  * @typedef {function(Object.<string, *>): ValidationResult<T>} ValidationFunction
  * @param {Object.<string, *>} obj - The object to validate.
- * @returns {{value: T, error: (Object.<string, string>|undefined)}} - The validation result.
+ * @returns {{value: T, error: (Object<string, string> | undefined)}} - The validation result.
  */
 
 /**
@@ -31,7 +31,7 @@
  * @typedef {(
  *  req: AuthRequest<ParamsDirectory, ResBody, ReqBody, ReqQuery>,
  *  res:import('express').Response) => Promise<void>} ControllerFunction
- * @param {import('express').Request} req - The incoming request object.
+ * @param {AuthRequest<ParamsDirectory, ResBody, ReqBody, ReqQuery>} req - The incoming request object.
  * @param {import('express').Response} res - The outgoing response object.
  * @returns {Promise<void>}
  */

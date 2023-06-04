@@ -10,6 +10,7 @@ const errorHandler = new ErrorHandler();
  */
 export default (err, req, res, next) => {
   errorHandler.handleError(err);
+  console.log(err);
 
   return res.status(err.statusCode || HttpCode.INTERNAL_SERVER).json({
     success: false,

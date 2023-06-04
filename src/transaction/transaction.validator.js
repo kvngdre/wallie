@@ -1,13 +1,16 @@
 import Joi from 'joi';
-import { TxnPurpose, TxnType } from '../utils/common.utils.js';
+import {
+  TransactionPurpose,
+  TransactionType,
+} from './jsdoc/transaction.types.js';
 
 class TransactionValidator {
   #amountSchema;
   #balanceSchema;
   #descSchema;
   #idSchema;
-  #txnTypeSchema;
-  #txnPurposeSchema;
+  #TransactionTypeSchema;
+  #TransactionPurposeSchema;
 
   constructor() {
     this.#amountSchema = Joi.number().label('Amount').positive();
@@ -20,11 +23,11 @@ class TransactionValidator {
       });
     this.#descSchema = Joi.string().max(50).label('Description');
     this.#idSchema = Joi.number().positive();
-    this.#txnTypeSchema = Joi.string()
-      .valid(...Object.values(TxnType))
+    this.#TransactionTypeSchema = Joi.string()
+      .valid(...Object.values(TransactionType))
       .label('Type');
-    this.#txnPurposeSchema = Joi.string()
-      .valid(...Object.values(TxnPurpose))
+    this.#TransactionPurposeSchema = Joi.string()
+      .valid(...Object.values(TransactionPurpose))
       .label('Purpose');
   }
 
@@ -32,8 +35,8 @@ class TransactionValidator {
     // TODO: write conditional validator for purpose, bal_before and after
     const schema = Joi.object({
       account_id: this.#idSchema.label('Account id').required(),
-      type: this.#txnTypeSchema.required(),
-      purpose: this.#txnPurposeSchema.required(),
+      type: this.#TransactionTypeSchema.required(),
+      purpose: this.#TransactionPurposeSchema.required(),
       amount: this.#amountSchema.required(),
       description: this.#descSchema,
       bal_before: this.#balanceSchema.label('Balance before').required(),
