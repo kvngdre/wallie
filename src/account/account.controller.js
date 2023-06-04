@@ -28,7 +28,7 @@ class AccountController {
     const { value, error } = this.#accountValidator.validateNewAccountDto(
       req.body,
     );
-    if (error) throw new ValidationError('Validation Error', true, error);
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#accountService.createAccount(value);
 
@@ -41,7 +41,7 @@ class AccountController {
       req.query,
     );
     if (error) {
-      throw new ValidationError({ message: 'Validation Error', data: error });
+      throw new ValidationError('Validation Error', error);
     }
 
     const response = await this.#accountService.getAccounts(value);
@@ -62,7 +62,7 @@ class AccountController {
   changeAccountPin = async (req, res) => {
     const { value, error } = this.#accountValidator.validateChangePin(req.body);
     if (error) {
-      throw new ValidationError({ message: 'Validation Error', data: error });
+      throw new ValidationError('Validation Error', error);
     }
 
     const response = await this.#accountService.changePin(
@@ -80,9 +80,11 @@ class AccountController {
     res.status(HttpCode.OK).send(response);
   };
 
-  /** @type {ControllerFunction} */
+  /** @type {ControllerFunction<{ accountId: string }>} */
   getBalance = async (req, res) => {
-    const response = await this.#accountService.getBalance(req.currentUser.id);
+    const response = await this.#accountService.getBalance(
+      req.params.accountId,
+    );
 
     res.status(HttpCode.OK).json(response);
   };
@@ -106,23 +108,11 @@ class AccountController {
     res.status(HttpCode.OK).json(response);
   };
 
-  async transferFunds(req, res) {
-    const { body, currentUser } = req;
-
-    // Validating transfer funds dto
-    const { error } = this.#accountValidator.validateTransferDto(
-      body,
-      currentUser,
+  /** @type {ControllerFunction<{ accountId: string }>} */
+  async getTransactions(req, res) {
+    const response = await this.#accountService.transferFunds(
+      req.params.accountId,
     );
-    if (error) {
-      throw new ValidationError(errorMsg);
-    }
-
-    const account = await this.#accountService.transferFunds(
-      currentUser.id,
-      body,
-    );
-    const response = new ApiResponse('Transfer successful.', account);
 
     res.status(HttpCode.OK).json(response);
   }

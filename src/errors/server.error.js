@@ -2,7 +2,12 @@ import HttpCode from '../utils/httpCodes.utils.js';
 import BaseError from './base.error.js';
 
 export default class ServerError extends BaseError {
-  constructor(message = 'Something went wrong', data = undefined) {
-    super(HttpCode.INTERNAL_SERVER, true, message, data);
+  /**
+   * @class Server Error
+   * @param {string} [message]
+   * @param {*} [data]
+   */
+  constructor(message = 'Something went wrong', data) {
+    super(HttpCode.INTERNAL_SERVER, message, data);
   }
 }
