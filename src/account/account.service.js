@@ -198,10 +198,7 @@ class AccountService {
     const result = await Model.transaction(async (trx) => {
       const { amount, pin, description } = debitAccountDto;
 
-<<<<<<< HEAD
       // Find the account by ID
-=======
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       const foundAccount = await this.#accountRepository.findById(accountId);
       if (!foundAccount) {
         throw new NotFoundError('Operation failed. Account not found.');
