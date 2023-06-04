@@ -157,13 +157,8 @@ class AccountService {
 
       return {
         id: foundAccount.id,
-<<<<<<< HEAD
         transaction_reference: reference,
         balance: newTransaction.balance_after,
-=======
-        balance: newTransaction.balance_after,
-        transaction_reference: newTransaction.reference,
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
       };
     });
 
@@ -177,7 +172,6 @@ class AccountService {
   }
 
   /**
-<<<<<<< HEAD
    * Debits an account with a given amount and creates a new transaction record.
    * @param {string} accountId - The ID of the account to credit.
    * @param {import('./dto/debit-account.dto.js').DebitAccountDto} debitAccountDto - The data transfer object for debiting an account.
@@ -185,13 +179,6 @@ class AccountService {
    * @throws {NotFoundError} if the user account cannot be found.
    * @throws {InsufficientFundsError} if the user account does not have enough balance to complete the transaction.
    * @throws {UnauthorizedError} if the user account pin is incorrect.
-=======
-   *
-   * @param {string} accountId - The ID of the account to credit.
-   * @param {DebitAccountDto} debitAccountDto
-   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
-   * @throws {NotFoundError} if the user account cannot be found.
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
    * @throws {Error} If any other error occurs while crediting account.
    */
   async debit(accountId, debitAccountDto) {
@@ -240,7 +227,6 @@ class AccountService {
 
       return {
         id: foundAccount.id,
-<<<<<<< HEAD
         transaction_reference: reference,
         balance: newTransaction.balance_after,
       };
@@ -259,14 +245,6 @@ class AccountService {
     const message = `Your account has been debited with ${formattedAmount}. Your new balance is ${formattedBalance}.`;
 
     return new ApiResponse(message, result);
-=======
-        balance: newTransaction.balance_after,
-        transaction_reference: newTransaction.reference,
-      };
-    });
-
-    return new ApiResponse('Withdrawal Successful', result);
->>>>>>> 9b1fd5ff66307bd39932971d813e46983766214d
   }
 
   async transferFunds(currentUserId, transferFundsDto) {
