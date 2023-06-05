@@ -2,6 +2,7 @@ import { Router } from 'express';
 import validateId from '../middleware/validateId.middleware.js';
 import verifyToken from '../middleware/verifyToken.middleware.js';
 import TransactionRepository from '../transaction/transaction.repository.js';
+import TransactionValidator from '../transaction/transaction.validator.js';
 import UserRepository from '../user/user.repository.js';
 import AccountController from './account.controller.js';
 import AccountRepository from './account.repository.js';
@@ -13,6 +14,7 @@ const accountRepository = new AccountRepository();
 const accountValidator = new AccountValidator();
 const userRepository = new UserRepository();
 const transactionRepository = new TransactionRepository();
+const transactionValidator = new TransactionValidator();
 
 //* Injecting dependencies
 const accountService = new AccountService(
@@ -23,6 +25,7 @@ const accountService = new AccountService(
 const accountController = new AccountController(
   accountService,
   accountValidator,
+  transactionValidator,
 );
 
 const router = Router();
@@ -38,13 +41,25 @@ router.post(
 
 router.get('/', verifyToken, accountController.getAccounts);
 
-router.get('/:accountId/balance', verifyToken, accountController.getBalance);
-
 router.get(
   '/:accountId',
   verifyToken,
   validateId,
   accountController.getAccount,
+);
+
+router.get(
+  '/:accountId/balance',
+  verifyToken,
+  validateId,
+  accountController.getBalance,
+);
+
+router.get(
+  '/:accountId/transactions',
+  verifyToken,
+  validateId,
+  accountController.getTransactions,
 );
 
 router.put(

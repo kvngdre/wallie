@@ -32,16 +32,21 @@ class TransactionService {
     return newTransaction;
   };
 
-  async getTransactions(currentUser) {
-    const queryObj = {};
+  async get(filter) {
+    const foundTransactions = await TransactionRepository.find(filter);
 
-    if (currentUser.role !== 'admin')
-      queryObj['account.user_id'] = currentUser.id;
+    if (foundTransactions.length === 0)
+      throw new NotFoundError('No Users Found');
 
-    const foundTransactions = await TransactionRepository.findAll(queryObj);
-    const count = Intl.NumberFormat('en-US').format(foundTransactions.length);
+    // Format the number of found transactions with commas
+    const count = foundUsers.length;
+    const formattedCount = Intl.NumberFormat('en-US').format(count);
 
-    return { count, foundTransactions };
+    return new ApiResponse(
+      `Found ${count} transaction(s) matching the filter.`,
+      foundTransactions,
+      { count: formattedCount },
+    );
   }
 
   async getTransaction(currentUserId, txnId) {

@@ -3,7 +3,7 @@ import {
   validateAndCredit,
   validateAndDebit,
 } from '../helpers/account.helpers.js';
-import ApiResponse from '../utils/apiResponse.utils.js';
+import TransactionValidator from '../transaction/transaction.validator.js';
 import HttpCode from '../utils/httpCodes.utils.js';
 import AccountService from './account.service.js';
 import AccountValidator from './account.validator.js';
@@ -11,16 +11,19 @@ import AccountValidator from './account.validator.js';
 class AccountController {
   #accountService;
   #accountValidator;
+  #transactionValidator;
 
   /**
    * A class that handles account-related requests and responses.
    * @class AccountController
    * @param {AccountService} accountService
    * @param {AccountValidator} accountValidator
+   * @param {TransactionValidator} transactionValidator
    */
-  constructor(accountService, accountValidator) {
+  constructor(accountService, accountValidator, transactionValidator) {
     this.#accountService = accountService;
     this.#accountValidator = accountValidator;
+    this.#transactionValidator = transactionValidator;
   }
 
   /** @type {ControllerFunction<{}, {}, CreateAccountDto>} */
@@ -28,9 +31,10 @@ class AccountController {
     const { value, error } = this.#accountValidator.validateNewAccountDto(
       req.body,
     );
+
     if (error) throw new ValidationError('Validation Error', error);
 
-    const response = await this.#accountService.createAccount(value);
+    const response = await this.#accountService.create(value);
 
     res.status(HttpCode.CREATED).json(response);
   };
@@ -40,20 +44,19 @@ class AccountController {
     const { value, error } = this.#accountValidator.validateAccountFilter(
       req.query,
     );
+
     if (error) {
       throw new ValidationError('Validation Error', error);
     }
 
-    const response = await this.#accountService.getAccounts(value);
+    const response = await this.#accountService.get(value);
 
     res.status(HttpCode.OK).json(response);
   };
 
   /** @type {ControllerFunction<{ accountId: string }>} */
   getAccount = async (req, res) => {
-    const response = await this.#accountService.getAccount(
-      req.params.accountId,
-    );
+    const response = await this.#accountService.show(req.params.accountId);
 
     res.status(HttpCode.OK).json(response);
   };
@@ -61,6 +64,7 @@ class AccountController {
   /** @type {ControllerFunction<{ accountId: string }, {}, UpdateAccountDto>} */
   changeAccountPin = async (req, res) => {
     const { value, error } = this.#accountValidator.validateChangePin(req.body);
+
     if (error) {
       throw new ValidationError('Validation Error', error);
     }
@@ -75,7 +79,7 @@ class AccountController {
 
   /** @type {ControllerFunction<{ accountId: string }>} */
   deleteAccount = async (req, res) => {
-    const response = await this.#accountService.deleteAccount(req.params.id);
+    const response = await this.#accountService.delete(req.params.id);
 
     res.status(HttpCode.OK).send(response);
   };
@@ -108,14 +112,22 @@ class AccountController {
     res.status(HttpCode.OK).json(response);
   };
 
-  /** @type {ControllerFunction<{ accountId: string }>} */
-  async getTransactions(req, res) {
-    const response = await this.#accountService.transferFunds(
+  /** @type {ControllerFunction<{ accountId: string }, {}, {}, import('../transaction/dto/transaction-filter.dto.js').TransactionFilter>} */
+  getTransactions = async (req, res) => {
+    const { value, error } =
+      this.#transactionValidator.validateTransactionFilter(req.query);
+
+    if (error) {
+      throw new ValidationError('Validation Error', error);
+    }
+
+    const response = await this.#accountService.getTransactions(
       req.params.accountId,
+      value,
     );
 
     res.status(HttpCode.OK).json(response);
-  }
+  };
 }
 
 export default AccountController;

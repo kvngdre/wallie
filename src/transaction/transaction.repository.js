@@ -46,7 +46,7 @@ class TransactionRepository {
       .modify('filterByAmount', filter)
       .modify('filterByType', filter.type)
       .modify('filterByPurpose', filter.purpose)
-      .modify('filterByAccountId', filter.accountId)
+      .modify('filterByAccountId', filter.account_id)
       .orderBy('timestamp', 'desc');
   }
 

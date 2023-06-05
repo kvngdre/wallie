@@ -138,10 +138,18 @@ class UserService {
    */
   async get(filter) {
     const foundUsers = await this.#userRepository.find(filter);
-    if (foundUsers.length === 0) throw new NotFoundError('No Users Found');
-    const message = formatItemCountMessage(foundUsers.length);
 
-    return new ApiResponse(message, foundUsers);
+    if (foundUsers.length === 0) throw new NotFoundError('No Users Found');
+
+    // Format the number of found users with commas
+    const count = foundUsers.length;
+    const formattedCount = Intl.NumberFormat('en-US').format(count);
+
+    return new ApiResponse(
+      `Found ${count} user(s) matching the filter.`,
+      foundUsers,
+      { count: formattedCount },
+    );
   }
 
   /**

@@ -38,7 +38,7 @@ class AccountService {
    * @param {CreateAccountDto} createAccountDto - A data transfer object with  account information.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async createAccount(createAccountDto) {
+  async create(createAccountDto) {
     const foundUser = await this.#userRepository.findById(
       createAccountDto.user_id,
     );
@@ -56,18 +56,26 @@ class AccountService {
 
   /**
    * This function is used to find accounts that match the filter if any.
-   * @param {AccountFilter} filter
+   * @param {import('./dto/account-filter.dto.js').AccountFilterDto} filter - A data transfer object for account fields to filter by.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the result array is of length zero.
    */
-  async getAccounts(filter) {
+  async get(filter) {
     const foundAccounts = await this.#accountRepository.find(filter);
+
     if (foundAccounts.length === 0) {
       throw new NotFoundError('No Accounts Found');
     }
-    const count = Intl.NumberFormat('en-US').format(foundAccounts.length);
 
-    return new ApiResponse('', foundAccounts, { count });
+    // Format the number of found accounts with commas
+    const count = foundAccounts.length;
+    const formattedCount = Intl.NumberFormat('en-US').format(count);
+
+    return new ApiResponse(
+      `Found ${count} account(s) matching the filter.`,
+      foundAccounts,
+      { count: formattedCount },
+    );
   }
 
   /**
@@ -76,7 +84,7 @@ class AccountService {
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the user account cannot be found.
    */
-  async getAccount(accountId) {
+  async show(accountId) {
     const foundAccount = await this.#accountRepository.findById(accountId);
     if (!foundAccount) throw new NotFoundError('Account Not Found');
 
@@ -100,7 +108,7 @@ class AccountService {
    * @param {string} accountId - The ID of the account which will be deleted.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async deleteAccount(accountId) {
+  async delete(accountId) {
     // await this.#accountRepository.delete(accountId);
 
     return new ApiResponse('Account Deleted Successfully');
@@ -335,16 +343,31 @@ class AccountService {
   /**
    * Retrieves all transactions of the given account id.
    * @param {string} accountId - The account ID to filter by
+   * @param {import('../transaction/dto/transaction-filter.dto.js').TransactionFilter} [filter] - The account ID to filter by. Optional.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    * @throws {NotFoundError} if the result array is of length zero.
    */
-  async getTransactions(accountId) {
+  async getTransactions(accountId, filter = {}) {
     const foundTransactions = await this.#transactionRepository.find({
-      accountId,
+      ...filter,
+      account_id: accountId,
     });
-    if (foundTransactions.length) {
-      throw new NotFoundError('No Accounts Found');
+
+    if (foundTransactions.length === 0) {
+      throw new NotFoundError('No Transactions Found');
     }
+
+    // Format the number of found transactions with commas
+    const count = foundTransactions.length;
+    const formattedCount = Intl.NumberFormat('en-US').format(
+      foundTransactions.length,
+    );
+
+    return new ApiResponse(
+      `Found ${formattedCount} transaction(s) matching the filter.`,
+      foundTransactions,
+      { count },
+    );
   }
 }
 

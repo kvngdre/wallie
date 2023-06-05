@@ -3,7 +3,7 @@ import ApiError from './api.error.js';
 
 export default class ValidationError extends ApiError {
   /**
-   * @class ValidationError
+   * @class Validation Error
    * @param {string} message
    * @param {*} [data]
    */

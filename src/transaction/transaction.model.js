@@ -58,7 +58,7 @@ class Transaction extends Model {
      */
     filterByAccountId(query, account_id) {
       if (account_id) {
-        query.andWhere({ account_id });
+        query.andWhere('account_id', account_id);
       }
     },
 
