@@ -28,23 +28,6 @@ class UserController {
     res.status(HttpCode.CREATED).json(response);
   };
 
-  /** @type {ControllerFunction<{ userId: string, token: string }>} */
-  verify = async (req, res) => {
-    const response = await this.#userService.verify(
-      req.params.userId,
-      req.params.token,
-    );
-
-    res.status(HttpCode.OK).json(response);
-  };
-
-  /** @type {ControllerFunction<{}, {}, {}, { email: string }>} */
-  resendVerificationUrl = async (req, res) => {
-    console.log('Verification sent');
-
-    res.status(HttpCode.OK).json({ message: 'Verification Sent' });
-  };
-
   /** @type {ControllerFunction<{}, {}, CreateUserDto>} */
   createUser = async (req, res) => {
     const { value, error } = this.#userValidator.validateCreateUser(req.body);
@@ -92,6 +75,38 @@ class UserController {
   /** @type {ControllerFunction<{ userId: string }>} */
   deleteUser = async (req, res) => {
     const response = await this.#userService.erase(req.params.userId);
+
+    res.status(HttpCode.OK).json(response);
+  };
+
+  /** @type {ControllerFunction<{ userId: string, token: string }>} */
+  verify = async (req, res) => {
+    const response = await this.#userService.verify(
+      req.params.userId,
+      req.params.token,
+    );
+
+    res.status(HttpCode.OK).json(response);
+  };
+
+  /** @type {ControllerFunction<{}, {}, {}, { email: string }>} */
+  resendVerificationUrl = async (req, res) => {
+    console.log('Verification sent');
+
+    res.status(HttpCode.OK).json({ message: 'Verification Sent' });
+  };
+
+  /** @type {ControllerFunction<{ userId: string }>} */
+  updatePassword = async (req, res) => {
+    const { value: updatePasswordDto, error } =
+      this.#userValidator.validateUpdatePassword(req.body);
+
+    if (error) throw new ValidationError('Validation Error', error);
+
+    const response = await this.#userService.updatePassword(
+      req.params.userId,
+      updatePasswordDto,
+    );
 
     res.status(HttpCode.OK).json(response);
   };

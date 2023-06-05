@@ -95,23 +95,6 @@ export default class User extends Model {
     };
   }
 
-  $beforeInsert() {
-    /*
-     * Hashing the password property of the create user DTO.
-     * This is to ensure that passwords are stored securely in the database.
-     */
-    this.password = bcrypt.hashSync(this.password, parseInt(config.saltRounds));
-  }
-
-  $beforeUpdate() {
-    // * Hashes the password property of the user update DTO if it exists.
-    if (this.hasOwnProperty('password'))
-      this.password = bcrypt.hashSync(
-        this.password,
-        parseInt(config.saltRounds),
-      );
-  }
-
   /**
    * Returns a plain object representation of the user instance, omitting the password field.
    * @returns {objection.Pojo}

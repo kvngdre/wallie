@@ -61,13 +61,10 @@ class AccountController {
     res.status(HttpCode.OK).json(response);
   };
 
-  /** @type {ControllerFunction<{ accountId: string }, {}, UpdateAccountDto>} */
+  /** @type {ControllerFunction<{ accountId: string }>} */
   changeAccountPin = async (req, res) => {
     const { value, error } = this.#accountValidator.validateChangePin(req.body);
-
-    if (error) {
-      throw new ValidationError('Validation Error', error);
-    }
+    if (error) throw new ValidationError('Validation Error', error);
 
     const response = await this.#accountService.changePin(
       req.params.accountId,

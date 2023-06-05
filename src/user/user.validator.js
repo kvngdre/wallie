@@ -6,7 +6,6 @@ const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
 class UserValidator {
   #emailSchema;
-  #emailFilterSchema;
   #nameSchema;
   #nameFilterSchema;
   #passwordSchema;
@@ -21,8 +20,6 @@ class UserValidator {
       .label('Email')
       .max(50);
 
-    this.#emailFilterSchema = Joi.string().trim().lowercase().max(50).allow('');
-
     this.#nameSchema = Joi.string().lowercase().min(2).max(30).trim().messages({
       'string.min': 'Invalid {#label}',
       'string.max': '{#label} is too long',
@@ -33,8 +30,7 @@ class UserValidator {
       .label('Name')
       .lowercase()
       .trim()
-      .max(30)
-      .allow('');
+      .max(30);
 
     this.#passwordSchema = JoiPassword.string()
       .label('Password')
@@ -70,7 +66,7 @@ class UserValidator {
           '{#label} must be less than or equal to {#limit} characters long',
       });
 
-    this.#usernameFilterSchema = Joi.string().trim().max(10).allow('');
+    this.#usernameFilterSchema = Joi.string().trim().max(10);
   }
 
   /**@type {ValidationFunction<SignUpDto>} */
@@ -127,7 +123,7 @@ class UserValidator {
   validateUserFilter = (dto) => {
     const schema = Joi.object({
       name: this.#nameFilterSchema,
-      email: this.#emailFilterSchema,
+      email: this.#emailSchema,
       username: this.#usernameFilterSchema,
     });
 
@@ -146,6 +142,19 @@ class UserValidator {
       isVerified: Joi.boolean(),
       password: this.#passwordSchema,
     }).min(1);
+
+    let { value, error } = schema.validate(dto, { abortEarly: false });
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
+  };
+
+  /** @type {ValidationFunction<UpdatePasswordDto>} */
+  validateUpdatePassword = (dto) => {
+    const schema = Joi.object({
+      old_password: Joi.string().label('Old password').required(),
+      new_password: this.#passwordSchema.label('New password').required(),
+    });
 
     let { value, error } = schema.validate(dto, { abortEarly: false });
     if (error) error = refineValidationError(error);

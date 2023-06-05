@@ -8,13 +8,13 @@ import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
 
-// * Creating dependency instances
+// Creating dependency instances
 const userValidator = new UserValidator();
 const userRepository = new UserRepository();
 const accountRepository = new AccountRepository();
 const jwtService = new JwtService();
 
-// * Injecting dependencies
+// Injecting dependencies
 const userService = new UserService(
   accountRepository,
   userRepository,
@@ -26,20 +26,27 @@ const router = Router();
 
 router.post('/sign-up', userController.signUp);
 
-router.post('/', userController.createUser);
+router.post('/', verifyToken, userController.createUser);
 
-router.get('/', userController.getUsers);
+router.get('/', verifyToken, userController.getUsers);
 
 router.get('/me', verifyToken, userController.getCurrentUser);
 
-router.get('/verify/:userId/:token', userController.verify);
-
 router.get('/verification/resend', userController.resendVerificationUrl);
 
-router.get('/:userId', validateId, userController.getUser);
+router.get('/verify/:userId/:token', userController.verify);
 
-router.patch('/:userId', validateId, userController.updateUser);
+router.get('/:userId', verifyToken, validateId, userController.getUser);
 
-router.delete('/:userId', validateId, userController.deleteUser);
+router.patch('/:userId', verifyToken, validateId, userController.updateUser);
+
+router.put(
+  '/:userId/password',
+  verifyToken,
+  validateId,
+  userController.updatePassword,
+);
+
+router.delete('/:userId', verifyToken, validateId, userController.deleteUser);
 
 export default router;

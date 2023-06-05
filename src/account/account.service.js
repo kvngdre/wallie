@@ -94,13 +94,24 @@ class AccountService {
   /**
    *
    * @param {string} accountId - The ID of the account whose pin is to be changed.
-   * @param {UpdateAccountDto} updateAccountDto
+   * @param {ChangePinDto} changePinDto
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async changePin(accountId, updateAccountDto) {
-    await this.#accountRepository.update(accountId, updateAccountDto);
+  async changePin(accountId, changePinDto) {
+    const { old_pin, new_pin } = changePinDto;
 
-    return new ApiResponse('Account Updated Successfully');
+    const foundAccount = await this.#accountRepository.findById(accountId);
+
+    if (!foundAccount) {
+      throw new NotFoundError('Operation failed. Account not found.');
+    }
+
+    const isValid = foundAccount.validatePin(old_pin);
+    if (!isValid) throw new UnauthorizedError('Invalid Pin');
+
+    await foundAccount.$query().update('pin', new_pin);
+
+    return new ApiResponse('Pin Updated');
   }
 
   /**
