@@ -44,7 +44,7 @@ router.put(
   '/:userId/password',
   verifyToken,
   validateId,
-  userController.updatePassword,
+  userController.changePassword,
 );
 
 router.delete('/:userId', verifyToken, validateId, userController.deleteUser);

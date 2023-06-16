@@ -4,7 +4,7 @@ import config from '../config/index.js';
 import User from '../user/user.model.js';
 import { operatorMap } from '../utils/common.utils.js';
 
-class Account extends Model {
+export default class Account extends Model {
   static get tableName() {
     return 'accounts';
   }
@@ -78,20 +78,6 @@ class Account extends Model {
     };
   }
 
-  $beforeInsert() {
-    /*
-     * Hashing the pin property of the create account DTO.
-     * This is to ensure that pins are stored securely in the database.
-     */
-    this.pin = bcrypt.hashSync(this.pin, parseInt(config.saltRounds));
-  }
-
-  $beforeUpdate() {
-    // * Hashes the pin property of the account update DTO if it exists.
-    if (this.hasOwnProperty('pin'))
-      this.pin = bcrypt.hashSync(this.pin, parseInt(config.saltRounds));
-  }
-
   /**
    * Returns a plain object representation of the account instance, omitting the pin field.
    * @returns {objection.Pojo}
@@ -99,6 +85,7 @@ class Account extends Model {
   toObject() {
     // Delete sensitive data.
     delete this.pin;
+
     return this;
   }
 
@@ -111,5 +98,3 @@ class Account extends Model {
     return bcrypt.compareSync(pin, this.pin);
   };
 }
-
-export default Account;

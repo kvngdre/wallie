@@ -91,7 +91,7 @@ class AccountController {
   };
 
   /** @type {ControllerFunction<{ accountId: string }, {}, Record<string, any> & { type: string }} */
-  createTransaction = async (req, res) => {
+  postTransaction = async (req, res) => {
     let response;
     switch (req.body.type) {
       case 'credit':

@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import objection, { Model } from 'objection';
-import config from '../config/index.js';
 
 export default class User extends Model {
   static get tableName() {
@@ -89,6 +88,7 @@ export default class User extends Model {
         username: { type: 'string', maxLength: 10 },
         isVerified: { type: 'boolean' },
         password: { type: 'string' },
+        reset_token: { type: 'string' },
         created_at: { type: 'string' },
         updated_at: { type: 'string' },
       },

@@ -4,6 +4,7 @@ import urlJoin from 'url-join';
 import { v4 as uuidv4 } from 'uuid';
 import AccountRepository from '../account/account.repository.js';
 import config from '../config/index.js';
+import ApiError from '../errors/api.error.js';
 import ConflictError from '../errors/conflict.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
@@ -42,16 +43,11 @@ class UserService {
 
     user.id = uuidv4();
     account.id = uuidv4();
-    account.user_id = signUpDto.user.id;
+    account.user_id = user.id;
 
-    // Hashing the password property this is to ensure that passwords are stored securely in the database.
-    user.password = await bcrypt.hash(
-      user.password,
-      parseInt(config.saltRounds),
-    );
-
-    // Hashing the pin property this is to ensure that pins are stored securely in the database.
-    account.pin = await bcrypt.hash(account.pin, parseInt(config.saltRounds));
+    // Hashing the password and pin properties this is to ensure that passwords are stored securely in the database.
+    user.password = bcrypt.hashSync(user.password, config.saltRounds);
+    account.pin = bcrypt.hashSync(account.pin, config.saltRounds);
 
     const result = await Model.transaction(async (trx) => {
       const [newUser] = await Promise.all([
@@ -87,7 +83,7 @@ class UserService {
       {
         verification_url,
         next_steps: [
-          'Check email for OTP to verify your account.',
+          'Check email for verification url to verify your account.',
           'Log in  and explore the features.',
           'Customize your profile, manage your settings, and access our support.',
         ],
@@ -105,10 +101,7 @@ class UserService {
     const { password } = createUserDto;
 
     // Hashing the password property this is to ensure that passwords are stored securely in the database.
-    createUserDto.password = await bcrypt.hash(
-      password,
-      parseInt(config.saltRounds),
-    );
+    createUserDto.password = await bcrypt.hash(password, config.saltRounds);
 
     const newUser = await this.#userRepository.insert(createUserDto);
 
@@ -190,40 +183,43 @@ class UserService {
           throw new NotFoundError('User Not Found');
         }
 
-        if (foundUser.isVerified) {
+        if (foundUser.is_verified) {
           throw new ConflictError('User Already Verified');
         }
 
-        await foundUser.$query().patch({ isVerified: true });
+        await foundUser.$query().patch({ is_verified: true });
 
         return new ApiResponse('User Verified Successfully');
       } else {
         throw new ValidationError('Invalid User ID or Token');
       }
     } catch (error) {
-      throw new UnauthorizedError('Expired or Invalid Token');
+      if (!error instanceof ApiError) {
+        throw new UnauthorizedError('Expired or Invalid Token');
+      }
+
+      throw error;
     }
   }
+
+  async forgotPassword(usernameOrEmail) {}
 
   /**
    *
    * @param {string} userId
-   * @param {UpdatePasswordDto} updatePasswordDto
+   * @param {ChangePasswordDto} updatePasswordDto
    */
-  async updatePassword(userId, updatePasswordDto) {
-    const { old_password, new_password } = updatePasswordDto;
+  async changePassword(userId, updatePasswordDto) {
+    const { current_password, new_password } = updatePasswordDto;
 
     const foundUser = await this.#userRepository.findById(userId);
     if (!foundUser) throw new NotFoundError('Operation failed. User not found');
 
-    const isValid = foundUser.validatePassword(old_password);
+    const isValid = foundUser.validatePassword(current_password);
     if (!isValid) throw new UnauthorizedError('Invalid Password');
 
     // Hashing the password property this is to ensure that passwords are stored securely in the database.
-    const hashedPassword = bcrypt.hashSync(
-      new_password,
-      parseInt(config.saltRounds),
-    );
+    const hashedPassword = bcrypt.hashSync(new_password, config.saltRounds);
 
     await foundUser.$query().patch({ password: hashedPassword });
 

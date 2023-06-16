@@ -97,15 +97,15 @@ class UserController {
   };
 
   /** @type {ControllerFunction<{ userId: string }>} */
-  updatePassword = async (req, res) => {
-    const { value: updatePasswordDto, error } =
-      this.#userValidator.validateUpdatePassword(req.body);
-
+  changePassword = async (req, res) => {
+    const { value, error } = this.#userValidator.validateChangePassword(
+      req.body,
+    );
     if (error) throw new ValidationError('Validation Error', error);
 
-    const response = await this.#userService.updatePassword(
+    const response = await this.#userService.changePassword(
       req.params.userId,
-      updatePasswordDto,
+      value,
     );
 
     res.status(HttpCode.OK).json(response);

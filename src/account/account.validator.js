@@ -63,8 +63,8 @@ class AccountValidator {
   /** @type {ValidationFunction<ChangePinDto>} */
   validateChangePin = (dto) => {
     const schema = Joi.object({
-      old_pin: this.#pinSchema.required(),
-      new_pin: this.#pinSchema.required(),
+      current_pin: this.#pinSchema.label('Current pin').required(),
+      new_pin: this.#pinSchema.label('New pin').required(),
     });
 
     let { value, error } = schema.validate(dto, { abortEarly: false });

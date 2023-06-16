@@ -9,6 +9,7 @@
     "format": "prettier --write .",
     "lint": "eslint ./src --ext .js",
     "lint:fix": "eslint . --fix --ext .js",
+    "make:migration": "npx knex migrate:make",
     "migrations": "npx knex migrate:latest",
     "rollback": "npx knex migrate:rollback",
     "rollback:all": "npx knex migrate:rollback --all",

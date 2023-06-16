@@ -50,7 +50,7 @@ class AccountRepository {
   /**
    * Retrieves an account by filter object.
    * @param {string} userId - An object with user profile fields to filter by (optional).
-   * @returns {Promise<Account|undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
+   * @returns {Promise<Account | undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    */
   async findByUserId(userId) {
     return Account.query().findOne({ user_id: userId });

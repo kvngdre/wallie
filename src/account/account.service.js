@@ -1,11 +1,11 @@
+import bcrypt from 'bcryptjs';
 import _ from 'lodash';
 import { Model } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
+import config from '../config/index.js';
 import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
-import pubsub from '../pubsub/PubSub.js';
-import events from '../pubsub/events.js';
 import {
   TransactionPurpose,
   TransactionType,
@@ -13,7 +13,6 @@ import {
 import TransactionRepository from '../transaction/transaction.repository.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import formatItemCountMessage from '../utils/formatItemCountMessage.js';
 import AccountRepository from './account.repository.js';
 
 class AccountService {
@@ -46,6 +45,9 @@ class AccountService {
       throw new NotFoundError('Operation failed, user not found.');
     }
 
+    // Hashing the pin of the create account DTO. This is to ensure that pins are stored securely in the database.
+    createAccountDto.pin = bcrypt.hashSync(pin, config.saltRounds);
+
     const newAccount = await this.#accountRepository.insert(createAccountDto);
 
     return new ApiResponse(
@@ -72,9 +74,9 @@ class AccountService {
     const formattedCount = Intl.NumberFormat('en-US').format(count);
 
     return new ApiResponse(
-      `Found ${count} account(s) matching the filter.`,
+      `Found ${formattedCount} account(s) matching the filter.`,
       foundAccounts,
-      { count: formattedCount },
+      { count },
     );
   }
 
@@ -98,18 +100,20 @@ class AccountService {
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
   async changePin(accountId, changePinDto) {
-    const { old_pin, new_pin } = changePinDto;
+    const { current_pin, new_pin } = changePinDto;
 
     const foundAccount = await this.#accountRepository.findById(accountId);
-
     if (!foundAccount) {
       throw new NotFoundError('Operation failed. Account not found.');
     }
 
-    const isValid = foundAccount.validatePin(old_pin);
-    if (!isValid) throw new UnauthorizedError('Invalid Pin');
+    const isValid = foundAccount.validatePin(current_pin);
+    if (!isValid) throw new UnauthorizedError('Incorrect Pin');
 
-    await foundAccount.$query().update('pin', new_pin);
+    // Hashing the new pin. This is to ensure that pins are stored securely in the database.
+    const hashedPin = bcrypt.hashSync(new_pin, config.saltRounds);
+
+    await foundAccount.$query().patch({ pin: hashedPin });
 
     return new ApiResponse('Pin Updated');
   }
@@ -119,8 +123,8 @@ class AccountService {
    * @param {string} accountId - The ID of the account which will be deleted.
    * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
    */
-  async delete(accountId) {
-    // await this.#accountRepository.delete(accountId);
+  async remove(accountId) {
+    await this.#accountRepository.delete(accountId);
 
     return new ApiResponse('Account Deleted Successfully');
   }
@@ -241,7 +245,7 @@ class AccountService {
       }
 
       // Validate the account pin
-      const isValid = foundAccount.validatePin(pin);
+      const isValid = bcrypt.compareSync(pin, foundAccount.pin);
       if (!isValid) {
         throw new UnauthorizedError(
           'Your account pin is incorrect. Please try again or reset your pin if you have forgotten it.',

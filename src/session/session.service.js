@@ -44,7 +44,7 @@ class SessionService {
       );
     }
 
-    if (!foundUser.isVerified) {
+    if (!foundUser.is_verified) {
       const resend_verification_url = urlJoin(
         config.api.baseUrl,
         config.api.version,
@@ -60,7 +60,6 @@ class SessionService {
 
     // Check if the password matches using a method on the user model
     const isValid = foundUser.validatePassword(password);
-
     if (!isValid) throw new UnauthorizedError('Invalid credentials');
 
     const accessToken = this.#jwtService.generateAccessToken({
@@ -75,7 +74,7 @@ class SessionService {
       refresh_token: refreshToken,
     };
 
-    // Saving the new session in the database.
+    // Saving the new session to database.
     await this.#sessionRepository.insert(newSession).catch(async (error) => {
       if (error instanceof ConflictError) {
         await this.#sessionRepository.updateByUserId(
@@ -85,18 +84,22 @@ class SessionService {
       }
     });
 
-    return new ApiResponse(
-      'Welcome back! You have successfully logged in to your account.',
-      {
-        id: foundUser.id,
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      },
-    );
+    /**
+     * Capitalizing the first letter of the user first name
+     */
+    const firstName = foundUser.first_name
+      .charAt(0)
+      .toUpperCase()
+      .concat(foundUser.first_name.slice(1));
+
+    return new ApiResponse(`Welcome back ${firstName}!`, {
+      id: foundUser.id,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
   }
 
   async logout(userId) {
-    console.log(userId);
     const foundSession = await this.#sessionRepository.findByUserId(userId);
 
     if (foundSession) {

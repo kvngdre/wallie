@@ -36,7 +36,7 @@ router.post(
   '/:accountId/transactions',
   verifyToken,
   validateId,
-  accountController.createTransaction,
+  accountController.postTransaction,
 );
 
 router.get('/', verifyToken, accountController.getAccounts);

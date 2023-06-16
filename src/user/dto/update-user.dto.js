@@ -3,5 +3,5 @@
  * @property {string} [first_name] - The user first name
  * @property {string} [last_name] - The user last name
  * @property {string} [username] - The user email address
- * @property {boolean} [isVerified]
+ * @property {boolean} [is_verified]
  */

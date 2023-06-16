@@ -139,7 +139,7 @@ class UserValidator {
       first_name: this.#nameSchema.label('First name'),
       last_name: this.#nameSchema.label('Last name'),
       username: this.#usernameSchema,
-      isVerified: Joi.boolean(),
+      is_verified: Joi.boolean(),
       password: this.#passwordSchema,
     }).min(1);
 
@@ -149,10 +149,10 @@ class UserValidator {
     return { value, error };
   };
 
-  /** @type {ValidationFunction<UpdatePasswordDto>} */
-  validateUpdatePassword = (dto) => {
+  /** @type {ValidationFunction<ChangePasswordDto>} */
+  validateChangePassword = (dto) => {
     const schema = Joi.object({
-      old_password: Joi.string().label('Old password').required(),
+      current_password: Joi.string().label('Current password').required(),
       new_password: this.#passwordSchema.label('New password').required(),
     });
 

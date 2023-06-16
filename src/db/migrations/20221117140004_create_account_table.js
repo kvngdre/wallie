@@ -12,7 +12,7 @@ export function up(knex) {
       .inTable('users')
       .onUpdate('CASCADE') // If the user primary key is changed, update the foreign key on the accounts table.
       .onDelete('CASCADE'); // If the user is deleted, delete the corresponding account.
-    table.text('pin').notNullable();
+    table.string('pin').notNullable();
     table.decimal('balance').unsigned().defaultTo(0).notNullable();
     table
       .dateTime('created_at')
