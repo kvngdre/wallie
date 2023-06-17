@@ -1,4 +1,4 @@
 {
   "dotenv.enableAutocloaking": false,
-  "cSpell.words": ["apiresponse", "knexfile", "uuidv"]
+  "cSpell.words": ["apiresponse", "knexfile", "mailgun", "uuidv", "Wallie"]
 }

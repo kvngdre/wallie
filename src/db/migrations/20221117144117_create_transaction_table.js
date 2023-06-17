@@ -26,7 +26,7 @@ export function up(knex) {
     table.decimal('amount', 10, 2).unsigned().notNullable();
     table.string('reference').unique().notNullable();
     table.string('description', 50).defaultTo(null);
-    table.uuid('destination_account').nullable().defaultTo(null);
+    table.uuid('destination_account_id').nullable().defaultTo(null);
     table.decimal('balance_before').unsigned().notNullable();
     table.decimal('balance_after').unsigned().notNullable();
     table

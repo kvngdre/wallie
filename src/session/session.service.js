@@ -6,7 +6,7 @@ import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import JwtService from '../utils/jwt-service.utils.js';
+import JwtService from '../utils/jwtService.utils.js';
 import SessionRepository from './session.repository.js';
 
 class SessionService {

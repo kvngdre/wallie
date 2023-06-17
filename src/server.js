@@ -10,7 +10,7 @@ import Logger from './utils/logger.utils.js';
 const logger = new Logger();
 
 const app = express();
-const port = config.port || 4000;
+const port = config.api.port || 4000;
 export let server = http.createServer(app);
 
 async function startServer() {

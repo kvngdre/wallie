@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import verifyToken from '../middleware/verifyToken.middleware.js';
 import UserRepository from '../user/user.repository.js';
-import JwtService from '../utils/jwt-service.utils.js';
+import JwtService from '../utils/jwtService.utils.js';
 import SessionController from './session.controller.js';
 import SessionRepository from './session.repository.js';
 import SessionService from './session.service.js';

@@ -1,11 +1,8 @@
-import jwt from 'jsonwebtoken';
-import AccountRepository from '../account/account.repository.js';
 import config from '../config/index.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import UserRepository from '../user/user.repository.js';
-import UserService from '../user/user.service.js';
-import JwtService from '../utils/jwt-service.utils.js';
+import JwtService from '../utils/jwtService.utils.js';
 
 const jwtService = new JwtService();
 const userRepository = new UserRepository();

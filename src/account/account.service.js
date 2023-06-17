@@ -272,6 +272,7 @@ class AccountService {
           purpose: purpose || TransactionPurpose.WITHDRAWAL,
           amount,
           description,
+          destination_account: debitAccountDto.destination_account,
           balance_before: Number(foundAccount.balance),
           balance_after: _.round(Number(foundAccount.balance) - amount, 2),
         },
@@ -320,12 +321,12 @@ class AccountService {
   async transfer(accountId, transferFundsDto) {
     const trx = await Model.startTransaction();
     try {
-      const { amount, destination_account } = transferFundsDto;
+      const { amount, destination_account_id } = transferFundsDto;
       transferFundsDto.purpose = TransactionPurpose.TRANSFER;
 
       const [debitResult] = await Promise.all([
         this.debit(accountId, transferFundsDto, trx),
-        this.credit(accountId, transferFundsDto, trx),
+        this.credit(destination_account_id, transferFundsDto, trx),
       ]);
 
       // Format the amount and balance values with two decimal places and currency symbol
@@ -335,16 +336,16 @@ class AccountService {
       });
       const formattedAmount = nairaSymbol.concat(formatter.format(amount));
       const formattedBalance = nairaSymbol.concat(
-        formatter.format(debitResult.balance),
+        formatter.format(debitResult.data.balance),
       );
 
-      const message = `You have successfully transferred ${formattedAmount} to ${destination_account}. Your new balance is ${formattedBalance}`;
+      const message = `You have successfully transferred ${formattedAmount} to ${destination_account_id}. Your new balance is ${formattedBalance}`;
 
       await trx.commit();
 
       return new ApiResponse(message, {
         id: accountId,
-        destination_account: transferFundsDto.destination_account,
+        destination_account: transferFundsDto.destination_account_id,
         balance: debitResult.data.balance,
         transaction_reference: debitResult.data.transaction_reference,
       });

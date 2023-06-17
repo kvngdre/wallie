@@ -3,10 +3,12 @@ import AccountRepository from '../account/account.repository.js';
 import validateId from '../middleware/validateId.middleware.js';
 import verifyToken from '../middleware/verifyToken.middleware.js';
 import UserController from '../user/user.controller.js';
-import JwtService from '../utils/jwt-service.utils.js';
+import JwtService from '../utils/jwtService.utils.js';
 import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
+
+import '../utils/emailService.utils.js';
 
 // Creating dependency instances
 const userValidator = new UserValidator();

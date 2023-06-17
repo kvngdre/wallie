@@ -1,13 +1,18 @@
 import dotenv from 'dotenv';
 
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config();
-} else {
-  dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
-}
+dotenv.config();
+// if (process.env.NODE_ENV === 'production') {
+//   dotenv.config();
+// } else {
+//   dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+// }
 
 export default {
-  api: { baseUrl: process.env.BASE_URL, version: process.env.VERSION },
+  api: {
+    baseUrl: process.env.BASE_URL,
+    version: process.env.VERSION,
+    port: process.env.PORT,
+  },
   database: {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -17,7 +22,7 @@ export default {
   },
   jwt: {
     secret: {
-      signUP: process.env.JWT_SIGN_UP_TOKEN_SECRET,
+      signUp: process.env.JWT_SIGN_UP_TOKEN_SECRET,
       access: process.env.JWT_ACCESS_TOKEN_SECRET,
       refresh: process.env.JWT_REFRESH_TOKEN_SECRET,
     },
@@ -29,6 +34,9 @@ export default {
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
   },
-  port: process.env.PORT,
+  mail: {
+    email: process.env.MAIL_EMAIL,
+    password: process.env.MAIL_PASSWORD,
+  },
   saltRounds: parseInt(process.env.SALT_ROUNDS),
 };

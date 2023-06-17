@@ -44,6 +44,8 @@
     "knex": "^2.3.0",
     "lodash": "^4.17.21",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.9.3",
+    "nodemailer-express-handlebars": "^6.1.0",
     "objection": "^3.0.1",
     "url-join": "^5.0.0",
     "uuid": "^9.0.0",

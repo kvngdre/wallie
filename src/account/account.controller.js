@@ -2,6 +2,7 @@ import ValidationError from '../errors/validation.error.js';
 import {
   validateAndCredit,
   validateAndDebit,
+  validateAndTransfer,
 } from '../helpers/account.helpers.js';
 import TransactionValidator from '../transaction/transaction.validator.js';
 import HttpCode from '../utils/httpCodes.utils.js';
@@ -101,6 +102,7 @@ class AccountController {
         response = await validateAndDebit(req.params.accountId, req.body);
         break;
       case 'transfer':
+        response = await validateAndTransfer(req.params.accountId, req.body);
         break;
       default:
         throw new ValidationError('Invalid Transaction Type');

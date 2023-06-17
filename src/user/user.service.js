@@ -10,7 +10,7 @@ import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
 import ValidationError from '../errors/validation.error.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
-import JwtService from '../utils/jwt-service.utils.js';
+import JwtService from '../utils/jwtService.utils.js';
 import UserRepository from './user.repository.js';
 
 class UserService {
@@ -61,7 +61,7 @@ class UserService {
     // Generate a verification token using jsonwebtoken
     const token = this.#jwtService.generateToken(
       { id: result.id },
-      config.jwt.secret.signUP,
+      config.jwt.secret.signUp,
       { expiresIn: config.jwt.expireTime.signUp },
     );
 
@@ -174,7 +174,7 @@ class UserService {
     try {
       const decoded = this.#jwtService.verifyToken(
         token,
-        config.jwt.secret.signUP,
+        config.jwt.secret.signUp,
       );
 
       if (decoded.id === userId) {

@@ -117,8 +117,8 @@ class AccountValidator {
         .label('Type')
         .equal(TransactionType.TRANSFER)
         .required(),
-      destination_account: this.#idSchema
-        .label('Destination account')
+      destination_account_id: this.#idSchema
+        .label('Destination account ID')
         .required(),
       amount: this.#amountSchema.required(),
       description: this.#descriptionSchema,
