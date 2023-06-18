@@ -8,8 +8,6 @@ import UserRepository from './user.repository.js';
 import UserService from './user.service.js';
 import UserValidator from './user.validator.js';
 
-import '../utils/emailService.utils.js';
-
 // Creating dependency instances
 const userValidator = new UserValidator();
 const userRepository = new UserRepository();

@@ -129,6 +129,8 @@ class AccountService {
     return new ApiResponse('Account Deleted Successfully');
   }
 
+  async forgotPin() {}
+
   /**
    * Gets the balance of the account by ID.
    * @param {string} accountId - The ID of the account to fetch the balance.

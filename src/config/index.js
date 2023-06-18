@@ -34,9 +34,13 @@ export default {
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
   },
-  mail: {
+  mailer: {
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     email: process.env.MAIL_EMAIL,
+    oauthPlayground: process.env.OAUTH_PLAYGROUND,
     password: process.env.MAIL_PASSWORD,
+    refresh_token: process.env.REFRESH_TOKEN,
   },
   saltRounds: parseInt(process.env.SALT_ROUNDS),
 };
