@@ -86,7 +86,7 @@ export default class User extends Model {
         last_name: { type: 'string', minLength: 2, maxLength: 30 },
         email: { type: 'string', maxLength: 50 },
         username: { type: 'string', maxLength: 10 },
-        isVerified: { type: 'boolean' },
+        is_verified: { type: 'boolean' },
         password: { type: 'string' },
         reset_token: { type: 'string' },
         created_at: { type: 'string' },
