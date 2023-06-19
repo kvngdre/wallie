@@ -13,12 +13,15 @@ import {
 import TransactionRepository from '../transaction/transaction.repository.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
+import generateOTP from '../utils/generateOTP.utils.js';
 import AccountRepository from './account.repository.js';
 
 class AccountService {
   #accountRepository;
   #userRepository;
   #transactionRepository;
+  #emailService;
+  #tokenRepository;
 
   /**
    * @class AccountService
@@ -129,7 +132,26 @@ class AccountService {
     return new ApiResponse('Account Deleted Successfully');
   }
 
-  async forgotPin() {}
+  /**
+   *
+   * @param {string} accountId - The account ID to request pin reset.
+   * @returns {Promise<ApiResponse>} A promise that resolves with the ApiResponse object if successful, or rejects if any error occurs.
+   */
+  async requestPinReset(accountId) {
+    const foundAccount = await this.#accountRepository.findById(accountId);
+    if (!foundAccount) {
+      throw new NotFoundError('Operation failed. Account not found.');
+    }
+
+    const otpTimeToLive = 10; // in minutes
+    const otpObject = generateOTP(8, otpTimeToLive);
+
+    // Send Pin via email
+
+    return new ApiResponse(
+      'Pin request initiated. Please check your email for OTP to reset pin.',
+    );
+  }
 
   /**
    * Gets the balance of the account by ID.
@@ -274,7 +296,7 @@ class AccountService {
           purpose: purpose || TransactionPurpose.WITHDRAWAL,
           amount,
           description,
-          destination_account: debitAccountDto.destination_account,
+          destination_account: debitAccountDto.destination_account_id,
           balance_before: Number(foundAccount.balance),
           balance_after: _.round(Number(foundAccount.balance) - amount, 2),
         },
