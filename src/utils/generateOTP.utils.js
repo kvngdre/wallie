@@ -5,7 +5,7 @@
  * @returns
  */
 export default function generateOTP(len, ttl) {
-  if (typeof len !== number || typeof ttl !== number) {
+  if (typeof len !== 'number' || typeof ttl !== 'number') {
     throw new Error('Arguments must be of type "number".');
   }
 

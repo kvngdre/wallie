@@ -6,6 +6,7 @@ import config from '../config/index.js';
 import InsufficientFundsError from '../errors/InsufficientFunds.error.js';
 import NotFoundError from '../errors/notFound.error.js';
 import UnauthorizedError from '../errors/unauthorized.error.js';
+import TokenRepository from '../token/token.repository.js';
 import {
   TransactionPurpose,
   TransactionType,
@@ -13,6 +14,7 @@ import {
 import TransactionRepository from '../transaction/transaction.repository.js';
 import UserRepository from '../user/user.repository.js';
 import ApiResponse from '../utils/apiResponse.utils.js';
+import EmailService from '../utils/emailService.utils.js';
 import generateOTP from '../utils/generateOTP.utils.js';
 import AccountRepository from './account.repository.js';
 
@@ -28,11 +30,21 @@ class AccountService {
    * @param {AccountRepository} accountRepository
    * @param {UserRepository} userRepository
    * @param {TransactionRepository} transactionRepository
+   * @param {TokenRepository} tokenRepository
+   * @param {EmailService} emailService
    */
-  constructor(accountRepository, userRepository, transactionRepository) {
+  constructor(
+    accountRepository,
+    userRepository,
+    transactionRepository,
+    tokenRepository,
+    emailService,
+  ) {
     this.#accountRepository = accountRepository;
     this.#userRepository = userRepository;
     this.#transactionRepository = transactionRepository;
+    this.#tokenRepository = tokenRepository;
+    this.#emailService = emailService;
   }
 
   /**
@@ -143,10 +155,19 @@ class AccountService {
       throw new NotFoundError('Operation failed. Account not found.');
     }
 
+    const foundUser = await this.#userRepository.findById(foundAccount.user_id);
+
     const otpTimeToLive = 10; // in minutes
     const otpObject = generateOTP(8, otpTimeToLive);
 
-    // Send Pin via email
+    await this.#tokenRepository.insert({
+      user_id: foundUser.id,
+      token: otpObject.value,
+      expiration_time: otpObject.expiresIn,
+      type: 'pin reset token',
+    });
+
+    this.#emailService.sendMail({ to: foundUser.email });
 
     return new ApiResponse(
       'Pin request initiated. Please check your email for OTP to reset pin.',

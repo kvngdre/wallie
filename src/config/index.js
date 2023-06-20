@@ -37,10 +37,10 @@ export default {
   mailer: {
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    email: process.env.MAIL_EMAIL,
+    email: process.env.MAIL_ADDRESS,
     oauthPlayground: process.env.OAUTH_PLAYGROUND,
     password: process.env.MAIL_PASSWORD,
-    refresh_token: process.env.REFRESH_TOKEN,
+    refreshToken: process.env.REFRESH_TOKEN,
   },
   saltRounds: parseInt(process.env.SALT_ROUNDS),
 };

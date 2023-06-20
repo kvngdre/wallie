@@ -127,6 +127,18 @@ class AccountController {
 
     res.status(HttpCode.OK).json(response);
   };
+
+  /** @type {ControllerFunction} */
+  requestPinReset = async (req, res) => {
+    const { value, error } = this.#accountValidator.validatePinReset(req.body);
+    if (error) throw new ValidationError('Validation Error', error);
+
+    const response = await this.#accountService.requestPinReset(
+      value.account_id,
+    );
+
+    res.status(HttpCode.OK).json(response);
+  };
 }
 
 export default AccountController;

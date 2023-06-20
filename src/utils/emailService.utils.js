@@ -10,36 +10,39 @@ const logger = new Logger();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 class EmailService {
+  #transporter;
+
   constructor() {
-    this.transporter = null;
+    this.#transporter = null;
     this.#initialize();
   }
 
   // This function initializes the mailer object with the transporter and the handlebars template engine
   async #initialize() {
     try {
-      const { clientId, clientSecret, refresh_token, email, oauthPlayground } =
+      const { clientId, clientSecret, refreshToken, email, oauthPlayground } =
         config.mailer;
 
       // Create a new OAuth2 client with the credentials
       const oauth2Client = new google.auth.OAuth2(
         clientId,
         clientSecret,
+        refreshToken,
         oauthPlayground,
       );
 
-      oauth2Client.setCredentials({ refresh_token });
+      oauth2Client.setCredentials({ refresh_token: refreshToken });
 
       const accessToken = await oauth2Client.getAccessToken();
 
-      this.transporter = nodemailer.createTransport({
+      this.#transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           type: 'OAuth2',
           user: email,
           clientId,
           clientSecret,
-          refresh_token,
+          refreshToken,
           accessToken,
         },
       });
@@ -55,7 +58,7 @@ class EmailService {
       );
 
       // Use the handlebars template engine for compiling the email body
-      this.transporter.use(
+      this.#transporter.use(
         'compile',
         hbs({
           viewEngine: {
@@ -81,7 +84,7 @@ class EmailService {
    * @param {Object} options - The email options
    * @param {string} options.to - The recipient's email address
    * @param {string} options.subject - The email subject
-   * @param {string} [options.template] - The handlebars template name for the email body
+   * @param {string} options.template - The handlebars template name for the email body
    * @param {Object} [options.context] - The context object for the template
    * @returns {Promise<Object>} A promise that resolves with an info object or rejects with an error object
    */
@@ -89,7 +92,7 @@ class EmailService {
     try {
       options.from = `"Wallie" <${config.mailer.email}>`;
 
-      const info = await this.transporter.sendMail(options);
+      const info = await this.#transporter.sendMail(options);
 
       return { info };
     } catch (error) {

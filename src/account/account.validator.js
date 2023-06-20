@@ -17,9 +17,11 @@ class AccountValidator {
 
     this.#descriptionSchema = Joi.string().max(50).label('Description');
 
-    this.#idSchema = Joi.string().pattern(
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
-    );
+    this.#idSchema = Joi.string()
+      .pattern(
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
+      )
+      .messages({ 'string.pattern.base': '{#label} is invalid' });
 
     this.#pinSchema = Joi.string()
       .length(4)
@@ -34,7 +36,7 @@ class AccountValidator {
   /** @type {ValidationFunction<CreateAccountDto>} */
   validateCreateAccount = (dto) => {
     const schema = Joi.object({
-      user_id: this.#idSchema.label('User id').required(),
+      user_id: this.#idSchema.label('User ID').required(),
       pin: this.#pinSchema.required(),
     });
 
@@ -130,6 +132,18 @@ class AccountValidator {
       convert: false,
     });
 
+    if (error) error = refineValidationError(error);
+
+    return { value, error };
+  };
+
+  /** @type {ValidationFunction<RequestPinResetDto>} */
+  validatePinReset = (dto) => {
+    const schema = Joi.object({
+      account_id: this.#idSchema.label('Account ID').required(),
+    });
+
+    let { value, error } = schema.validate(dto);
     if (error) error = refineValidationError(error);
 
     return { value, error };
