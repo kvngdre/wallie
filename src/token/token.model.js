@@ -35,8 +35,8 @@ class Token extends Model {
         expiration_time: { type: 'integer' },
         is_used: { type: 'boolean' },
         used_at: { type: 'string' },
-        created_at: { type: string },
-        updated_at: { type: string },
+        created_at: { type: 'string' },
+        updated_at: { type: 'string' },
       },
     };
   }

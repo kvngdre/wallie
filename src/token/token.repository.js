@@ -14,12 +14,22 @@ class TokenRepository {
 
   /**
    * Retrieves all tokens that match filter object if any.
-   * @param {UserFilter} [filter] - An object with token profile fields to filter by (optional).
+   * @param {UpdateTokenDto} [filter] - An object with token profile fields to filter by (optional).
    * @returns {Promise<Array<Token>>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
    * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async find(filter) {
     return await Token.query().find(filter).orderBy('created_at', 'desc');
+  }
+
+  /**
+   * Retrieves all tokens that match filter object if any.
+   * @param {UpdateTokenDto} [filter] - An object with token profile fields to filter by (optional).
+   * @returns {Promise<Token | undefined>} A promise that resolves with an array of User objects that match the filter, or an empty array if none found.
+   * @throws {Error} If any other error occurs, such as a database connection error.
+   */
+  async findOne(filter) {
+    return await Token.query().findOne(filter);
   }
 
   /**
@@ -35,7 +45,7 @@ class TokenRepository {
   /**
    * Retrieves a user by the username or email address.
    * @param {string} userId - An object with user profile fields to filter by (optional).
-   * @returns {Promise<User | undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
+   * @returns {Promise<Token | undefined>} A promise that resolves with the User object if found, or undefined if not found. Rejects if any error occurs.
    * @throws {Error} If any other error occurs, such as a database connection error.
    */
   async findByUserId(userId) {
@@ -44,24 +54,24 @@ class TokenRepository {
 
   /**
    * Updates a user by ID.
-   * @param {string} id The user id
-   * @param {UpdateUserDto} updateUserDto
+   * @param {string} id The token ID
+   * @param {UpdateTokenDto} updateUserDto
    * @returns {Promise<number>} A promise that resolves with the inserted User object, or rejects with an error if the user not found or update fails.
    * @throws {NotFoundError} If token cannot be found.
    * @throws {Error} If any other error occurs, such as a database connection error.
    */
-  async update(id, updateUserDto) {
+  async update(id, updateTokenDto) {
     const foundRecord = await User.query().findById(id);
     if (!foundRecord) {
-      throw new NotFoundError('Operation failed. Token profile not found.');
+      throw new NotFoundError('Operation failed. Token not found.');
     }
 
-    return await foundRecord.$query().patch(updateUserDto);
+    return await foundRecord.$query().patch(updateTokenDto);
   }
 
   /**
-   * Finds and deletes a user by id.
-   * @param {string} id The user id
+   * Finds and deletes a token by ID.
+   * @param {string} id The token ID
    * @returns {Promise<number>} The number of rows (users) deleted.
    * @throws {NotFoundError} If user cannot be found.
    * @throws {Error} If any other error occurs, such as a database connection error.
@@ -69,10 +79,24 @@ class TokenRepository {
   async remove(id) {
     const foundRecord = await Token.query().findById(id);
     if (!foundRecord) {
-      throw new NotFoundError('Operation failed. Token profile not found.');
+      throw new NotFoundError('Operation failed. Token not found.');
     }
 
     return await foundRecord.$query().delete();
+  }
+
+  /**
+   * Finds and deletes a token by field(s).
+   * @param {TokenFilter} filter The filter object
+   * @returns {Promise<number>} The number of rows (users) deleted.
+   * @throws {NotFoundError} If user cannot be found.
+   * @throws {Error} If any other error occurs, such as a database connection error.
+   */
+  async removeByFilter(filter) {
+    const affectedRows = await Token.query().findOne(filter).delete();
+    if (affectedRows < 1) {
+      throw new NotFoundError('Operation failed. Token not found.');
+    }
   }
 }
 

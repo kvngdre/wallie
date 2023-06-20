@@ -158,16 +158,33 @@ class AccountService {
     const foundUser = await this.#userRepository.findById(foundAccount.user_id);
 
     const otpTimeToLive = 10; // in minutes
-    const otpObject = generateOTP(8, otpTimeToLive);
+    const otp = generateOTP(8, otpTimeToLive);
 
-    await this.#tokenRepository.insert({
-      user_id: foundUser.id,
-      token: otpObject.value,
-      expiration_time: otpObject.expiresIn,
-      type: 'pin reset token',
-    });
+    await Promise.all([
+      this.#tokenRepository.removeByFilter({
+        user_id: foundUser.id,
+        type: 'pin rest token',
+        is_used: false,
+      }),
 
-    this.#emailService.sendMail({ to: foundUser.email });
+      this.#tokenRepository.insert({
+        user_id: foundUser.id,
+        token: otp.value,
+        type: 'pin rest token',
+        expiration_time: otp.expiresIn,
+      }),
+
+      await this.#emailService.sendMail({
+        to: foundUser.email,
+        subject: 'Pin Reset Initiated',
+        template: 'request-pin-reset',
+        context: {
+          name: foundUser.first_name,
+          otp: otp.value,
+          expiresIn: otpTimeToLive,
+        },
+      }),
+    ]);
 
     return new ApiResponse(
       'Pin request initiated. Please check your email for OTP to reset pin.',

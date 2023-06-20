@@ -1,0 +1,70 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Document</title>
+    <style>
+      p { line-height: 1.3rem; }
+    </style>
+  </head>
+  <body style='padding: 20px 10px;'>
+    <div
+      style='
+        padding: 25px 45px;
+        background-color: rgb(40, 40, 50);
+        border-radius: 30px;
+        color: white;
+      '
+    >
+      <div>
+        <p style='margin-bottom: 0'>Hi {{name}},</p>
+        <p style='margin-top: 5px'>
+          A pin reset was initiated on your account. To authenticate, please use
+          the one-time use password.
+        </p>
+      </div>
+      <div
+        style='margin: 30px; text-align: center; width: 300px; margin: 0 auto'
+      >
+        <p style='margin-bottom: 5px'>Your one-time use password:</p>
+        <p
+          style='
+            color: black;
+            margin: 0;
+            letter-spacing: 0.4rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+            background-color: rgba(245, 240, 240, 0.877);
+            padding: 10px 20px;
+            border-radius: 20px;
+          '
+        >
+          {{otp}}
+        </p>
+      </div>
+      <p style='text-align: center; margin: 0'>
+        expires in:
+        <span style='color: yellow'>{{expiresIn}} minutes</span>
+      </p>
+      <div style='margin-top: 15px; margin-bottom: 10px'>
+        <p>
+          If you did not request a pin reset, login and reset your password.
+        </p>
+      </div>
+      <div style='text-align: left'>
+        <p style='margin: 40px 0 0'>Regards,</p>
+        <p style='margin: 0'>Your friends at Wallie</p>
+      </div>
+    </div>
+    <div style='text-align: center'>
+      <p style='margin: 10px 0 0'>
+        <a
+          href=''
+          style='text-decoration: none; color: rgb(4, 44, 65)'
+        >help.wallie.com</a>
+      </p>
+      <p style='margin: 0'>&copy; 2023 All rights reserved.</p>
+    </div>
+  </body>
+</html>

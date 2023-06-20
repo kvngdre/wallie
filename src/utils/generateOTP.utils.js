@@ -10,7 +10,7 @@ export default function generateOTP(len, ttl) {
   }
 
   return {
-    value: Math.random() * 10 ** len,
+    value: '' + Math.floor(Math.random() * 10 ** len),
     expiresIn: Date.now() + ttl * 60 * 1_000,
   };
 }
